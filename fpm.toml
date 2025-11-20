@@ -1,0 +1,40 @@
+name = "template"
+version = "0.1.0"
+license = "MIT"
+author = "JorgeG94"
+maintainer = "jorgegalvez1694@gmail.com"
+copyright = "Copyright 2024, JorgeG94"
+[preprocess]
+[preprocess.cpp]
+suffixes = ["F90", "f90"]
+[library]
+source-dir = "src"
+[build]
+auto-executables = false
+auto-tests = false
+#auto-examples = true
+module-naming = false
+external-modules = ["mpi_f08", "cublas_v2", "cudafor", "mpi"]
+[[executable]]
+name = "mbe"
+source-dir = "app"
+main = "main.f90"
+[install]
+library = true
+
+[fortran]
+implicit-typing = true
+implicit-external = true
+source-form = "free"
+
+[dependencies]
+#openmp = "*"
+#mpi = "*"
+#test-drive.git = "https://github.com/fortran-lang/test-drive"
+pic = { git = "https://github.com/JorgeG94/pic.git", branch = "main"}
+
+[extra.fortitude.check]
+select = ["C", "E", "S"]
+ignore = ["C003"]
+line-length = 132
+per-file-ignores = { "pic_blas_interfaces.F90" = ["C071"] }

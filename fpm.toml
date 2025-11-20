@@ -19,6 +19,7 @@ external-modules = ["mpi_f08", "cublas_v2", "cudafor", "mpi"]
 name = "mbe"
 source-dir = "app"
 main = "main.f90"
+#link = ["-lblas", "-llapack", "-fopenmp"]
 [install]
 library = true
 

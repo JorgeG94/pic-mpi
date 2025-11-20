@@ -6,7 +6,7 @@ module pic_legacy_mpi
 
    public :: comm_t, comm_world, comm_null
    public :: send, recv
-   public ::  iprobe
+   public :: iprobe, abort_comm, allgather, get_processor_name
 
    type :: comm_t
       private
@@ -53,6 +53,10 @@ module pic_legacy_mpi
    interface iprobe
       module procedure :: comm_iprobe
    end interface iprobe
+
+   interface allgather
+      module procedure :: comm_allgather_integer
+   end interface allgather
 
 contains
 
@@ -290,5 +294,30 @@ contains
          this%m_comm = MPI_COMM_NULL
       end if
    end subroutine comm_finalize
+
+   subroutine abort_comm(comm, errorcode)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: errorcode
+      integer(int32) :: ierr
+
+      call MPI_Abort(comm%m_comm, errorcode, ierr)
+   end subroutine abort_comm
+
+   subroutine comm_allgather_integer(comm, sendbuf, recvbuf)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: sendbuf
+      integer(int32), intent(out) :: recvbuf(:)
+      integer(int32) :: ierr
+
+      call MPI_Allgather(sendbuf, 1, MPI_INTEGER, recvbuf, 1, MPI_INTEGER, comm%m_comm, ierr)
+   end subroutine comm_allgather_integer
+
+   subroutine get_processor_name(name, namelen)
+      character(len=*), intent(out) :: name
+      integer(int32), intent(out) :: namelen
+      integer(int32) :: ierr
+
+      call MPI_Get_processor_name(name, namelen, ierr)
+   end subroutine get_processor_name
 
 end module pic_legacy_mpi

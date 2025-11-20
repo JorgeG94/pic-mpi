@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.22)
 cmake_policy(SET CMP0144 NEW)
 
 project(
-  "mbe"
+  "pic-mpi"
   LANGUAGES Fortran C
   VERSION 0.0
   DESCRIPTION "ADD YOUR DESCRIPTION HERE")
 
-set(project_name mbe)
+set(project_name pic-mpi)
 set(main_lib ${project_name})
 set(exe_name ${project_name}.exe)
 set(all_targets ${main_lib} ${exe_name})

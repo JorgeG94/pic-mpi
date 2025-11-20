@@ -22,9 +22,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 add_subdirectory(cmake)
 include(demo_status)
 
+option(PIC_USE_LEGACY_MPI "Use the old mpi module" OFF)
 option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
 mark_as_advanced(PIC_USE_VAPAA)
+
+if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
+  message(FATAL_ERROR "PIC_USE_LEGACY_MPI and PIC_USE_VAPAA are mutually exclusive. Please enable only one.")
+endif()
 
 
 add_library(${main_lib} STATIC)

@@ -1,1 +1,5 @@
+if(PIC_USE_LEGACY_MPI)
+add_subdirectory(mpi)
+else()
 add_subdirectory(mpi_f08)
+endif()

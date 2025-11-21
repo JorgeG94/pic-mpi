@@ -1,6 +1,6 @@
 module pic_legacy_mpi
    use mpi
-   use pic_types, only: int32
+   use pic_types, only: int32, dp
    implicit none
    private
 
@@ -43,11 +43,15 @@ module pic_legacy_mpi
    interface send
       module procedure :: comm_send_integer
       module procedure :: comm_send_integer_array
+      module procedure :: comm_send_real_dp
+      module procedure :: comm_send_real_dp_array
    end interface send
 
    interface recv
       module procedure :: comm_recv_integer
       module procedure :: comm_recv_integer_array
+      module procedure :: comm_recv_real_dp
+      module procedure :: comm_recv_real_dp_array
    end interface recv
 
    interface iprobe
@@ -239,6 +243,26 @@ contains
       call MPI_Send(data, size(data), MPI_INTEGER, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_integer_array
 
+   subroutine comm_send_real_dp(comm, data, dest, tag)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_dp
+
+   subroutine comm_send_real_dp_array(comm, data, dest, tag)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_dp_array
+
    subroutine comm_recv_integer(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
@@ -272,6 +296,40 @@ contains
       allocate (data(count))
       call MPI_Recv(data, count, MPI_INTEGER, source, tag, comm%m_comm, status, ierr)
    end subroutine comm_recv_integer_array
+
+   subroutine comm_recv_real_dp(comm, data, source, tag, status)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+      integer, intent(out), optional :: status(MPI_STATUS_SIZE)
+      integer :: stat(MPI_STATUS_SIZE)
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, stat, ierr)
+      end if
+   end subroutine comm_recv_real_dp
+
+   subroutine comm_recv_real_dp_array(comm, data, source, tag, status)
+      type(comm_t), intent(in) :: comm
+      real(dp), allocatable, intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      integer :: status(MPI_STATUS_SIZE)
+      integer(int32) :: count
+      integer(int32) :: ierr
+
+      ! First probe to get message size
+      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
+      call MPI_Get_count(status, MPI_DOUBLE_PRECISION, count, ierr)
+
+      ! Allocate and receive
+      allocate (data(count))
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
+   end subroutine comm_recv_real_dp_array
 
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
       type(comm_t), intent(in) :: comm

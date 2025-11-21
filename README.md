@@ -100,7 +100,7 @@ serves as an example on pulling and using the code inside your build system.
 
 pic is compiled with "CMake symbols", i.e. it will be findable by a CMake package provided you do the right things. Using
 `find_package(pic REQUIRED)` will use CMake intrinsics to try to find the necessary things to link to pic. pic comes with the
-target `pic::pic` that you can use for your `target_link_libraries(${my_target} PRIVATE pic-mpi::pic-mpi)`. This will import
+target `pic-mpi::pic-mpi` that you can use for your `target_link_libraries(${my_target} PRIVATE pic-mpi::pic-mpi)`. This will import
 all includes, modules, libs, etc.
 
 How CMake finds `pic-mpi::pic-mpi` depends on the policy `CMP0074`, this controls if the variables `pic-mpi_DIR` or `pic-mpi_ROOT` are used

@@ -1,9 +1,14 @@
 module pic_mpi_algorithms
-   use mpi_f08
-   use pic_types
-   use pic_timer
-   use mpi_comm_simple
+   use mpi_f08, only: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+   use pic_types, only: dp, int32
+   use pic_timer, only: timer_type
+   use mpi_comm_simple, only: comm_t, iprobe, recv, send
    implicit none
+   private
+
+   public :: process_fragment, calculate_exact_flops
+   public :: global_coordinator, node_coordinator, node_worker
+   public :: send_fragment_to_node, send_fragment_to_worker
 
 contains
 

@@ -1,6 +1,8 @@
 program hierarchical_mpi_test
-   use mpi_f08
-   use mpi_comm_simple
+   use mpi_f08, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
+                      MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+   use mpi_comm_simple, only: comm_t, comm_world, abort_comm, allgather, &
+                              get_processor_name, iprobe, recv, send
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none

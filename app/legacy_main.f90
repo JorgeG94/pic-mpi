@@ -1,6 +1,9 @@
 program hierarchical_mpi_test_legacy
-   use mpi
-   use pic_legacy_mpi
+   use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
+                  MPI_STATUS_SIZE, MPI_ANY_SOURCE, MPI_ANY_TAG, &
+                  MPI_SOURCE, MPI_TAG
+   use pic_legacy_mpi, only: comm_t, comm_world, abort_comm, allgather, &
+                             get_processor_name, iprobe, recv, send
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none

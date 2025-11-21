@@ -1,5 +1,12 @@
 module mpi_comm_simple
-   use mpi_f08
+   use mpi_f08, only: MPI_Comm, MPI_Status, MPI_COMM_NULL, MPI_COMM_WORLD, &
+                      MPI_COMM_TYPE_SHARED, MPI_INFO_NULL, MPI_UNDEFINED, &
+                      MPI_INTEGER, MPI_STATUS_IGNORE, MPI_Comm_rank, &
+                      MPI_Comm_size, MPI_Comm_dup, MPI_Barrier, &
+                      MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
+                      MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
+                      MPI_Abort, MPI_Allgather, MPI_Get_processor_name, &
+                      operator(==), operator(/=)
    use pic_types, only: int32
    implicit none
    private
@@ -259,7 +266,7 @@ contains
       integer(int32), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
-      type(MPI_Status) :: status
+      type(MPI_Status), intent(out) :: status
       integer(int32) :: count
       integer(int32) :: ierr
 
@@ -312,7 +319,7 @@ contains
    end subroutine comm_allgather_integer
 
    subroutine get_processor_name(name, namelen)
-      character(len=*), intent(out) :: name
+      character(len=*), intent(inout) :: name
       integer(int32), intent(out) :: namelen
       integer(int32) :: ierr
 

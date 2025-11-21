@@ -3,7 +3,7 @@
 PIC-MPI is an extension of the PIC library aimed at creating a nice and simple MPI interface that uses
 the native Fortran modules instead of going through C.
 
-The main reason is to explore the limits of the Fortran modules and actively report these issues to the 
+The main reason is to explore the limits of the Fortran modules and actively report these issues to the
 right developers and channels to get them fixed.
 
 
@@ -16,7 +16,7 @@ Briefly, for a minimal build  you need:
 - CMake (at least 3.22) or the Fortran Package Manager (at least 0.12.0)
 - A Fortran compiler
 - An internet connection to pull the dependencies
-- An MPI library installed 
+- An MPI library installed
 
 
 ### Building with CMake
@@ -35,9 +35,9 @@ To run the tests, from the build directory simply run: `ctest`
 
 ### Building with FPM
 
-The easiest way to build with the FPM is to use the compiler wrappers provided for Fortran i.e. `mpifort` or `mpif90`. 
+The easiest way to build with the FPM is to use the compiler wrappers provided for Fortran i.e. `mpifort` or `mpif90`.
 
-These will make life simpler with linking and compilation flags. 
+These will make life simpler with linking and compilation flags.
 
 The same `$PICMPI_BASE` and `$PICMPI_ROOT` will be used here. Simply:
 
@@ -76,7 +76,7 @@ Will update to use the orignal project at a later date.
 
 ## Contributing
 
-Please see the PIC [contributing guidelines](https://jorgeg94.github.io/pic/page/contributing.html) for information on how to contribute to the project. 
+Please see the PIC [contributing guidelines](https://jorgeg94.github.io/pic/page/contributing.html) for information on how to contribute to the project.
 
 ## Using PIC-MPI in your work
 

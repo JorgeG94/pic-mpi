@@ -101,12 +101,12 @@ program hierarchical_mpi_test
 
    if (node_comm%leader()) then
       print *, "Node leader on: ", trim(hostname), &
-               " | node rank: ", node_comm%rank(), &
-               " | world rank: ", world_comm%rank()
+         " | node rank: ", node_comm%rank(), &
+         " | world rank: ", world_comm%rank()
    else
       print *, "Node worker on: ", trim(hostname), &
-               " | node rank: ", node_comm%rank(), &
-               " | world rank: ", world_comm%rank()
+         " | node rank: ", node_comm%rank(), &
+         " | world rank: ", world_comm%rank()
       ! Set device for workers (commented out to avoid external dependencies)
       !call omp_set_default_device(node_comm%rank() - 1)
       !$acc set device_num(node_comm%rank() - 1)
@@ -301,7 +301,7 @@ contains
 
             ! Simple matrix multiplication (naive implementation)
             do concurrent(j=1:dims, i=1:dims)
-              C(i,j) = alpha * A(i,j) + B(i,j)
+               C(i, j) = alpha*A(i, j) + B(i, j)
             end do
 
             deallocate (A, B, C)

@@ -20,36 +20,36 @@ contains
       integer :: istat
       real(dp), parameter :: alpha = 1.0_dp
       real(dp), parameter :: beta = 0.0_dp
-   !   istat = cublasCreate(handle)
+      !   istat = cublasCreate(handle)
 
       dims = fragment_size*matrix_size
 
       ! Allocate and initialize fragment matrix
       allocate (A(dims, dims), B(dims, dims), C(dims, dims))
 
-   !   !$omp target enter data map(alloc: A,B,C)
+      !   !$omp target enter data map(alloc: A,B,C)
       do concurrent(j=1:dims, i=1:dims)
          A(i, j) = real(fragment_size*fragment_idx, dp)
          B(i, j) = real(fragment_size*fragment_idx, dp)
          C(i, j) = 0.0_dp
       end do
 
-   !   call gemm_timer%start()
-   !   !$omp target data use_device_addr(A,B,C)
-   !   error = cublasDgemm_v2(handle, CUBLAS_OP_N, CUBLAS_OP_N, dims, dims, dims, &
-   !                          alpha, A, dims, B, dims, beta, C, dims)
-   !   !$omp end target data
+      !   call gemm_timer%start()
+      !   !$omp target data use_device_addr(A,B,C)
+      !   error = cublasDgemm_v2(handle, CUBLAS_OP_N, CUBLAS_OP_N, dims, dims, dims, &
+      !                          alpha, A, dims, B, dims, beta, C, dims)
+      !   !$omp end target data
 
-   !   !call pic_gemm(A,B,C)
-   !   istat = cudaDeviceSynchronize()
-   !   call gemm_timer%stop()
-   !   elapsed_time = gemm_timer%get_elapsed_time()
+      !   !call pic_gemm(A,B,C)
+      !   istat = cudaDeviceSynchronize()
+      !   call gemm_timer%stop()
+      !   elapsed_time = gemm_timer%get_elapsed_time()
 
       !print *, "Gemm for fragment", fragment_indices, " was ", elapsed_time, " seconds with size ", dims
 
-   !   !$omp target exit data map(release: A,B,C)
+      !   !$omp target exit data map(release: A,B,C)
       deallocate (A, B, C)
-   !   istat = cublasDestroy(handle)
+      !   istat = cublasDestroy(handle)
    end subroutine process_fragment
 
    subroutine calculate_exact_flops(polymers, fragment_count, max_level, matrix_size, total_flops)

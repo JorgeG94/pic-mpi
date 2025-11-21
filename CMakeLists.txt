@@ -12,7 +12,6 @@ set(main_lib ${project_name})
 set(exe_name ${project_name}.exe)
 set(all_targets ${main_lib} ${exe_name})
 
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 
@@ -28,9 +27,11 @@ option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
 mark_as_advanced(PIC_USE_VAPAA)
 
 if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
-  message(FATAL_ERROR "PIC_USE_LEGACY_MPI and PIC_USE_VAPAA are mutually exclusive. Please enable only one.")
+  message(
+    FATAL_ERROR
+      "PIC_USE_LEGACY_MPI and PIC_USE_VAPAA are mutually exclusive. Please enable only one."
+  )
 endif()
-
 
 add_library(${main_lib} STATIC)
 set(libraries_to_link)
@@ -43,7 +44,6 @@ endif()
 if(NOT TARGET pic::pic)
   find_package("pic" REQUIRED)
 endif()
-
 
 if(PIC_USE_VAPAA)
   if(NOT TARGET vapaa::vapaa)
@@ -65,7 +65,6 @@ find_package(
   COMPONENTS Fortran
   REQUIRED)
 
-
 # Enable position-independent code for shared-library linking support
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -78,11 +77,10 @@ endif()
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
                                              ${CMAKE_BINARY_DIR}/modules)
 
-list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component} OpenMP::OpenMP_Fortran)
+list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component}
+     OpenMP::OpenMP_Fortran)
 
 target_link_libraries(${main_lib} ${libraries_to_link})
-
-
 
 add_executable(${exe_name} ${PROJECT_SOURCE_DIR}/app/main.f90)
 

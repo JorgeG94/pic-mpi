@@ -1,9 +1,15 @@
 module pic_legacy_mpi_algorithms
-   use mpi
-   use pic_legacy_mpi
-   use pic_types
-   use pic_timer
+   use mpi, only: MPI_STATUS_SIZE, MPI_ANY_SOURCE, MPI_ANY_TAG, &
+                  MPI_SOURCE, MPI_TAG
+   use pic_legacy_mpi, only: comm_t, iprobe, recv, send
+   use pic_types, only: dp, int32
+   use pic_timer, only: timer_type
    implicit none
+   private
+
+   public :: process_fragment, calculate_exact_flops
+   public :: global_coordinator, node_coordinator, node_worker
+   public :: send_fragment_to_node, send_fragment_to_worker
 
 contains
 

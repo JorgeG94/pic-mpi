@@ -1,6 +1,9 @@
 program hierarchical_mpi_test_legacy
-   use mpi
-   use pic_legacy_mpi
+   use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
+                  MPI_STATUS_SIZE, MPI_ANY_SOURCE, MPI_ANY_TAG, &
+                  MPI_SOURCE, MPI_TAG
+   use pic_legacy_mpi, only: comm_t, comm_world, abort_comm, allgather, &
+                             get_processor_name, iprobe, recv, send
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none
@@ -101,12 +104,12 @@ program hierarchical_mpi_test_legacy
 
    if (node_comm%leader()) then
       print *, "Node leader on: ", trim(hostname), &
-               " | node rank: ", node_comm%rank(), &
-               " | world rank: ", world_comm%rank()
+         " | node rank: ", node_comm%rank(), &
+         " | world rank: ", world_comm%rank()
    else
       print *, "Node worker on: ", trim(hostname), &
-               " | node rank: ", node_comm%rank(), &
-               " | world rank: ", world_comm%rank()
+         " | node rank: ", node_comm%rank(), &
+         " | world rank: ", world_comm%rank()
       ! Set device for workers (commented out to avoid external dependencies)
       !call omp_set_default_device(node_comm%rank() - 1)
       !$acc set device_num(node_comm%rank() - 1)
@@ -301,7 +304,7 @@ contains
 
             ! Simple matrix multiplication (naive implementation - jaxpy)
             do concurrent(j=1:dims, i=1:dims)
-              C(i,j) = alpha * A(i,j) + B(i,j)
+               C(i, j) = alpha*A(i, j) + B(i, j)
             end do
 
             deallocate (A, B, C)

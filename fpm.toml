@@ -38,4 +38,4 @@ pic = { git = "https://github.com/JorgeG94/pic.git", branch = "main"}
 select = ["C", "E", "S"]
 ignore = ["C003"]
 line-length = 132
-per-file-ignores = { "pic_blas_interfaces.F90" = ["C071"] }
+per-file-ignores = { "pic_mpi.f90" = ["C072"], "pic_mpi_legacy.f90" = ["C072"]}

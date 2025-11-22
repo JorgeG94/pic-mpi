@@ -1,4 +1,5 @@
 if(PIC_USE_LEGACY_MPI)
+  message(STATUS "USING LEGACY")
   add_subdirectory(mpi)
 else()
   add_subdirectory(mpi_f08)

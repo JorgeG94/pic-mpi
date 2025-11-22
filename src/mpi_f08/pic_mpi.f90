@@ -7,13 +7,15 @@ module mpi_comm_simple
                       MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
                       MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                       MPI_Abort, MPI_Allgather, MPI_Get_processor_name, &
+                      MPI_Bcast, MPI_Init, MPI_Finalize, &
                       operator(==), operator(/=), MPI_DOUBLE_PRECISION
    implicit none
    private
 
    public :: comm_t, comm_world, comm_null
    public :: send, recv
-   public :: iprobe, abort_comm, allgather, get_processor_name
+   public :: iprobe, abort_comm, allgather, get_processor_name, bcast
+   public :: mpi_initialize, mpi_finalize_wrapper
 
    type :: comm_t
       private
@@ -68,6 +70,10 @@ module mpi_comm_simple
    interface allgather
       module procedure :: comm_allgather_integer
    end interface allgather
+
+   interface bcast
+      module procedure :: comm_bcast_integer
+   end interface bcast
 
 contains
 
@@ -375,6 +381,16 @@ contains
       call MPI_Allgather(sendbuf, 1, MPI_INTEGER, recvbuf, 1, MPI_INTEGER, comm%m_comm, ierr)
    end subroutine comm_allgather_integer
 
+   subroutine comm_bcast_integer(comm, buffer, count, root)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(inout) :: buffer
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_INTEGER, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_integer
+
    subroutine get_processor_name(name, namelen)
       character(len=*), intent(inout) :: name
       integer(int32), intent(out) :: namelen
@@ -382,5 +398,17 @@ contains
 
       call MPI_Get_processor_name(name, namelen, ierr)
    end subroutine get_processor_name
+
+   subroutine mpi_initialize()
+      !! Initialize MPI environment
+      integer(int32) :: ierr
+      call MPI_Init(ierr)
+   end subroutine mpi_initialize
+
+   subroutine mpi_finalize_wrapper()
+      !! Finalize MPI environment
+      integer(int32) :: ierr
+      call MPI_Finalize(ierr)
+   end subroutine mpi_finalize_wrapper
 
 end module mpi_comm_simple

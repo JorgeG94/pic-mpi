@@ -1,9 +1,8 @@
 program hierarchical_mpi_test_legacy
-   use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
-                  MPI_STATUS_SIZE, MPI_ANY_SOURCE, MPI_ANY_TAG, &
-                  MPI_SOURCE, MPI_TAG
-   use pic_legacy_mpi, only: comm_t, comm_world, abort_comm, allgather, &
-                             get_processor_name, iprobe, recv, send
+   use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize
+   use mpi_comm_simple_legacy, only: comm_t, comm_world, abort_comm, allgather, &
+                             get_processor_name, iprobe, recv, send, &
+                             MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none
@@ -164,7 +163,7 @@ contains
 
       integer :: current_task, finished_nodes
       integer :: request_source, dummy_msg
-      integer :: status(MPI_STATUS_SIZE), local_status(MPI_STATUS_SIZE)
+      type(MPI_Status) :: status, local_status
       logical :: handling_local_workers
       logical :: has_pending
       integer :: local_finished_workers, local_dummy
@@ -180,8 +179,8 @@ contains
          ! Check for remote node coordinator requests
          call iprobe(world_comm, MPI_ANY_SOURCE, 300, has_pending, status)
          if (has_pending) then
-            call recv(world_comm, dummy_msg, status(MPI_SOURCE), 300)
-            request_source = status(MPI_SOURCE)
+            call recv(world_comm, dummy_msg, status%MPI_SOURCE, 300)
+            request_source = status%MPI_SOURCE
 
             if (current_task >= 1) then
                ! Send task to remote node coordinator
@@ -198,16 +197,16 @@ contains
          if (handling_local_workers .and. local_finished_workers < node_comm%size() - 1) then
             call iprobe(node_comm, MPI_ANY_SOURCE, 200, has_pending, local_status)
             if (has_pending) then
-               call recv(node_comm, local_dummy, local_status(MPI_SOURCE), 200)
+               call recv(node_comm, local_dummy, local_status%MPI_SOURCE, 200)
 
                if (current_task >= 1) then
                   ! Send task to local worker
-                  call send(node_comm, current_task, local_status(MPI_SOURCE), 201)
-                  call send(node_comm, matrix_size, local_status(MPI_SOURCE), 201)
+                  call send(node_comm, current_task, local_status%MPI_SOURCE, 201)
+                  call send(node_comm, matrix_size, local_status%MPI_SOURCE, 201)
                   current_task = current_task - 1
                else
                   ! No more tasks
-                  call send(node_comm, -1, local_status(MPI_SOURCE), 202)
+                  call send(node_comm, -1, local_status%MPI_SOURCE, 202)
                   local_finished_workers = local_finished_workers + 1
                end if
             end if
@@ -231,7 +230,7 @@ contains
       integer :: task_id, dummy_msg
       integer :: finished_workers
       integer :: local_dummy
-      integer :: status(MPI_STATUS_SIZE), global_status(MPI_STATUS_SIZE)
+      type(MPI_Status) :: status, global_status
       logical :: local_message_pending, more_tasks
 
       finished_workers = 0
@@ -250,19 +249,19 @@ contains
                call send(world_comm, dummy_msg, 0, 300)
                call recv(world_comm, task_id, 0, MPI_ANY_TAG, global_status)
 
-               if (global_status(MPI_TAG) == 301) then
+               if (global_status%MPI_TAG == 301) then
                   ! Forward task to local worker
-                  call send(node_comm, task_id, status(MPI_SOURCE), 201)
-                  call send(node_comm, matrix_size, status(MPI_SOURCE), 201)
+                  call send(node_comm, task_id, status%MPI_SOURCE, 201)
+                  call send(node_comm, matrix_size, status%MPI_SOURCE, 201)
                else
                   ! No more tasks
-                  call send(node_comm, -1, status(MPI_SOURCE), 202)
+                  call send(node_comm, -1, status%MPI_SOURCE, 202)
                   finished_workers = finished_workers + 1
                   more_tasks = .false.
                end if
             else
                ! Already out of tasks
-               call send(node_comm, -1, status(MPI_SOURCE), 202)
+               call send(node_comm, -1, status%MPI_SOURCE, 202)
                finished_workers = finished_workers + 1
             end if
          end if
@@ -274,7 +273,7 @@ contains
       integer, intent(in) :: matrix_size
 
       integer :: task_id, task_size, dummy_msg
-      integer :: status(MPI_STATUS_SIZE)
+      type(MPI_Status) :: status
       real(dp), allocatable :: A(:, :), B(:, :), C(:, :)
       integer :: i, j, k, dims
       real(dp), parameter :: alpha = 17.0_dp
@@ -286,7 +285,7 @@ contains
          call send(node_comm, dummy_msg, 0, 200)
          call recv(node_comm, task_id, 0, MPI_ANY_TAG, status)
 
-         select case (status(MPI_TAG))
+         select case (status%MPI_TAG)
          case (201)
             ! Received task
             call recv(node_comm, task_size, 0, 201, status)

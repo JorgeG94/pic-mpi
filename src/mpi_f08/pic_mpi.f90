@@ -8,6 +8,7 @@ module mpi_comm_simple
                       MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                       MPI_Abort, MPI_Allgather, MPI_Get_processor_name, &
                       MPI_Bcast, MPI_Init, MPI_Finalize, &
+                      MPI_ANY_SOURCE, MPI_ANY_TAG, &
                       operator(==), operator(/=), MPI_DOUBLE_PRECISION
    implicit none
    private
@@ -16,6 +17,9 @@ module mpi_comm_simple
    public :: send, recv
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: mpi_initialize, mpi_finalize_wrapper
+
+   ! Export MPI types and constants needed by applications
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
 
    type :: comm_t
       private

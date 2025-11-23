@@ -1,7 +1,7 @@
 module pic_legacy_mpi_algorithms
    use mpi, only: MPI_STATUS_SIZE, MPI_ANY_SOURCE, MPI_ANY_TAG, &
                   MPI_SOURCE, MPI_TAG
-   use pic_legacy_mpi, only: comm_t, iprobe, recv, send
+   use mpi_comm_simple_legacy, only: comm_t, iprobe, recv, send
    use pic_types, only: dp, int32
    use pic_timer, only: timer_type
    implicit none

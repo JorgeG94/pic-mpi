@@ -1,4 +1,4 @@
-module pic_legacy_mpi
+module mpi_comm_simple_legacy
    use pic_types, only: int32, dp
    use mpi, only: MPI_COMM_NULL, MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, &
                   MPI_INFO_NULL, MPI_UNDEFINED, MPI_INTEGER, MPI_STATUS_SIZE, &
@@ -6,7 +6,8 @@ module pic_legacy_mpi
                   MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
                   MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
-                  MPI_Bcast, MPI_Init, MPI_Finalize
+                  MPI_Bcast, MPI_Init, MPI_Finalize, &
+                  MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE
    implicit none
    private
 
@@ -14,6 +15,18 @@ module pic_legacy_mpi
    public :: send, recv
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: mpi_initialize, mpi_finalize_wrapper
+
+   ! Export MPI constants needed by applications
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+
+   ! MPI_Status wrapper type for legacy MPI compatibility
+   ! This mimics the mpi_f08 MPI_Status type interface
+   type :: MPI_Status
+      integer :: MPI_SOURCE = 0
+      integer :: MPI_TAG = 0
+      integer :: MPI_ERROR = 0
+      integer :: internal(3) = 0  ! Additional status fields
+   end type MPI_Status
 
    type :: comm_t
       private
@@ -74,6 +87,28 @@ module pic_legacy_mpi
    end interface bcast
 
 contains
+
+   ! Helper function to convert legacy integer array status to MPI_Status type
+   pure function status_array_to_type(status_array) result(status_type)
+      integer, intent(in) :: status_array(MPI_STATUS_SIZE)
+      type(MPI_Status) :: status_type
+
+      status_type%MPI_SOURCE = status_array(1)  ! MPI_SOURCE is at index 1
+      status_type%MPI_TAG = status_array(2)     ! MPI_TAG is at index 2
+      status_type%MPI_ERROR = status_array(3)   ! MPI_ERROR is at index 3
+      status_type%internal(1:3) = status_array(4:6)
+   end function status_array_to_type
+
+   ! Helper function to convert MPI_Status type to legacy integer array
+   pure function status_type_to_array(status_type) result(status_array)
+      type(MPI_Status), intent(in) :: status_type
+      integer :: status_array(MPI_STATUS_SIZE)
+
+      status_array(1) = status_type%MPI_SOURCE
+      status_array(2) = status_type%MPI_TAG
+      status_array(3) = status_type%MPI_ERROR
+      status_array(4:6) = status_type%internal(1:3)
+   end function status_type_to_array
 
    function create_comm_from_mpi(mpi_comm_in) result(comm)
       integer, intent(in) :: mpi_comm_in
@@ -280,11 +315,12 @@ contains
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       integer(int32) :: ierr
-      integer, intent(out), optional :: status(MPI_STATUS_SIZE)
+      type(MPI_Status), intent(out), optional :: status
       integer :: stat(MPI_STATUS_SIZE)
 
       if (present(status)) then
-         call MPI_Recv(data, 1, MPI_INTEGER, source, tag, comm%m_comm, status, ierr)
+         call MPI_Recv(data, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+         status = status_array_to_type(stat)
       else
          call MPI_Recv(data, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
       end if
@@ -295,17 +331,21 @@ contains
       integer(int32), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
-      integer, intent(out) :: status(MPI_STATUS_SIZE)
+      type(MPI_Status), intent(out) :: status
       integer(int32) :: count
       integer(int32) :: ierr
+      integer :: stat(MPI_STATUS_SIZE)
 
       ! First probe to get message size
-      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
-      call MPI_Get_count(status, MPI_INTEGER, count, ierr)
+      call MPI_Probe(source, tag, comm%m_comm, stat, ierr)
+      call MPI_Get_count(stat, MPI_INTEGER, count, ierr)
 
       ! Allocate and receive
       allocate (data(count))
-      call MPI_Recv(data, count, MPI_INTEGER, source, tag, comm%m_comm, status, ierr)
+      call MPI_Recv(data, count, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+
+      ! Convert status
+      status = status_array_to_type(stat)
    end subroutine comm_recv_integer_array
 
    subroutine comm_recv_real_dp(comm, data, source, tag, status)
@@ -314,11 +354,12 @@ contains
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       integer(int32) :: ierr
-      integer, intent(out), optional :: status(MPI_STATUS_SIZE)
+      type(MPI_Status), intent(out), optional :: status
       integer :: stat(MPI_STATUS_SIZE)
 
       if (present(status)) then
-         call MPI_Recv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
+         call MPI_Recv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, stat, ierr)
+         status = status_array_to_type(stat)
       else
          call MPI_Recv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, stat, ierr)
       end if
@@ -329,17 +370,21 @@ contains
       real(dp), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
-      integer :: status(MPI_STATUS_SIZE)
+      type(MPI_Status) :: status
       integer(int32) :: count
       integer(int32) :: ierr
+      integer :: stat(MPI_STATUS_SIZE)
 
       ! First probe to get message size
-      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
-      call MPI_Get_count(status, MPI_DOUBLE_PRECISION, count, ierr)
+      call MPI_Probe(source, tag, comm%m_comm, stat, ierr)
+      call MPI_Get_count(stat, MPI_DOUBLE_PRECISION, count, ierr)
 
       ! Allocate and receive
       allocate (data(count))
-      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, stat, ierr)
+
+      ! Convert status
+      status = status_array_to_type(stat)
    end subroutine comm_recv_real_dp_array
 
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
@@ -347,10 +392,13 @@ contains
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       logical, intent(out) :: message_pending
-      integer, intent(out) :: status(MPI_STATUS_SIZE)
+      type(MPI_Status), intent(out) :: status
       integer(int32) :: ierr
+      integer :: status_array(MPI_STATUS_SIZE)
 
-      call MPI_Iprobe(source, tag, comm%m_comm, message_pending, status, ierr)
+      call MPI_Iprobe(source, tag, comm%m_comm, message_pending, status_array, ierr)
+      ! Convert legacy status array to MPI_Status type
+      status = status_array_to_type(status_array)
    end subroutine comm_iprobe
 
    subroutine comm_finalize(this)
@@ -411,4 +459,4 @@ contains
       call MPI_Finalize(ierr)
    end subroutine mpi_finalize_wrapper
 
-end module pic_legacy_mpi
+end module mpi_comm_simple_legacy

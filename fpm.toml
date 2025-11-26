@@ -14,12 +14,7 @@ auto-executables = true
 auto-tests = false
 #auto-examples = true
 module-naming = false
-external-modules = ["mpi_f08", "cublas_v2", "cudafor", "mpi"]
-[[executable]]
-name = "mbe"
-source-dir = "app"
-main = "main.f90"
-#link = ["-lblas", "-llapack", "-fopenmp"]
+external-modules = ["mpi_f08", "mpi"]
 [install]
 library = true
 

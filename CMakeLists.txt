@@ -9,8 +9,8 @@ project(
 
 set(project_name pic-mpi)
 set(main_lib ${project_name})
-#set(exe_name ${project_name}.exe)
-set(all_targets ${main_lib} )
+# set(exe_name ${project_name}.exe)
+set(all_targets ${main_lib})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
@@ -81,8 +81,6 @@ list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component}
      OpenMP::OpenMP_Fortran)
 
 target_link_libraries(${main_lib} ${libraries_to_link})
-
-
 
 foreach(tgt ${all_targets})
   message(STATUS "${tgt}")

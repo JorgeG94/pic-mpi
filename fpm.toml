@@ -10,7 +10,7 @@ suffixes = ["F90", "f90"]
 [library]
 source-dir = "src"
 [build]
-auto-executables = true
+auto-executables = true 
 auto-tests = false
 #auto-examples = true
 module-naming = false

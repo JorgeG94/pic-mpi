@@ -9,7 +9,7 @@ project(
 
 set(project_name pic-mpi)
 set(main_lib ${project_name})
-# set(exe_name ${project_name}.exe)
+set(exe_name ${project_name}.exe)
 set(all_targets ${main_lib})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -31,6 +31,10 @@ if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
     FATAL_ERROR
       "PIC_USE_LEGACY_MPI and PIC_USE_VAPAA are mutually exclusive. Please enable only one."
   )
+endif()
+
+if(PIC_USE_LEGACY_MPI)
+target_compile_definitions(${main_lib} PRIVATE USE_LEGACY) 
 endif()
 
 add_library(${main_lib} STATIC)

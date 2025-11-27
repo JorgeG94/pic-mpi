@@ -9,7 +9,7 @@ module pic_mpi_f08
                       MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                       MPI_Abort, MPI_Allgather, MPI_Get_processor_name, &
                       MPI_Bcast, MPI_Init, MPI_Finalize, &
-                      MPI_ANY_SOURCE, MPI_ANY_TAG, &
+                      MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME, &
                       operator(==), operator(/=), MPI_DOUBLE_PRECISION
    implicit none
    private
@@ -21,7 +21,7 @@ module pic_mpi_f08
    public :: pic_mpi_init, pic_mpi_finalize
 
    ! Export MPI types and constants needed by applications
-   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
 
    ! Request type for non-blocking operations
    type :: request_t
@@ -442,16 +442,20 @@ contains
       call MPI_Get_processor_name(name, namelen, ierr)
    end subroutine get_processor_name
 
-   subroutine pic_mpi_init()
+   subroutine pic_mpi_init(ierr)
       !! Initialize MPI environment
-      integer(int32) :: ierr
-      call MPI_Init(ierr)
+      integer(int32), optional, intent(out) :: ierr
+      integer(int32) :: ierr_local
+      call MPI_Init(ierr_local)
+      if (present(ierr)) ierr = ierr_local
    end subroutine pic_mpi_init
 
-   subroutine pic_mpi_finalize()
+   subroutine pic_mpi_finalize(ierr)
       !! Finalize MPI environment
-      integer(int32) :: ierr
-      call MPI_Finalize(ierr)
+      integer(int32), optional, intent(out) :: ierr
+      integer(int32) :: ierr_local
+      call MPI_Finalize(ierr_local)
+      if (present(ierr)) ierr = ierr_local
    end subroutine pic_mpi_finalize
 
    ! ========================================================================

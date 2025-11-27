@@ -1,9 +1,9 @@
 program hierarchical_mpi_test
-   use mpi_f08, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
-                      MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
-   use pic_mpi_f08, only: comm_t, comm_world, abort_comm, allgather, &
-                          get_processor_name, iprobe, recv, send, &
-                          isend, irecv, request_t, wait, waitall, test
+   use pic_mpi_lib
+   !use mpi_f08, only: MPI_MAX_PROCESSOR_NAME
+   !use pic_mpi_f08, only: comm_t, comm_world, abort_comm, allgather, &
+   !                       get_processor_name, iprobe, recv, send, &
+   !                       isend, irecv, request_t, wait, waitall, test
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none
@@ -24,13 +24,14 @@ program hierarchical_mpi_test
 
    ! Test parameters
    integer(default_int) :: n_tasks, matrix_size
-   integer :: narg
+   integer :: narg, ierr
    character(len=32) :: arg
 
    !==============================
    ! MPI Initialization
    !==============================
-   call MPI_Init()
+   !call MPI_Init()
+   call pic_mpi_init(ierr)
    world_comm = comm_world()
    node_comm = world_comm%split()   ! shared memory communicator
 
@@ -536,7 +537,7 @@ contains
       type(comm_t), intent(in) :: world_comm, node_comm
       integer, intent(in) :: matrix_size
 
-      integer :: task_id, task_size, ierr, dummy_msg
+      integer :: task_id, task_size,  dummy_msg
       type(MPI_Status) :: status
       real(dp), allocatable :: A(:, :), B(:, :), C(:, :)
       integer :: i, j, k, dims

@@ -1,0 +1,574 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="A set of commonly used programs in Fortran aimed at scientific computing">
+    <meta name="author" content="Jorge Luis Galvez Vallejo" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>status_array_to_type &ndash; PIC-MPI</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PIC-MPI </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>status_array_to_type
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.8% of total for procedures.">8 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/pic_mpi_legacy.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
+            <li class="breadcrumb-item active" aria-current="page">status_array_to_type</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/status_array_to_type.html#src">status_array_to_type</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private pure function status_array_to_type(status_array) result(status_type)  
+</h2>
+    
+
+    <p>Convert legacy integer array status to MPI_Status type</p>
+<p>Internal helper function for converting between array and type representations</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-status_array"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>status_array</strong>(MPI_STATUS_SIZE)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-status_type"></span>
+          type(<a href='../type/mpi_status.html'>MPI_Status</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~status_array_to_type~~CalledByGraph Pages: 1 -->
+<svg id="procstatus_array_to_typeCalledByGraph" width="408pt" height="326pt"
+ viewBox="0.00 0.00 408.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~status_array_to_type~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~status_array_to_type~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 404,-322 404,4 -4,4"/>
+<!-- proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node1" class="node">
+<title>proc~status_array_to_type</title>
+<polygon fill="none" stroke="black" points="400,-171 278,-171 278,-147 400,-147 400,-171"/>
+<text text-anchor="middle" x="339" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">status_array_to_type</text>
+</g>
+<!-- proc~comm_iprobe -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node2" class="node">
+<title>proc~comm_iprobe</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node2"><a xlink:href="../proc/comm_iprobe.html" xlink:title="comm_iprobe">
+<polygon fill="#d9534f" stroke="#d9534f" points="208.5,-318 123.5,-318 123.5,-294 208.5,-294 208.5,-318"/>
+<text text-anchor="middle" x="166" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_iprobe</text>
+</a>
+</g>
+</g>
+<!-- proc~comm_iprobe&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge1" class="edge">
+<title>proc~comm_iprobe&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M208.79,-299.37C220.22,-296.25 232.15,-291.68 242,-285 282.1,-257.78 312.48,-208.33 327.52,-180.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.7,-181.63 332.2,-171.14 324.48,-178.41 330.7,-181.63"/>
+</g>
+<!-- proc~comm_recv_integer -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node3" class="node">
+<title>proc~comm_recv_integer</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node3"><a xlink:href="../proc/comm_recv_integer.html" xlink:title="comm_recv_integer">
+<polygon fill="#d9534f" stroke="#d9534f" points="225,-276 107,-276 107,-252 225,-252 225,-276"/>
+<text text-anchor="middle" x="166" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_recv_integer</text>
+</a>
+</g>
+</g>
+<!-- proc~comm_recv_integer&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge2" class="edge">
+<title>proc~comm_recv_integer&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M221.4,-251.9C228.53,-249.42 235.58,-246.47 242,-243 273.02,-226.22 302.6,-197.81 320.52,-178.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.26,-180.92 327.46,-171.19 318.11,-176.18 323.26,-180.92"/>
+</g>
+<!-- proc~comm_recv_integer_array -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node4" class="node">
+<title>proc~comm_recv_integer_array</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node4"><a xlink:href="../proc/comm_recv_integer_array.html" xlink:title="comm_recv_integer_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="241.5,-234 90.5,-234 90.5,-210 241.5,-210 241.5,-234"/>
+<text text-anchor="middle" x="166" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_recv_integer_array</text>
+</a>
+</g>
+</g>
+<!-- proc~comm_recv_integer_array&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge3" class="edge">
+<title>proc~comm_recv_integer_array&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M214.13,-209.89C223.44,-207.19 233.09,-204.18 242,-201 262.82,-193.57 285.5,-183.73 303.59,-175.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.52,-178.41 313.12,-171.03 302.58,-172.06 305.52,-178.41"/>
+</g>
+<!-- proc~comm_recv_real_dp -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node5" class="node">
+<title>proc~comm_recv_real_dp</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node5"><a xlink:href="../proc/comm_recv_real_dp.html" xlink:title="comm_recv_real_dp">
+<polygon fill="#d9534f" stroke="#d9534f" points="225,-192 107,-192 107,-168 225,-168 225,-192"/>
+<text text-anchor="middle" x="166" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_recv_real_dp</text>
+</a>
+</g>
+</g>
+<!-- proc~comm_recv_real_dp&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge4" class="edge">
+<title>proc~comm_recv_real_dp&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M225.37,-172.83C238.99,-171.16 253.65,-169.36 267.73,-167.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.36,-171.08 277.86,-166.39 267.5,-164.13 268.36,-171.08"/>
+</g>
+<!-- proc~comm_recv_real_dp_array -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node6" class="node">
+<title>proc~comm_recv_real_dp_array</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node6"><a xlink:href="../proc/comm_recv_real_dp_array.html" xlink:title="comm_recv_real_dp_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="242,-150 90,-150 90,-126 242,-126 242,-150"/>
+<text text-anchor="middle" x="166" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_recv_real_dp_array</text>
+</a>
+</g>
+</g>
+<!-- proc~comm_recv_real_dp_array&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge5" class="edge">
+<title>proc~comm_recv_real_dp_array&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M242,-147.21C250.65,-148.27 259.43,-149.35 268.01,-150.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.6,-153.88 277.95,-151.63 268.45,-146.93 267.6,-153.88"/>
+</g>
+<!-- proc~request_test -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node7" class="node">
+<title>proc~request_test</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node7"><a xlink:href="../proc/request_test.html" xlink:title="request_test">
+<polygon fill="#d9534f" stroke="#d9534f" points="204.5,-108 127.5,-108 127.5,-84 204.5,-84 204.5,-108"/>
+<text text-anchor="middle" x="166" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">request_test</text>
+</a>
+</g>
+</g>
+<!-- proc~request_test&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge6" class="edge">
+<title>proc~request_test&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M204.71,-105.45C216.74,-108.76 230.03,-112.73 242,-117 262.82,-124.43 285.5,-134.27 303.59,-142.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.58,-145.94 313.12,-146.97 305.52,-139.59 302.58,-145.94"/>
+</g>
+<!-- proc~request_wait -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node8" class="node">
+<title>proc~request_wait</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node8"><a xlink:href="../proc/request_wait.html" xlink:title="request_wait">
+<polygon fill="#d9534f" stroke="#d9534f" points="205.5,-66 126.5,-66 126.5,-42 205.5,-42 205.5,-66"/>
+<text text-anchor="middle" x="166" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">request_wait</text>
+</a>
+</g>
+</g>
+<!-- proc~request_wait&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge7" class="edge">
+<title>proc~request_wait&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M205.66,-61.32C217.74,-64.51 230.82,-68.95 242,-75 273.02,-91.78 302.6,-120.19 320.52,-139.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="318.11,-141.82 327.46,-146.81 323.26,-137.08 318.11,-141.82"/>
+</g>
+<!-- proc~request_waitall -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node9" class="node">
+<title>proc~request_waitall</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node9"><a xlink:href="../proc/request_waitall.html" xlink:title="request_waitall">
+<polygon fill="#d9534f" stroke="#d9534f" points="212,-24 120,-24 120,0 212,0 212,-24"/>
+<text text-anchor="middle" x="166" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">request_waitall</text>
+</a>
+</g>
+</g>
+<!-- proc~request_waitall&#45;&gt;proc~status_array_to_type -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge8" class="edge">
+<title>proc~request_waitall&#45;&gt;proc~status_array_to_type</title>
+<path fill="none" stroke="#ff0000" d="M212.31,-19.63C222.64,-22.7 233.16,-27 242,-33 282.1,-60.22 312.48,-109.67 327.52,-137.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.48,-139.59 332.2,-146.86 330.7,-136.37 324.48,-139.59"/>
+</g>
+<!-- interface~iprobe -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node10" class="node">
+<title>interface~iprobe</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node10"><a xlink:href="../interface/iprobe.html" xlink:title="iprobe">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-318 0,-318 0,-294 54,-294 54,-318"/>
+<text text-anchor="middle" x="27" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iprobe</text>
+</a>
+</g>
+</g>
+<!-- interface~iprobe&#45;&gt;proc~comm_iprobe -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge9" class="edge">
+<title>interface~iprobe&#45;&gt;proc~comm_iprobe</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M54.09,-306C70.83,-306 93.13,-306 113.35,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.38,-309.5 123.38,-306 113.38,-302.5 113.38,-309.5"/>
+</g>
+<!-- interface~recv -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node11" class="node">
+<title>interface~recv</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node11"><a xlink:href="../interface/recv.html" xlink:title="recv">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-213 0,-213 0,-189 54,-189 54,-213"/>
+<text text-anchor="middle" x="27" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">recv</text>
+</a>
+</g>
+</g>
+<!-- interface~recv&#45;&gt;proc~comm_recv_integer -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge10" class="edge">
+<title>interface~recv&#45;&gt;proc~comm_recv_integer</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M42.97,-213.18C55.04,-222.48 72.78,-235.01 90,-243 94.37,-245.03 98.98,-246.9 103.67,-248.61"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="102.78,-252.01 113.37,-251.92 105.04,-245.38 102.78,-252.01"/>
+</g>
+<!-- interface~recv&#45;&gt;proc~comm_recv_integer_array -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge11" class="edge">
+<title>interface~recv&#45;&gt;proc~comm_recv_integer_array</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M54.09,-205C61.93,-206.2 70.98,-207.59 80.48,-209.04"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="80.08,-212.52 90.49,-210.58 81.14,-205.6 80.08,-212.52"/>
+</g>
+<!-- interface~recv&#45;&gt;proc~comm_recv_real_dp -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge12" class="edge">
+<title>interface~recv&#45;&gt;proc~comm_recv_real_dp</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M54.09,-197C66.38,-195.12 81.68,-192.77 96.94,-190.43"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="97.58,-193.87 106.94,-188.9 96.52,-186.96 97.58,-193.87"/>
+</g>
+<!-- interface~recv&#45;&gt;proc~comm_recv_real_dp_array -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge13" class="edge">
+<title>interface~recv&#45;&gt;proc~comm_recv_real_dp_array</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M42.97,-188.82C55.04,-179.52 72.78,-166.99 90,-159 94.37,-156.97 98.98,-155.1 103.67,-153.39"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="105.04,-156.62 113.37,-150.08 102.78,-149.99 105.04,-156.62"/>
+</g>
+<!-- interface~test -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node12" class="node">
+<title>interface~test</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node12"><a xlink:href="../interface/test.html" xlink:title="test">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-108 0,-108 0,-84 54,-84 54,-108"/>
+<text text-anchor="middle" x="27" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- interface~test&#45;&gt;proc~request_test -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge14" class="edge">
+<title>interface~test&#45;&gt;proc~request_test</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M54.09,-96C71.9,-96 96.03,-96 117.23,-96"/>
+<polygon fill="#003fff" stroke="#003fff" points="117.36,-99.5 127.36,-96 117.36,-92.5 117.36,-99.5"/>
+</g>
+<!-- interface~wait -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node13" class="node">
+<title>interface~wait</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node13"><a xlink:href="../interface/wait.html" xlink:title="wait">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-66 0,-66 0,-42 54,-42 54,-66"/>
+<text text-anchor="middle" x="27" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wait</text>
+</a>
+</g>
+</g>
+<!-- interface~wait&#45;&gt;proc~request_wait -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge15" class="edge">
+<title>interface~wait&#45;&gt;proc~request_wait</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M54.09,-54C71.64,-54 95.31,-54 116.27,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="116.31,-57.5 126.31,-54 116.31,-50.5 116.31,-57.5"/>
+</g>
+<!-- interface~waitall -->
+<g id="proc~~status_array_to_type~~CalledByGraph_node14" class="node">
+<title>interface~waitall</title>
+<g id="a_proc~~status_array_to_type~~CalledByGraph_node14"><a xlink:href="../interface/waitall.html" xlink:title="waitall">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">waitall</text>
+</a>
+</g>
+</g>
+<!-- interface~waitall&#45;&gt;proc~request_waitall -->
+<g id="proc~~status_array_to_type~~CalledByGraph_edge16" class="edge">
+<title>interface~waitall&#45;&gt;proc~request_waitall</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M54.09,-12C69.82,-12 90.47,-12 109.67,-12"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="109.86,-15.5 119.86,-12 109.86,-8.5 109.86,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">pure function </span><span class="n">status_array_to_type</span><span class="p">(</span><span class="n">status_array</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">status_type</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MPI_Status</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status_type</span>
+
+<span class="w">      </span><span class="n">status_type</span><span class="p">%</span><span class="n">MPI_SOURCE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c">! MPI_SOURCE is at index 1</span>
+<span class="w">      </span><span class="n">status_type</span><span class="p">%</span><span class="n">MPI_TAG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">     </span><span class="c">! MPI_TAG is at index 2</span>
+<span class="w">      </span><span class="n">status_type</span><span class="p">%</span><span class="n">MPI_ERROR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">   </span><span class="c">! MPI_ERROR is at index 3</span>
+<span class="w">      </span><span class="n">status_type</span><span class="p">%</span><span class="n">internal</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">status_array_to_type</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PIC-MPI
+ was developed by Jorge Luis Galvez Vallejo<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-11-27 11:38 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

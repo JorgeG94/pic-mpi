@@ -537,7 +537,7 @@ contains
       type(comm_t), intent(in) :: world_comm, node_comm
       integer, intent(in) :: matrix_size
 
-      integer :: task_id, task_size,  dummy_msg
+      integer :: task_id, task_size, dummy_msg
       type(MPI_Status) :: status
       real(dp), allocatable :: A(:, :), B(:, :), C(:, :)
       integer :: i, j, k, dims

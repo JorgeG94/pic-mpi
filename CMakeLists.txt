@@ -34,7 +34,7 @@ if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
 endif()
 
 if(PIC_USE_LEGACY_MPI)
-target_compile_definitions(${main_lib} PRIVATE USE_LEGACY) 
+  target_compile_definitions(${main_lib} PRIVATE USE_LEGACY)
 endif()
 
 add_library(${main_lib} STATIC)

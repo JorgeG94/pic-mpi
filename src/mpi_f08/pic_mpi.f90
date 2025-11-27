@@ -1,10 +1,11 @@
-module mpi_comm_simple
+module pic_mpi_f08
    use pic_types, only: int32, dp
-   use mpi_f08, only: MPI_Comm, MPI_Status, MPI_COMM_NULL, MPI_COMM_WORLD, &
+   use mpi_f08, only: MPI_Comm, MPI_Status, MPI_Request, MPI_COMM_NULL, MPI_COMM_WORLD, &
                       MPI_COMM_TYPE_SHARED, MPI_INFO_NULL, MPI_UNDEFINED, &
-                      MPI_INTEGER, MPI_STATUS_IGNORE, MPI_Comm_rank, &
+                      MPI_INTEGER, MPI_STATUS_IGNORE, MPI_REQUEST_NULL, MPI_Comm_rank, &
                       MPI_Comm_size, MPI_Comm_dup, MPI_Barrier, &
                       MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
+                      MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall, MPI_Test, &
                       MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                       MPI_Abort, MPI_Allgather, MPI_Get_processor_name, &
                       MPI_Bcast, MPI_Init, MPI_Finalize, &
@@ -14,12 +15,24 @@ module mpi_comm_simple
    private
 
    public :: comm_t, comm_world, comm_null
-   public :: send, recv
+   public :: send, recv, isend, irecv
+   public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
-   public :: mpi_initialize, mpi_finalize_wrapper
+   public :: pic_mpi_init, pic_mpi_finalize
 
    ! Export MPI types and constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+
+   ! Request type for non-blocking operations
+   type :: request_t
+      private
+      type(MPI_Request) :: m_request = MPI_REQUEST_NULL
+      logical :: is_valid = .false.
+   contains
+      procedure :: is_null => request_is_null
+      procedure :: get => request_get
+      procedure :: free => request_free
+   end type request_t
 
    type :: comm_t
       private
@@ -78,6 +91,32 @@ module mpi_comm_simple
    interface bcast
       module procedure :: comm_bcast_integer
    end interface bcast
+
+   interface isend
+      module procedure :: comm_isend_integer
+      module procedure :: comm_isend_integer_array
+      module procedure :: comm_isend_real_dp
+      module procedure :: comm_isend_real_dp_array
+   end interface isend
+
+   interface irecv
+      module procedure :: comm_irecv_integer
+      module procedure :: comm_irecv_integer_array
+      module procedure :: comm_irecv_real_dp
+      module procedure :: comm_irecv_real_dp_array
+   end interface irecv
+
+   interface wait
+      module procedure :: request_wait
+   end interface wait
+
+   interface waitall
+      module procedure :: request_waitall
+   end interface waitall
+
+   interface test
+      module procedure :: request_test
+   end interface test
 
 contains
 
@@ -403,16 +442,222 @@ contains
       call MPI_Get_processor_name(name, namelen, ierr)
    end subroutine get_processor_name
 
-   subroutine mpi_initialize()
+   subroutine pic_mpi_init()
       !! Initialize MPI environment
       integer(int32) :: ierr
       call MPI_Init(ierr)
-   end subroutine mpi_initialize
+   end subroutine pic_mpi_init
 
-   subroutine mpi_finalize_wrapper()
+   subroutine pic_mpi_finalize()
       !! Finalize MPI environment
       integer(int32) :: ierr
       call MPI_Finalize(ierr)
-   end subroutine mpi_finalize_wrapper
+   end subroutine pic_mpi_finalize
 
-end module mpi_comm_simple
+   ! ========================================================================
+   ! Request type methods
+   ! ========================================================================
+
+   pure function request_is_null(this) result(is_null)
+      class(request_t), intent(in) :: this
+      logical :: is_null
+      is_null = .not. this%is_valid
+   end function request_is_null
+
+   function request_get(this) result(mpi_request_out)
+      class(request_t), intent(in) :: this
+      type(MPI_Request) :: mpi_request_out
+
+      if (.not. this%is_valid) then
+         error stop "Cannot get MPI_Request from null request"
+      end if
+      mpi_request_out = this%m_request
+   end function request_get
+
+   subroutine request_free(this)
+      class(request_t), intent(inout) :: this
+      this%m_request = MPI_REQUEST_NULL
+      this%is_valid = .false.
+   end subroutine request_free
+
+   ! ========================================================================
+   ! Non-blocking send operations
+   ! ========================================================================
+
+   subroutine comm_isend_integer(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_INTEGER, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer
+
+   subroutine comm_isend_integer_array(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, size(data), MPI_INTEGER, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer_array
+
+   subroutine comm_isend_real_dp(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp
+
+   subroutine comm_isend_real_dp_array(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array
+
+   ! ========================================================================
+   ! Non-blocking receive operations
+   ! ========================================================================
+
+   subroutine comm_irecv_integer(comm, data, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer
+
+   subroutine comm_irecv_integer_array(comm, data, count, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, count, MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer_array
+
+   subroutine comm_irecv_real_dp(comm, data, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_dp
+
+   subroutine comm_irecv_real_dp_array(comm, data, count, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_dp_array
+
+   ! ========================================================================
+   ! Request completion operations
+   ! ========================================================================
+
+   subroutine request_wait(request, status)
+      type(request_t), intent(inout) :: request
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (.not. request%is_valid) then
+         error stop "Cannot wait on null request"
+      end if
+
+      if (present(status)) then
+         call MPI_Wait(request%m_request, status, ierr)
+      else
+         call MPI_Wait(request%m_request, MPI_STATUS_IGNORE, ierr)
+      end if
+
+      call request%free()
+   end subroutine request_wait
+
+   subroutine request_waitall(requests, statuses)
+      type(request_t), intent(inout) :: requests(:)
+      type(MPI_Status), intent(out), optional :: statuses(:)
+      type(MPI_Request), allocatable :: mpi_requests(:)
+      type(MPI_Status), allocatable :: temp_statuses(:)
+      integer(int32) :: i, count, ierr
+
+      count = size(requests)
+      allocate (mpi_requests(count))
+
+      do i = 1, count
+         if (requests(i)%is_valid) then
+            mpi_requests(i) = requests(i)%m_request
+         else
+            mpi_requests(i) = MPI_REQUEST_NULL
+         end if
+      end do
+
+      if (present(statuses)) then
+         call MPI_Waitall(count, mpi_requests, statuses, ierr)
+      else
+         allocate (temp_statuses(count))
+         call MPI_Waitall(count, mpi_requests, temp_statuses, ierr)
+      end if
+
+      do i = 1, count
+         call requests(i)%free()
+      end do
+   end subroutine request_waitall
+
+   subroutine request_test(request, flag, status)
+      type(request_t), intent(inout) :: request
+      logical, intent(out) :: flag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (.not. request%is_valid) then
+         flag = .true.
+         return
+      end if
+
+      if (present(status)) then
+         call MPI_Test(request%m_request, flag, status, ierr)
+      else
+         call MPI_Test(request%m_request, flag, MPI_STATUS_IGNORE, ierr)
+      end if
+
+      if (flag) then
+         call request%free()
+      end if
+   end subroutine request_test
+
+end module pic_mpi_f08

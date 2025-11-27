@@ -1,8 +1,9 @@
 program hierarchical_mpi_test
    use mpi_f08, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize, &
                       MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
-   use mpi_comm_simple, only: comm_t, comm_world, abort_comm, allgather, &
-                              get_processor_name, iprobe, recv, send
+   use pic_mpi_f08, only: comm_t, comm_world, abort_comm, allgather, &
+                          get_processor_name, iprobe, recv, send, &
+                          isend, irecv, request_t, wait, waitall, test
    use pic_timer, only: timer_type
    use pic_types, only: dp, default_int
    implicit none
@@ -117,6 +118,32 @@ program hierarchical_mpi_test
    call world_comm%barrier()
 
    !==============================
+   ! Non-blocking operations tests
+   !==============================
+   if (world_comm%leader()) then
+      print *, "========================================"
+      print *, "Testing non-blocking operations"
+      print *, "========================================"
+   end if
+
+   call test_nonblocking_basic(world_comm)
+   call world_comm%barrier()
+
+   call test_nonblocking_arrays(world_comm)
+   call world_comm%barrier()
+
+   call test_nonblocking_waitall(world_comm)
+   call world_comm%barrier()
+
+   call test_nonblocking_test_function(world_comm)
+   call world_comm%barrier()
+
+   if (world_comm%leader()) then
+      print *, "Non-blocking tests completed successfully!"
+      print *, "========================================"
+   end if
+
+   !==============================
    ! Role assignment and task distribution
    !==============================
    if (world_comm%leader() .and. node_comm%leader()) then
@@ -155,6 +182,243 @@ program hierarchical_mpi_test
    call MPI_Finalize()
 
 contains
+
+   !==============================
+   ! Non-blocking operation tests
+   !==============================
+
+   subroutine test_nonblocking_basic(comm)
+      type(comm_t), intent(in) :: comm
+      integer(default_int) :: send_data, recv_data
+      type(request_t) :: send_req, recv_req
+      type(MPI_Status) :: status
+      integer :: partner
+
+      ! Simple ping-pong test between neighboring ranks
+      if (comm%size() < 2) return
+
+      if (comm%rank() == 0) then
+         partner = 1
+         send_data = 42
+         recv_data = 0
+
+         ! Post non-blocking send and receive
+         call isend(comm, send_data, partner, 100, send_req)
+         call irecv(comm, recv_data, partner, 101, recv_req)
+
+         ! Wait for completion
+         call wait(send_req, status)
+         call wait(recv_req, status)
+
+         if (recv_data == 84) then
+            print *, "PASS: Basic non-blocking test (rank 0)"
+         else
+            print *, "FAIL: Basic non-blocking test (rank 0), expected 84, got ", recv_data
+         end if
+
+      else if (comm%rank() == 1) then
+         partner = 0
+         send_data = 84
+         recv_data = 0
+
+         ! Post non-blocking receive and send
+         call irecv(comm, recv_data, partner, 100, recv_req)
+         call isend(comm, send_data, partner, 101, send_req)
+
+         ! Wait for completion
+         call wait(recv_req, status)
+         call wait(send_req, status)
+
+         if (recv_data == 42) then
+            print *, "PASS: Basic non-blocking test (rank 1)"
+         else
+            print *, "FAIL: Basic non-blocking test (rank 1), expected 42, got ", recv_data
+         end if
+      end if
+   end subroutine test_nonblocking_basic
+
+   subroutine test_nonblocking_arrays(comm)
+      type(comm_t), intent(in) :: comm
+      integer(default_int), allocatable :: send_array(:), recv_array(:)
+      type(request_t) :: send_req, recv_req
+      type(MPI_Status) :: status
+      integer :: partner, i
+      logical :: test_passed
+
+      if (comm%size() < 2) return
+
+      allocate (send_array(10), recv_array(10))
+
+      if (comm%rank() == 0) then
+         partner = 1
+         send_array = [(i*2, i=1, 10)]
+         recv_array = 0
+
+         call isend(comm, send_array, partner, 200, send_req)
+         call irecv(comm, recv_array, 10, partner, 201, recv_req)
+
+         call wait(send_req)
+         call wait(recv_req)
+
+         test_passed = all(recv_array == [(i*3, i=1, 10)])
+         if (test_passed) then
+            print *, "PASS: Array non-blocking test (rank 0)"
+         else
+            print *, "FAIL: Array non-blocking test (rank 0)"
+            print *, "Expected: ", [(i*3, i=1, 10)]
+            print *, "Got:      ", recv_array
+         end if
+
+      else if (comm%rank() == 1) then
+         partner = 0
+         send_array = [(i*3, i=1, 10)]
+         recv_array = 0
+
+         call irecv(comm, recv_array, 10, partner, 200, recv_req)
+         call isend(comm, send_array, partner, 201, send_req)
+
+         call wait(recv_req)
+         call wait(send_req)
+
+         test_passed = all(recv_array == [(i*2, i=1, 10)])
+         if (test_passed) then
+            print *, "PASS: Array non-blocking test (rank 1)"
+         else
+            print *, "FAIL: Array non-blocking test (rank 1)"
+         end if
+      end if
+
+      deallocate (send_array, recv_array)
+   end subroutine test_nonblocking_arrays
+
+   subroutine test_nonblocking_waitall(comm)
+      type(comm_t), intent(in) :: comm
+      integer(default_int) :: send_data(4), recv_data(4)
+      type(request_t) :: requests(8)
+      type(MPI_Status) :: statuses(8)
+      integer :: i, partner
+      logical :: test_passed
+
+      if (comm%size() < 2) return
+
+      if (comm%rank() == 0) then
+         partner = 1
+         send_data = [10, 20, 30, 40]
+         recv_data = 0
+
+         ! Post multiple non-blocking operations
+         do i = 1, 4
+            call isend(comm, send_data(i), partner, 300 + i, requests(i))
+         end do
+         do i = 1, 4
+            call irecv(comm, recv_data(i), partner, 400 + i, requests(4 + i))
+         end do
+
+         ! Wait for all to complete
+         call waitall(requests, statuses)
+
+         test_passed = all(recv_data == [100, 200, 300, 400])
+         if (test_passed) then
+            print *, "PASS: Waitall test (rank 0)"
+         else
+            print *, "FAIL: Waitall test (rank 0)"
+            print *, "Expected: ", [100, 200, 300, 400]
+            print *, "Got:      ", recv_data
+         end if
+
+      else if (comm%rank() == 1) then
+         partner = 0
+         send_data = [100, 200, 300, 400]
+         recv_data = 0
+
+         ! Post receives first, then sends
+         do i = 1, 4
+            call irecv(comm, recv_data(i), partner, 300 + i, requests(i))
+         end do
+         do i = 1, 4
+            call isend(comm, send_data(i), partner, 400 + i, requests(4 + i))
+         end do
+
+         call waitall(requests, statuses)
+
+         test_passed = all(recv_data == [10, 20, 30, 40])
+         if (test_passed) then
+            print *, "PASS: Waitall test (rank 1)"
+         else
+            print *, "FAIL: Waitall test (rank 1)"
+         end if
+      end if
+   end subroutine test_nonblocking_waitall
+
+   subroutine test_nonblocking_test_function(comm)
+      type(comm_t), intent(in) :: comm
+      real(dp) :: send_data, recv_data
+      type(request_t) :: send_req, recv_req
+      type(MPI_Status) :: status
+      logical :: send_complete, recv_complete
+      integer :: partner, iterations
+
+      if (comm%size() < 2) return
+
+      if (comm%rank() == 0) then
+         partner = 1
+         send_data = 3.14159_dp
+         recv_data = 0.0_dp
+
+         call isend(comm, send_data, partner, 500, send_req)
+         call irecv(comm, recv_data, partner, 501, recv_req)
+
+         ! Poll until operations complete
+         send_complete = .false.
+         recv_complete = .false.
+         iterations = 0
+
+         do while (.not. (send_complete .and. recv_complete))
+            if (.not. send_complete) then
+               call test(send_req, send_complete, status)
+            end if
+            if (.not. recv_complete) then
+               call test(recv_req, recv_complete, status)
+            end if
+            iterations = iterations + 1
+         end do
+
+         if (abs(recv_data - 2.71828_dp) < 1.0e-5_dp) then
+            print *, "PASS: Test function (rank 0), iterations: ", iterations
+         else
+            print *, "FAIL: Test function (rank 0)"
+         end if
+
+      else if (comm%rank() == 1) then
+         partner = 0
+         send_data = 2.71828_dp
+         recv_data = 0.0_dp
+
+         call irecv(comm, recv_data, partner, 500, recv_req)
+         call isend(comm, send_data, partner, 501, send_req)
+
+         recv_complete = .false.
+         send_complete = .false.
+
+         do while (.not. recv_complete)
+            call test(recv_req, recv_complete, status)
+         end do
+
+         do while (.not. send_complete)
+            call test(send_req, send_complete, status)
+         end do
+
+         if (abs(recv_data - 3.14159_dp) < 1.0e-5_dp) then
+            print *, "PASS: Test function (rank 1)"
+         else
+            print *, "FAIL: Test function (rank 1)"
+         end if
+      end if
+   end subroutine test_nonblocking_test_function
+
+   !==============================
+   ! Original hierarchical tests
+   !==============================
 
    subroutine test_global_coordinator(world_comm, node_comm, total_tasks, node_leaders, num_nodes, matrix_size)
       type(comm_t), intent(in) :: world_comm, node_comm

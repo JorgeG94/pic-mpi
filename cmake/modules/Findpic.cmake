@@ -7,7 +7,7 @@ set(_url "https://github.com/JorgeG94/pic/")
 include("${CMAKE_CURRENT_LIST_DIR}/sample_utils.cmake")
 
 # Or use a branch
-set(_rev "feat/move_blas_out")
+set(_rev "main")
 my_fetch_package("${_lib}" "${_url}" "${_rev}")
 
 # Or use a commit hash set(_rev "abc123def456") my_fetch_package("${_lib}"

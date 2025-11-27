@@ -1,5 +1,5 @@
 program hierarchical_mpi_test_legacy
-   use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize
+   !use mpi, only: MPI_MAX_PROCESSOR_NAME, MPI_Init, MPI_Finalize
    use pic_mpi_lib
    !use pic_mpi, only: comm_t, comm_world, abort_comm, allgather, &
    !                   get_processor_name, iprobe, recv, send, &

@@ -1,5 +1,5 @@
 module pic_mpi_lib
-#ifndef USE_LEGACY
+#ifdef USE_LEGACY
 use pic_mpi
 #else
 use pic_mpi_f08

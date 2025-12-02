@@ -33,11 +33,12 @@ if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
   )
 endif()
 
+add_library(${main_lib} STATIC)
+
 if(PIC_USE_LEGACY_MPI)
   target_compile_definitions(${main_lib} PRIVATE USE_LEGACY)
 endif()
 
-add_library(${main_lib} STATIC)
 set(libraries_to_link)
 
 if(NOT TARGET test-drive::test-drive AND ENABLE_TESTING)

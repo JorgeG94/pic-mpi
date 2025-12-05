@@ -1,3 +1,9 @@
+!> Modern MPI wrapper module using mpi_f08 interface
+!!
+!! This module provides a high-level object-oriented interface to MPI
+!! using the modern mpi_f08 bindings. It wraps MPI communicators and
+!! requests into derived types with type-bound procedures.
+!!
 module pic_mpi_f08
    use pic_types, only: int32, dp
    use mpi_f08, only: MPI_Comm, MPI_Status, MPI_Request, MPI_COMM_NULL, MPI_COMM_WORLD, &
@@ -11,6 +17,7 @@ module pic_mpi_f08
                       MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, &
                       MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
                       MPI_ANY_SOURCE, MPI_ANY_TAG, &
+                      MPI_MAX_PROCESSOR_NAME, &
                       operator(==), operator(/=), MPI_DOUBLE_PRECISION
    implicit none
    private
@@ -22,42 +29,50 @@ module pic_mpi_f08
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
 
    ! Export MPI types and constants needed by applications
-   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
 
-   ! Request type for non-blocking operations
+   !> Request type for non-blocking MPI operations
+   !!
+   !! Wraps MPI_Request to provide object-oriented interface for
+   !! non-blocking communication operations (isend, irecv)
    type :: request_t
       private
-      type(MPI_Request) :: m_request = MPI_REQUEST_NULL
-      logical :: is_valid = .false.
+      type(MPI_Request) :: m_request = MPI_REQUEST_NULL !! Internal MPI request handle
+      logical :: is_valid = .false. !! Validity flag
    contains
-      procedure :: is_null => request_is_null
-      procedure :: get => request_get
-      procedure :: free => request_free
+      procedure :: is_null => request_is_null !! Check if request is null
+      procedure :: get => request_get !! Get underlying MPI_Request
+      procedure :: free => request_free !! Free the request
    end type request_t
 
+   !> MPI communicator wrapper type
+   !!
+   !! Provides object-oriented interface to MPI communicators with
+   !! type-bound procedures for common operations. Automatically caches
+   !! rank and size information for efficient access.
    type :: comm_t
       private
-      type(MPI_Comm) :: m_comm = MPI_COMM_NULL
-      integer(int32) :: m_rank = -1
-      integer(int32) :: m_size = -1
-      logical :: is_valid = .false.
+      type(MPI_Comm) :: m_comm = MPI_COMM_NULL !! Internal MPI communicator
+      integer(int32) :: m_rank = -1 !! Cached rank in this communicator
+      integer(int32) :: m_size = -1 !! Cached size of this communicator
+      logical :: is_valid = .false. !! Validity flag
    contains
-      procedure :: rank => comm_rank
-      procedure :: size => m_size_func
-      procedure :: leader => comm_leader
-      procedure :: is_null => comm_is_null
-      procedure :: get => comm_get
+      procedure :: rank => comm_rank !! Get rank in communicator
+      procedure :: size => m_size_func !! Get size of communicator
+      procedure :: leader => comm_leader !! Check if this rank is leader (rank 0)
+      procedure :: is_null => comm_is_null !! Check if communicator is null
+      procedure :: get => comm_get !! Get underlying MPI_Comm
 
-      procedure :: barrier => comm_barrier
+      procedure :: barrier => comm_barrier !! Synchronization barrier
 
-      procedure :: split => comm_split_shared
-      procedure :: split_by => comm_split_by_color
-      procedure :: discard_leader => comm_discard_leader
-      procedure :: discard_to => comm_discard_to
-      procedure :: duplicate => comm_duplicate
+      procedure :: split => comm_split_shared !! Split into shared memory communicators
+      procedure :: split_by => comm_split_by_color !! Split communicator by color
+      procedure :: discard_leader => comm_discard_leader !! Create communicator without leader
+      procedure :: discard_to => comm_discard_to !! Create communicator with first N ranks
+      procedure :: duplicate => comm_duplicate !! Duplicate communicator
 
-      procedure :: finalize => comm_finalize
+      procedure :: finalize => comm_finalize !! Free communicator resources
    end type comm_t
 
    interface comm_world
@@ -122,6 +137,10 @@ module pic_mpi_f08
 
 contains
 
+   !> Create comm_t from MPI_Comm handle
+   !!
+   !! Internal helper function that wraps an MPI_Comm into a comm_t object
+   !! and caches rank and size information
    function create_comm_from_mpi(mpi_comm_in) result(comm)
       type(MPI_Comm), intent(in) :: mpi_comm_in
       type(comm_t) :: comm
@@ -138,6 +157,10 @@ contains
 
    end function create_comm_from_mpi
 
+   !> Create a duplicate of MPI_COMM_WORLD
+   !!
+   !! Creates a new communicator that duplicates MPI_COMM_WORLD.
+   !! This is the standard way to obtain a communicator for application use.
    function create_world_comm() result(comm)
       type(comm_t) :: comm
       type(MPI_Comm) :: dup_comm
@@ -148,6 +171,10 @@ contains
 
    end function create_world_comm
 
+   !> Create a null communicator
+   !!
+   !! Creates an invalid/null communicator object that can be used
+   !! for initialization or to represent absence of a communicator.
    function create_null_comm() result(comm)
       type(comm_t) :: comm
 
@@ -158,18 +185,27 @@ contains
       comm%is_valid = .false.
    end function create_null_comm
 
+   !> Get rank of calling process in communicator
+   !!
+   !! Returns the 0-indexed rank of the calling process
    pure function comm_rank(this) result(rank)
       class(comm_t), intent(in) :: this
       integer :: rank
       rank = this%m_rank
    end function comm_rank
 
+   !> Get size of communicator
+   !!
+   !! Returns the number of processes in the communicator
    pure function m_size_func(this) result(size)
       class(comm_t), intent(in) :: this
       integer :: size
       size = this%m_size
    end function m_size_func
 
+   !> Check if calling process is the leader
+   !!
+   !! Returns true if the calling process has rank 0
    pure function comm_leader(this) result(is_leader)
       class(comm_t), intent(in) :: this
       logical :: is_leader
@@ -192,12 +228,19 @@ contains
       mpi_comm_out = this%m_comm
    end function comm_get
 
+   !> Synchronization barrier
+   !!
+   !! Blocks until all processes in the communicator have called barrier
    subroutine comm_barrier(this)
       class(comm_t), intent(in) :: this
       integer(int32) :: ierr
       call MPI_Barrier(this%m_comm, ierr)
    end subroutine comm_barrier
 
+   !> Split communicator into shared memory communicators
+   !!
+   !! Creates a new communicator containing only processes that share
+   !! memory with each other (typically processes on the same node)
    function comm_split_shared(this) result(new_comm)
       class(comm_t), intent(in) :: this
       type(comm_t) :: new_comm
@@ -213,6 +256,10 @@ contains
       new_comm = create_comm_from_mpi(mpi_comm_new)
    end function comm_split_shared
 
+   !> Split communicator by color
+   !!
+   !! Partitions the communicator into disjoint subgroups based on color.
+   !! Processes with the same color end up in the same new communicator.
    function comm_split_by_color(this, color) result(new_comm)
       class(comm_t), intent(in) :: this
       integer, intent(in) :: color
@@ -281,6 +328,9 @@ contains
       new_comm = create_comm_from_mpi(mpi_comm_new)
    end function comm_duplicate
 
+   !> Send a single integer value
+   !!
+   !! Blocking send of an integer to specified destination
    subroutine comm_send_integer(comm, data, dest, tag)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data
@@ -291,6 +341,9 @@ contains
       call MPI_Send(data, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_integer
 
+   !> Send an integer array
+   !!
+   !! Blocking send of an integer array to specified destination
    subroutine comm_send_integer_array(comm, data, dest, tag)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data(:)
@@ -321,6 +374,10 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array
 
+   !> Receive a single integer value
+   !!
+   !! Blocking receive of an integer from specified source.
+   !! Use MPI_ANY_SOURCE or MPI_ANY_TAG for wildcards.
    subroutine comm_recv_integer(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
@@ -495,10 +552,12 @@ contains
       call MPI_Query_thread(thread_level, ierr)
    end function pic_mpi_query_thread_level
 
-   subroutine pic_mpi_finalize()
+   subroutine pic_mpi_finalize(ierr)
       !! Finalize MPI environment
-      integer(int32) :: ierr
-      call MPI_Finalize(ierr)
+      integer(int32), optional, intent(out) :: ierr
+      integer(int32) :: ierr_local
+      call MPI_Finalize(ierr_local)
+      if (present(ierr)) ierr = ierr_local
    end subroutine pic_mpi_finalize
 
    ! ========================================================================
@@ -531,6 +590,10 @@ contains
    ! Non-blocking send operations
    ! ========================================================================
 
+   !> Non-blocking send of a single integer
+   !!
+   !! Initiates a non-blocking send operation. The request must be
+   !! waited on using wait() or test() before the buffer can be reused.
    subroutine comm_isend_integer(comm, data, dest, tag, request)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data
@@ -637,6 +700,10 @@ contains
    ! Request completion operations
    ! ========================================================================
 
+   !> Wait for a non-blocking operation to complete
+   !!
+   !! Blocks until the operation associated with the request completes.
+   !! The request is freed after completion.
    subroutine request_wait(request, status)
       type(request_t), intent(inout) :: request
       type(MPI_Status), intent(out), optional :: status
@@ -655,6 +722,10 @@ contains
       call request%free()
    end subroutine request_wait
 
+   !> Wait for all non-blocking operations to complete
+   !!
+   !! Blocks until all operations in the request array complete.
+   !! All requests are freed after completion.
    subroutine request_waitall(requests, statuses)
       type(request_t), intent(inout) :: requests(:)
       type(MPI_Status), intent(out), optional :: statuses(:)

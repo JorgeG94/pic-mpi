@@ -10,7 +10,7 @@
     <meta name="author" content="Jorge Luis Galvez Vallejo" >
     <link rel="icon" href="../favicon.png">
 
-    <title>comm_split_by_color &ndash; PIC-MPI</title>
+    <title>comm_bcast_integer64 &ndash; PIC-MPI</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -77,8 +77,8 @@
 
     <div class="container">
   <div class="row">
-    <h1>comm_split_by_color
-      <small>Function</small>
+    <h1>comm_bcast_integer64
+      <small>Subroutine</small>
       
     </h1>
       <div class="container p-2 mb-4 bg-light border rounded-3">
@@ -88,7 +88,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 1.3% of total for procedures.">13 statements</a>
+                 title=" 0.8% of total for procedures.">8 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -102,7 +102,7 @@
           <ol class="breadcrumb justify-content-end mb-0">
                 <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.f90</a></li>
                 <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
-            <li class="breadcrumb-item active" aria-current="page">comm_split_by_color</li>
+            <li class="breadcrumb-item active" aria-current="page">comm_bcast_integer64</li>
           </ol>
         </nav>
       </div>
@@ -130,8 +130,7 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../proc/comm_split_by_color.html#variable-ierr~5">ierr</a>
-            <a class="list-group-item" href="../proc/comm_split_by_color.html#variable-mpi_comm_new~2">mpi_comm_new</a>
+            <a class="list-group-item" href="../proc/comm_bcast_integer64.html#variable-ierr~20">ierr</a>
         </div>
       </div>
     </div>
@@ -157,7 +156,7 @@
     <div class="card card-primary">
       <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/comm_split_by_color.html#src">comm_split_by_color</a>
+        <a class="list-group-item" href="../proc/comm_bcast_integer64.html#src">comm_bcast_integer64</a>
       </div>
     </div>
 
@@ -167,13 +166,11 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  function comm_split_by_color(this, color) result(new_comm)  
+    <h2>private  subroutine comm_bcast_integer64(comm, buffer, count, root)  
 </h2>
     
 
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/comm_t.html'>comm_t</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -188,30 +185,60 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~8"></span>
-              class(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~16"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>this</strong></td>
+            <td><strong>comm</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-color"></span>
-              integer,
+              <span class="anchor" id="variable-buffer~2"></span>
+              integer(kind=int64),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-count~4"></span>
+              integer(kind=int32),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>color</strong></td>
+            <td><strong>count</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-root~2"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>root</strong></td>
             <td>
                 
             </td>
@@ -219,13 +246,6 @@
     </tbody>
   </table>
 
-      <h3>Return Value
-        <small>
-          <span class="anchor" id="variable-new_comm~2"></span>
-          type(<a href='../type/comm_t.html'>comm_t</a>)
-        </small>
-      </h3>
-      
     <br>
     <div class="card">
       <div class="card-header">
@@ -237,98 +257,29 @@
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
-<!-- Title: proc~~comm_split_by_color~~CallsGraph Pages: 1 -->
-<svg id="proccomm_split_by_colorCallsGraph" width="507pt" height="137pt"
- viewBox="0.00 0.00 507.00 137.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~comm_split_by_color~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 133)">
-<title>proc~~comm_split_by_color~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-133 503,-133 503,4 -4,4"/>
-<!-- proc~comm_split_by_color -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node1" class="node">
-<title>proc~comm_split_by_color</title>
-<polygon fill="none" stroke="black" points="176,-87 0,-87 0,-63 176,-63 176,-87"/>
-<text text-anchor="middle" x="88" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">comm_t%comm_split_by_color</text>
+<!-- Title: proc~~comm_bcast_integer64~~CallsGraph Pages: 1 -->
+<svg id="proccomm_bcast_integer64CallsGraph" width="248pt" height="32pt"
+ viewBox="0.00 0.00 248.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~comm_bcast_integer64~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~comm_bcast_integer64~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 244,-28 244,4 -4,4"/>
+<!-- proc~comm_bcast_integer64 -->
+<g id="proc~~comm_bcast_integer64~~CallsGraph_node1" class="node">
+<title>proc~comm_bcast_integer64</title>
+<polygon fill="none" stroke="black" points="137,-24 0,-24 0,0 137,0 137,-24"/>
+<text text-anchor="middle" x="68.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">comm_bcast_integer64</text>
 </g>
-<!-- interface~comm_null -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node2" class="node">
-<title>interface~comm_null</title>
-<g id="a_proc~~comm_split_by_color~~CallsGraph_node2"><a xlink:href="../interface/comm_null.html" xlink:title="comm_null">
-<polygon fill="#a7506f" stroke="#a7506f" points="318,-129 247,-129 247,-105 318,-105 318,-129"/>
-<text text-anchor="middle" x="282.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_null</text>
-</a>
+<!-- mpi_bcast -->
+<g id="proc~~comm_bcast_integer64~~CallsGraph_node2" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="240,-24 173,-24 173,0 240,0 240,-24"/>
+<text text-anchor="middle" x="206.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
 </g>
-</g>
-<!-- proc~comm_split_by_color&#45;&gt;interface~comm_null -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge1" class="edge">
-<title>proc~comm_split_by_color&#45;&gt;interface~comm_null</title>
-<path fill="none" stroke="#ff0000" d="M144.16,-87.04C173.65,-93.47 209.47,-101.28 237.13,-107.32"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="236.41,-110.75 246.93,-109.46 237.91,-103.91 236.41,-110.75"/>
-</g>
-<!-- mpi_comm_split -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node3" class="node">
-<title>mpi_comm_split</title>
-<polygon fill="#777777" stroke="#777777" points="332,-87 233,-87 233,-63 332,-63 332,-87"/>
-<text text-anchor="middle" x="282.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split</text>
-</g>
-<!-- proc~comm_split_by_color&#45;&gt;mpi_comm_split -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge2" class="edge">
-<title>proc~comm_split_by_color&#45;&gt;mpi_comm_split</title>
-<path fill="none" stroke="#ff0000" d="M176.24,-75C191.93,-75 207.94,-75 222.59,-75"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="222.99,-78.5 232.99,-75 222.99,-71.5 222.99,-78.5"/>
-</g>
-<!-- proc~create_comm_from_mpi -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node4" class="node">
-<title>proc~create_comm_from_mpi</title>
-<g id="a_proc~~comm_split_by_color~~CallsGraph_node4"><a xlink:href="../proc/create_comm_from_mpi.html" xlink:title="create_comm_from_mpi">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="353,-45 212,-45 212,-21 353,-21 353,-45"/>
-<text text-anchor="middle" x="282.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_comm_from_mpi</text>
-</a>
-</g>
-</g>
-<!-- proc~comm_split_by_color&#45;&gt;proc~create_comm_from_mpi -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge3" class="edge">
-<title>proc~comm_split_by_color&#45;&gt;proc~create_comm_from_mpi</title>
-<path fill="none" stroke="#ff0000" d="M144.16,-62.96C166.72,-58.04 192.97,-52.31 216.46,-47.19"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="217.31,-50.59 226.33,-45.04 215.81,-43.75 217.31,-50.59"/>
-</g>
-<!-- proc~create_null_comm -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node7" class="node">
-<title>proc~create_null_comm</title>
-<g id="a_proc~~comm_split_by_color~~CallsGraph_node7"><a xlink:href="../proc/create_null_comm.html" xlink:title="create_null_comm">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="499,-129 389,-129 389,-105 499,-105 499,-129"/>
-<text text-anchor="middle" x="444" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_null_comm</text>
-</a>
-</g>
-</g>
-<!-- interface~comm_null&#45;&gt;proc~create_null_comm -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge4" class="edge">
-<title>interface~comm_null&#45;&gt;proc~create_null_comm</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M318.11,-117C335.83,-117 357.97,-117 378.68,-117"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="378.7,-120.5 388.7,-117 378.7,-113.5 378.7,-120.5"/>
-</g>
-<!-- mpi_comm_rank -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node5" class="node">
-<title>mpi_comm_rank</title>
-<polygon fill="#777777" stroke="#777777" points="494.5,-66 393.5,-66 393.5,-42 494.5,-42 494.5,-66"/>
-<text text-anchor="middle" x="444" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
-</g>
-<!-- proc~create_comm_from_mpi&#45;&gt;mpi_comm_rank -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge5" class="edge">
-<title>proc~create_comm_from_mpi&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#0000ff" d="M353.46,-42.21C363.4,-43.52 373.54,-44.86 383.27,-46.14"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="382.85,-49.61 393.22,-47.45 383.76,-42.67 382.85,-49.61"/>
-</g>
-<!-- mpi_comm_size -->
-<g id="proc~~comm_split_by_color~~CallsGraph_node6" class="node">
-<title>mpi_comm_size</title>
-<polygon fill="#777777" stroke="#777777" points="492.5,-24 395.5,-24 395.5,0 492.5,0 492.5,-24"/>
-<text text-anchor="middle" x="444" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
-</g>
-<!-- proc~create_comm_from_mpi&#45;&gt;mpi_comm_size -->
-<g id="proc~~comm_split_by_color~~CallsGraph_edge6" class="edge">
-<title>proc~create_comm_from_mpi&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#0000ff" d="M353.46,-23.79C364.01,-22.4 374.78,-20.98 385.04,-19.63"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="385.64,-23.08 395.1,-18.31 384.73,-16.14 385.64,-23.08"/>
+<!-- proc~comm_bcast_integer64&#45;&gt;mpi_bcast -->
+<g id="proc~~comm_bcast_integer64~~CallsGraph_edge1" class="edge">
+<title>proc~comm_bcast_integer64&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#ff0000" d="M137.1,-12C145.72,-12 154.35,-12 162.44,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="162.7,-15.5 172.7,-12 162.7,-8.5 162.7,-15.5"/>
 </g>
 </g>
 </svg>
@@ -423,47 +374,32 @@ large graphs.</div>
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
-<!-- Title: proc~~comm_split_by_color~~CalledByGraph Pages: 1 -->
-<svg id="proccomm_split_by_colorCalledByGraph" width="403pt" height="74pt"
- viewBox="0.00 0.00 403.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~comm_split_by_color~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
-<title>proc~~comm_split_by_color~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 399,-70 399,4 -4,4"/>
-<!-- proc~comm_split_by_color -->
-<g id="proc~~comm_split_by_color~~CalledByGraph_node1" class="node">
-<title>proc~comm_split_by_color</title>
-<polygon fill="none" stroke="black" points="395,-45 219,-45 219,-21 395,-21 395,-45"/>
-<text text-anchor="middle" x="307" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">comm_t%comm_split_by_color</text>
+<!-- Title: proc~~comm_bcast_integer64~~CalledByGraph Pages: 1 -->
+<svg id="proccomm_bcast_integer64CalledByGraph" width="235pt" height="32pt"
+ viewBox="0.00 0.00 235.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~comm_bcast_integer64~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~comm_bcast_integer64~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 231,-28 231,4 -4,4"/>
+<!-- proc~comm_bcast_integer64 -->
+<g id="proc~~comm_bcast_integer64~~CalledByGraph_node1" class="node">
+<title>proc~comm_bcast_integer64</title>
+<polygon fill="none" stroke="black" points="227,-24 90,-24 90,0 227,0 227,-24"/>
+<text text-anchor="middle" x="158.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">comm_bcast_integer64</text>
 </g>
-<!-- proc~comm_discard_leader -->
-<g id="proc~~comm_split_by_color~~CalledByGraph_node2" class="node">
-<title>proc~comm_discard_leader</title>
-<g id="a_proc~~comm_split_by_color~~CalledByGraph_node2"><a xlink:href="../proc/comm_discard_leader.html" xlink:title="comm_t%comm_discard_leader">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="183,-66 0,-66 0,-42 183,-42 183,-66"/>
-<text text-anchor="middle" x="91.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_t%comm_discard_leader</text>
+<!-- interface~bcast -->
+<g id="proc~~comm_bcast_integer64~~CalledByGraph_node2" class="node">
+<title>interface~bcast</title>
+<g id="a_proc~~comm_bcast_integer64~~CalledByGraph_node2"><a xlink:href="../interface/bcast.html" xlink:title="bcast">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bcast</text>
 </a>
 </g>
 </g>
-<!-- proc~comm_discard_leader&#45;&gt;proc~comm_split_by_color -->
-<g id="proc~~comm_split_by_color~~CalledByGraph_edge1" class="edge">
-<title>proc~comm_discard_leader&#45;&gt;proc~comm_split_by_color</title>
-<path fill="none" stroke="#ff0000" d="M183.04,-45.09C191.54,-44.26 200.17,-43.41 208.73,-42.57"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="209.11,-46.05 218.72,-41.59 208.42,-39.08 209.11,-46.05"/>
-</g>
-<!-- proc~comm_discard_to -->
-<g id="proc~~comm_split_by_color~~CalledByGraph_node3" class="node">
-<title>proc~comm_discard_to</title>
-<g id="a_proc~~comm_split_by_color~~CalledByGraph_node3"><a xlink:href="../proc/comm_discard_to.html" xlink:title="comm_t%comm_discard_to">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="171,-24 12,-24 12,0 171,0 171,-24"/>
-<text text-anchor="middle" x="91.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comm_t%comm_discard_to</text>
-</a>
-</g>
-</g>
-<!-- proc~comm_discard_to&#45;&gt;proc~comm_split_by_color -->
-<g id="proc~~comm_split_by_color~~CalledByGraph_edge2" class="edge">
-<title>proc~comm_discard_to&#45;&gt;proc~comm_split_by_color</title>
-<path fill="none" stroke="#ff0000" d="M171.09,-19.73C183.38,-20.94 196.21,-22.2 208.85,-23.44"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="208.65,-26.94 218.94,-24.44 209.33,-19.97 208.65,-26.94"/>
+<!-- interface~bcast&#45;&gt;proc~comm_bcast_integer64 -->
+<g id="proc~~comm_bcast_integer64~~CalledByGraph_edge1" class="edge">
+<title>interface~bcast&#45;&gt;proc~comm_bcast_integer64</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M54.21,-12C61.86,-12 70.64,-12 79.78,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.81,-15.5 89.81,-12 79.81,-8.5 79.81,-15.5"/>
 </g>
 </g>
 </svg>
@@ -565,7 +501,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-ierr~5"></span>
+              <span class="anchor" id="variable-ierr~20"></span>
               integer(kind=int32),
             </td>
               <td>private</td>
@@ -574,23 +510,6 @@ large graphs.</div>
             </td>
             <td>::</td>
             <td><strong>ierr</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-mpi_comm_new~2"></span>
-              integer,
-            </td>
-              <td>private</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>mpi_comm_new</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -613,21 +532,15 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">comm_split_by_color</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">new_comm</span><span class="p">)</span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">comm_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">comm_t</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_comm</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_comm_new</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">comm_bcast_integer64</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">comm_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
+<span class="nb">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr</span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_valid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">new_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm_null</span><span class="p">()</span>
-<span class="w">         </span><span class="k">return</span>
-<span class="k">      end if</span>
-
-<span class="k">      call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">m_comm</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpi_comm_new</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
-<span class="w">      </span><span class="n">new_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_comm_from_mpi</span><span class="p">(</span><span class="n">mpi_comm_new</span><span class="p">)</span>
-<span class="w">   </span><span class="k">end function </span><span class="n">comm_split_by_color</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Bcast</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER8</span><span class="p">,</span><span class="w"> </span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">%</span><span class="n">m_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">comm_bcast_integer64</span>
 </pre></div>
 
     </section>

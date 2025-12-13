@@ -5,9 +5,9 @@
 !! It provides the same API as pic_mpi_f08 but uses integer-based MPI handles.
 !!
 module pic_mpi
-   use pic_types, only: int32, dp
+   use pic_types, only: int32, dp, int64
    use mpi, only: MPI_COMM_NULL, MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, &
-                  MPI_INFO_NULL, MPI_UNDEFINED, MPI_INTEGER, MPI_STATUS_SIZE, &
+                  MPI_INFO_NULL, MPI_UNDEFINED, MPI_INTEGER, MPI_INTEGER8, MPI_STATUS_SIZE, &
                   MPI_REQUEST_NULL, MPI_Comm_rank, MPI_Comm_size, MPI_Comm_dup, MPI_Barrier, &
                   MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
                   MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall, MPI_Test, &
@@ -113,6 +113,7 @@ module pic_mpi
 
    interface bcast
       module procedure :: comm_bcast_integer
+      module procedure :: comm_bcast_integer64
    end interface bcast
 
    interface isend
@@ -495,6 +496,16 @@ contains
 
       call MPI_Bcast(buffer, count, MPI_INTEGER, root, comm%m_comm, ierr)
    end subroutine comm_bcast_integer
+
+   subroutine comm_bcast_integer64(comm, buffer, count, root)
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(inout) :: buffer
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_INTEGER8, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_integer64
 
    subroutine get_processor_name(name, namelen)
       character(len=*), intent(inout) :: name

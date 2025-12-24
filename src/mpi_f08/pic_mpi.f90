@@ -758,18 +758,17 @@ contains
       request%is_valid = .true.
    end subroutine comm_irecv_integer
 
-   subroutine comm_irecv_integer_array(comm, data, count, source, tag, request)
+   subroutine comm_irecv_integer_array(comm, data, source, tag, request)
       !! Initiates a non-blocking receive operation. The request must be
       !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data(:)
-      integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
-      call MPI_Irecv(data, count, MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
+      call MPI_Irecv(data, size(data), MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer_array
 
@@ -787,18 +786,17 @@ contains
       request%is_valid = .true.
    end subroutine comm_irecv_integer64
 
-   subroutine comm_irecv_integer64_array(comm, data, count, source, tag, request)
+   subroutine comm_irecv_integer64_array(comm, data, source, tag, request)
    !! Initiates a non-blocking receive operation. The request must be
    !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
       integer(int64), intent(out) :: data(:)
-      integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
-      call MPI_Irecv(data, count, MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      call MPI_Irecv(data, size(data), MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer64_array
 
@@ -814,16 +812,15 @@ contains
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp
 
-   subroutine comm_irecv_real_dp_array(comm, data, count, source, tag, request)
+   subroutine comm_irecv_real_dp_array(comm, data, source, tag, request)
       type(comm_t), intent(in) :: comm
       real(dp), intent(out) :: data(:)
-      integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
-      call MPI_Irecv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      call MPI_Irecv(data, size(data), MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array
 

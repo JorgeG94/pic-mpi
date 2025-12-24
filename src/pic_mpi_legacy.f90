@@ -1,10 +1,9 @@
-!> Legacy MPI wrapper module using traditional MPI interface
+module pic_mpi
+!! Legacy MPI wrapper module using traditional MPI interface
 !!
 !! This module provides a high-level object-oriented interface to MPI
 !! using the legacy MPI bindings for compatibility with older MPI implementations.
 !! It provides the same API as pic_mpi_f08 but uses integer-based MPI handles.
-!!
-module pic_mpi
    use pic_types, only: int32, dp, int64
    use mpi, only: MPI_COMM_NULL, MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, &
                   MPI_INFO_NULL, MPI_UNDEFINED, MPI_INTEGER, MPI_INTEGER8, MPI_STATUS_SIZE, &
@@ -27,22 +26,22 @@ module pic_mpi
    ! Export MPI constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
 
-   !> MPI_Status wrapper type for legacy MPI compatibility
+   type :: MPI_Status
+   !! MPI_Status wrapper type for legacy MPI compatibility
    !!
    !! This type mimics the mpi_f08 MPI_Status type interface,
    !! providing a consistent API between legacy and modern MPI versions
-   type :: MPI_Status
       integer :: MPI_SOURCE = 0 !! Source rank of received message
       integer :: MPI_TAG = 0 !! Tag of received message
       integer :: MPI_ERROR = 0 !! Error code
       integer :: internal(3) = 0 !! Additional status fields
    end type MPI_Status
 
-   !> Request type for non-blocking MPI operations
+   type :: request_t
+   !! Request type for non-blocking MPI operations
    !!
    !! Wraps MPI request handles to provide object-oriented interface for
    !! non-blocking communication operations (isend, irecv)
-   type :: request_t
       private
       integer :: m_request = MPI_REQUEST_NULL !! Internal MPI request handle (integer)
       logical :: is_valid = .false. !! Validity flag
@@ -52,12 +51,12 @@ module pic_mpi
       procedure :: free => request_free !! Free the request
    end type request_t
 
-   !> MPI communicator wrapper type for legacy MPI
+   type :: comm_t
+   !! MPI communicator wrapper type for legacy MPI
    !!
    !! Provides object-oriented interface to MPI communicators with
    !! type-bound procedures for common operations. Uses integer handles
    !! for compatibility with legacy MPI implementations.
-   type :: comm_t
       private
       integer :: m_comm = MPI_COMM_NULL !! Internal MPI communicator (integer handle)
       integer(int32) :: m_rank = -1 !! Cached rank in this communicator
@@ -92,6 +91,8 @@ module pic_mpi
    interface send
       module procedure :: comm_send_integer
       module procedure :: comm_send_integer_array
+      module procedure :: comm_send_integer64
+      module procedure :: comm_send_integer64_array
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
    end interface send
@@ -99,6 +100,8 @@ module pic_mpi
    interface recv
       module procedure :: comm_recv_integer
       module procedure :: comm_recv_integer_array
+      module procedure :: comm_recv_integer64
+      module procedure :: comm_recv_integer64_array
       module procedure :: comm_recv_real_dp
       module procedure :: comm_recv_real_dp_array
    end interface recv
@@ -119,6 +122,8 @@ module pic_mpi
    interface isend
       module procedure :: comm_isend_integer
       module procedure :: comm_isend_integer_array
+      module procedure :: comm_isend_integer64
+      module procedure :: comm_isend_integer64_array
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
    end interface isend
@@ -126,6 +131,8 @@ module pic_mpi
    interface irecv
       module procedure :: comm_irecv_integer
       module procedure :: comm_irecv_integer_array
+      module procedure :: comm_irecv_integer64
+      module procedure :: comm_irecv_integer64_array
       module procedure :: comm_irecv_real_dp
       module procedure :: comm_irecv_real_dp_array
    end interface irecv
@@ -144,10 +151,10 @@ module pic_mpi
 
 contains
 
-   !> Convert legacy integer array status to MPI_Status type
+   pure function status_array_to_type(status_array) result(status_type)
+   !! Convert legacy integer array status to MPI_Status type
    !!
    !! Internal helper function for converting between array and type representations
-   pure function status_array_to_type(status_array) result(status_type)
       integer, intent(in) :: status_array(MPI_STATUS_SIZE)
       type(MPI_Status) :: status_type
 
@@ -347,6 +354,28 @@ contains
       call MPI_Send(data, size(data), MPI_INTEGER, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_integer_array
 
+   subroutine comm_send_integer64(comm, data, dest, tag)
+   !! Blocking send of an integer64 to specified destination
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_INTEGER8, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_integer64
+
+   subroutine comm_send_integer64_array(comm, data, dest, tag)
+   !! Blocking send of an integer64 array to specified destination
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, size(data), MPI_INTEGER8, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_integer64_array
+
    subroutine comm_send_real_dp(comm, data, dest, tag)
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data
@@ -405,6 +434,47 @@ contains
       ! Convert status
       status = status_array_to_type(stat)
    end subroutine comm_recv_integer_array
+
+   subroutine comm_recv_integer64(comm, data, source, tag, status)
+   !! Blocking receive of an integer64 from specified source
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, stat, ierr)
+         status = status_array_to_type(stat)
+      else
+         call MPI_Recv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, stat, ierr)
+      end if
+   end subroutine comm_recv_integer64
+
+   subroutine comm_recv_integer64_array(comm, data, source, tag, status)
+   !! Blocking receive of an integer64 array from specified source
+      type(comm_t), intent(in) :: comm
+      integer(int64), allocatable, intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: count
+      integer(int32) :: ierr
+      integer :: stat(MPI_STATUS_SIZE)
+
+      ! First probe to get message size
+      call MPI_Probe(source, tag, comm%m_comm, stat, ierr)
+      call MPI_Get_count(stat, MPI_INTEGER8, count, ierr)
+
+      ! Allocate and receive
+      allocate (data(count))
+      call MPI_Recv(data, count, MPI_INTEGER8, source, tag, comm%m_comm, stat, ierr)
+
+      ! Convert status
+      status = status_array_to_type(stat)
+   end subroutine comm_recv_integer64_array
 
    subroutine comm_recv_real_dp(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
@@ -498,6 +568,7 @@ contains
    end subroutine comm_bcast_integer
 
    subroutine comm_bcast_integer64(comm, buffer, count, root)
+   !! Broadcasts integer64 data from root process to all processes in communicator
       type(comm_t), intent(in) :: comm
       integer(int64), intent(inout) :: buffer
       integer(int32), intent(in) :: count
@@ -585,6 +656,32 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_integer_array
 
+   subroutine comm_isend_integer64(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation of an integer64
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_INTEGER8, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer64
+
+   subroutine comm_isend_integer64_array(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation of an integer64 array
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, size(data), MPI_INTEGER8, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer64_array
+
    subroutine comm_isend_real_dp(comm, data, dest, tag, request)
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data
@@ -637,6 +734,33 @@ contains
       call MPI_Irecv(data, count, MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer_array
+
+   subroutine comm_irecv_integer64(comm, data, source, tag, request)
+   !! Initiates a non-blocking receive operation of an integer64
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer64
+
+   subroutine comm_irecv_integer64_array(comm, data, count, source, tag, request)
+   !! Initiates a non-blocking receive operation of an integer64 array
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, count, MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer64_array
 
    subroutine comm_irecv_real_dp(comm, data, source, tag, request)
       type(comm_t), intent(in) :: comm

@@ -726,7 +726,7 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_real_dp
 
-   subroutine comm_isend_real_dop_array(comm, data, dest, tag, request)
+   subroutine comm_isend_real_dp_array(comm, data, dest, tag, request)
       !! Initiates a non-blocking send operation. The request must be
       !! waited on using wait() or test() before the buffer can be reused.
       type(comm_t), intent(in) :: comm

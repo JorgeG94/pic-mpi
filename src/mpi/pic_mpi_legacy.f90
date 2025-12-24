@@ -14,7 +14,11 @@ module pic_mpi
                   MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
                   MPI_Bcast, MPI_Init, MPI_Finalize, &
-                  MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME
+                  MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME, &
+                  MPI_WIN_NULL, MPI_Win_create, MPI_Win_create_dynamic, MPI_Win_free, &
+                  MPI_Win_fence, MPI_Win_lock, MPI_Win_unlock, MPI_Get, MPI_Put, &
+                  MPI_Accumulate, MPI_Fetch_and_op, MPI_Allreduce, MPI_ADDRESS_KIND, &
+                  MPI_LOCK_SHARED, MPI_SUM, MPI_IN_PLACE
    implicit none
    private
 
@@ -23,6 +27,8 @@ module pic_mpi
    public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize
+   public :: win_t, win_create, win_create_dynamic
+   public :: allreduce
 
    ! Export MPI constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
@@ -51,6 +57,27 @@ module pic_mpi
       procedure :: get => request_get !! Get underlying MPI request handle
       procedure :: free => request_free !! Free the request
    end type request_t
+
+   !> MPI-3 Window type for one-sided communication (RMA) - legacy version
+   !!
+   !! Wraps MPI window handles to provide object-oriented interface for
+   !! Remote Memory Access (RMA) operations needed for DDI
+   type :: win_t
+      private
+      integer :: m_win = MPI_WIN_NULL
+      logical :: is_valid = .false.
+   contains
+      procedure :: is_null => win_is_null
+      procedure :: get_handle => win_get_handle
+      procedure :: fence => win_fence
+      procedure :: lock => win_lock
+      procedure :: unlock => win_unlock
+      procedure :: get_dp => win_get_dp
+      procedure :: put_dp => win_put_dp
+      procedure :: accumulate_dp => win_accumulate_dp
+      procedure :: fetch_and_add_i64 => win_fetch_and_add_i64
+      procedure :: finalize => win_finalize
+   end type win_t
 
    !> MPI communicator wrapper type for legacy MPI
    !!
@@ -141,6 +168,21 @@ module pic_mpi
    interface test
       module procedure :: request_test
    end interface test
+
+   interface win_create
+      module procedure create_win_dp_array
+   end interface win_create
+
+   interface win_create_dynamic
+      module procedure create_win_dynamic
+   end interface win_create_dynamic
+
+   interface allreduce
+      module procedure :: allreduce_dp
+      module procedure :: allreduce_dp_array
+      module procedure :: allreduce_i32
+      module procedure :: allreduce_i32_array
+   end interface allreduce
 
 contains
 
@@ -742,5 +784,303 @@ contains
          call request%free()
       end if
    end subroutine request_test
+
+   ! ========================================================================
+   ! Window creation
+   ! ========================================================================
+
+   !> Create MPI window for RMA operations
+   !!
+   !! Creates a window exposing local memory to remote RMA operations.
+   !! Used for DDI distributed arrays.
+   function create_win_dp_array(comm, base, win_size) result(win)
+      type(comm_t), intent(in) :: comm
+      real(dp), target, asynchronous :: base(:)
+      integer(MPI_ADDRESS_KIND), intent(in) :: win_size
+      type(win_t) :: win
+      integer :: ierr
+      integer :: disp_unit
+
+      disp_unit = int(storage_size(base(1))/8)
+      call MPI_Win_create(base, win_size, disp_unit, &
+                         MPI_INFO_NULL, comm%get(), win%m_win, ierr)
+      win%is_valid = .true.
+   end function create_win_dp_array
+
+   !> Create dynamic MPI window
+   !!
+   !! For windows where memory will be attached later.
+   !! Useful for load balancing counters.
+   function create_win_dynamic(comm) result(win)
+      type(comm_t), intent(in) :: comm
+      type(win_t) :: win
+      integer :: ierr
+
+      call MPI_Win_create_dynamic(MPI_INFO_NULL, comm%get(), win%m_win, ierr)
+      win%is_valid = .true.
+   end function create_win_dynamic
+
+   ! ========================================================================
+   ! Window query methods
+   ! ========================================================================
+
+   pure function win_is_null(this) result(is_null)
+      class(win_t), intent(in) :: this
+      logical :: is_null
+      is_null = .not. this%is_valid
+   end function win_is_null
+
+   function win_get_handle(this) result(mpi_win_out)
+      class(win_t), intent(in) :: this
+      integer :: mpi_win_out
+
+      if (.not. this%is_valid) then
+         error stop "Cannot get MPI_Win from null window"
+      end if
+      mpi_win_out = this%m_win
+   end function win_get_handle
+
+   ! ========================================================================
+   ! Synchronization
+   ! ========================================================================
+
+   !> Fence synchronization for active target RMA
+   !!
+   !! Completes all pending RMA operations.
+   !! Use before/after Get/Put/Accumulate operations.
+   subroutine win_fence(this, assert)
+      class(win_t), intent(in) :: this
+      integer, intent(in), optional :: assert
+      integer :: ierr, assert_val
+
+      if (present(assert)) then
+         assert_val = assert
+      else
+         assert_val = 0
+      end if
+
+      call MPI_Win_fence(assert_val, this%m_win, ierr)
+   end subroutine win_fence
+
+   !> Lock window for passive target RMA
+   !!
+   !! Begins RMA access epoch for specified target rank.
+   !! Must be paired with unlock.
+   subroutine win_lock(this, rank, lock_type)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: rank
+      integer, intent(in), optional :: lock_type
+      integer :: ierr, ltype
+
+      if (present(lock_type)) then
+         ltype = lock_type
+      else
+         ltype = MPI_LOCK_SHARED
+      end if
+
+      call MPI_Win_lock(ltype, rank, 0, this%m_win, ierr)
+   end subroutine win_lock
+
+   !> Unlock window for passive target RMA
+   subroutine win_unlock(this, rank)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: rank
+      integer :: ierr
+
+      call MPI_Win_unlock(rank, this%m_win, ierr)
+   end subroutine win_unlock
+
+   ! ========================================================================
+   ! RMA Get/Put/Accumulate operations
+   ! ========================================================================
+
+   !> Get data from remote window
+   !!
+   !! Retrieves data from target rank's window into local buffer.
+   !! Must be called between fence or lock/unlock pairs.
+   subroutine win_get_dp(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer, intent(in) :: count
+      real(dp), intent(out) :: buffer(*)
+      integer :: ierr
+
+      call MPI_Get(buffer, count, MPI_DOUBLE_PRECISION, &
+                   target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
+                   this%m_win, ierr)
+   end subroutine win_get_dp
+
+   !> Put data to remote window
+   !!
+   !! Sends data from local buffer to target rank's window.
+   !! Must be called between fence or lock/unlock pairs.
+   subroutine win_put_dp(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer, intent(in) :: count
+      real(dp), intent(in) :: buffer(*)
+      integer :: ierr
+
+      call MPI_Put(buffer, count, MPI_DOUBLE_PRECISION, &
+                   target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
+                   this%m_win, ierr)
+   end subroutine win_put_dp
+
+   !> Accumulate data to remote window
+   !!
+   !! Atomically adds local buffer to target rank's window.
+   !! Critical for DDI_ACC (Fock matrix accumulation).
+   subroutine win_accumulate_dp(this, target_rank, target_disp, count, buffer, op)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer, intent(in) :: count
+      real(dp), intent(in) :: buffer(*)
+      integer, intent(in), optional :: op
+      integer :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Accumulate(buffer, count, MPI_DOUBLE_PRECISION, &
+                          target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
+                          mpi_op, this%m_win, ierr)
+   end subroutine win_accumulate_dp
+
+   !> Atomic fetch-and-add for load balancing
+   !!
+   !! Atomically increments remote counter and returns old value.
+   !! Used for DDI_DLBNEXT (dynamic load balancing).
+   subroutine win_fetch_and_add_i64(this, target_rank, target_disp, value, result)
+      class(win_t), intent(in) :: this
+      integer, intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int64), intent(in) :: value
+      integer(int64), intent(out) :: result
+      integer :: ierr
+
+      call MPI_Fetch_and_op(value, result, MPI_INTEGER8, &
+                           target_rank, target_disp, MPI_SUM, this%m_win, ierr)
+   end subroutine win_fetch_and_add_i64
+
+   ! ========================================================================
+   ! Window cleanup
+   ! ========================================================================
+
+   subroutine win_finalize(this)
+      class(win_t), intent(inout) :: this
+      integer :: ierr
+
+      if (this%is_valid .and. this%m_win /= MPI_WIN_NULL) then
+         call MPI_Win_free(this%m_win, ierr)
+         this%is_valid = .false.
+         this%m_win = MPI_WIN_NULL
+      end if
+   end subroutine win_finalize
+
+   ! ========================================================================
+   ! Allreduce operations (for DDI_GSUMF/GSUMI)
+   ! ========================================================================
+
+   !> Allreduce for scalar double precision
+   !!
+   !! In-place global reduction. Replaces DDI_GSUMF for scalars.
+   subroutine allreduce_dp(comm, buffer, op)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout) :: buffer
+      integer, intent(in), optional :: op
+      integer :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_DOUBLE_PRECISION, &
+                        mpi_op, comm%get(), ierr)
+   end subroutine allreduce_dp
+
+   !> Allreduce for double precision array
+   !!
+   !! In-place global reduction. Replaces DDI_GSUMF for arrays.
+   !! This is THE most-called DDI function (1,301 calls in GAMESS).
+   subroutine allreduce_dp_array(comm, buffer, count, op)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout) :: buffer(:)
+      integer, intent(in), optional :: count
+      integer, intent(in), optional :: op
+      integer :: mpi_op
+      integer :: ierr, n
+
+      if (present(count)) then
+         n = count
+      else
+         n = size(buffer)
+      end if
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_DOUBLE_PRECISION, &
+                        mpi_op, comm%get(), ierr)
+   end subroutine allreduce_dp_array
+
+   !> Allreduce for scalar integer
+   !!
+   !! In-place global reduction. Replaces DDI_GSUMI for scalars.
+   subroutine allreduce_i32(comm, buffer, op)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(inout) :: buffer
+      integer, intent(in), optional :: op
+      integer :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_INTEGER, &
+                        mpi_op, comm%get(), ierr)
+   end subroutine allreduce_i32
+
+   !> Allreduce for integer array
+   !!
+   !! In-place global reduction. Replaces DDI_GSUMI for arrays.
+   subroutine allreduce_i32_array(comm, buffer, count, op)
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(inout) :: buffer(:)
+      integer, intent(in), optional :: count
+      integer, intent(in), optional :: op
+      integer :: mpi_op
+      integer :: ierr, n
+
+      if (present(count)) then
+         n = count
+      else
+         n = size(buffer)
+      end if
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_INTEGER, &
+                        mpi_op, comm%get(), ierr)
+   end subroutine allreduce_i32_array
 
 end module pic_mpi

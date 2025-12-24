@@ -29,7 +29,7 @@ module pic_mpi_f08
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
 
    ! Export MPI types and constants needed by applications
-   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME, MPI_Request
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
 
    type :: request_t

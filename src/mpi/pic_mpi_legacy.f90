@@ -12,8 +12,8 @@ module pic_mpi
                   MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall, MPI_Test, &
                   MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
-                  MPI_Bcast, MPI_Init, MPI_Finalize, &
-                  MPI_Request, &
+                  MPI_Bcast, MPI_Init, MPI_Finalize, MPI_LOGICAL, &
+                  MPI_Request, MPI_LOGICAL, &
                   MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME
    implicit none
    private
@@ -98,6 +98,7 @@ module pic_mpi
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
       module procedure :: comm_send_real_dp_array_2d
+      module procedure :: comm_send_logical
    end interface send
 
    interface recv
@@ -108,6 +109,7 @@ module pic_mpi
       module procedure :: comm_recv_real_dp
       module procedure :: comm_recv_real_dp_array
       module procedure :: comm_recv_real_dp_array_2d
+      module procedure :: comm_recv_logical
    end interface recv
 
    interface iprobe
@@ -131,6 +133,7 @@ module pic_mpi
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
       module procedure :: comm_isend_real_dp_array_2d
+      module procedure :: comm_isend_logical
    end interface isend
 
    interface irecv
@@ -141,6 +144,7 @@ module pic_mpi
       module procedure :: comm_irecv_real_dp
       module procedure :: comm_irecv_real_dp_array
       module procedure :: comm_irecv_real_dp_array_2d
+      module procedure :: comm_irecv_logical
    end interface irecv
 
    interface wait
@@ -419,6 +423,16 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array_2d
 
+   subroutine comm_send_logical(comm, data, dest, tag)
+      type(comm_t), intent(in) :: comm
+      logical, intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_LOGICAL, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_logical
+
    subroutine comm_recv_integer(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
@@ -564,6 +578,23 @@ contains
       ! Convert status
       status = status_array_to_type(stat)
    end subroutine comm_recv_real_dp_array_2d
+
+   subroutine comm_recv_logical(comm, data, source, tag, status)
+      type(comm_t), intent(in) :: comm
+      logical, intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, stat, ierr)
+         status = status_array_to_type(stat)
+      else
+         call MPI_Recv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, stat, ierr)
+      end if
+   end subroutine comm_recv_logical
 
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
       type(comm_t), intent(in) :: comm
@@ -775,6 +806,18 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array_2d
 
+   subroutine comm_isend_logical(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      logical, intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_LOGICAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_logical
+
    ! ========================================================================
    ! Non-blocking receive operations
    ! ========================================================================
@@ -875,6 +918,18 @@ contains
       call MPI_Irecv(data, dim1*dim2, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array_2d
+
+   subroutine comm_irecv_logical(comm, data, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      logical, intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_logical
 
    ! ========================================================================
    ! Request completion operations

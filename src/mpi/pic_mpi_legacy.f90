@@ -97,6 +97,7 @@ module pic_mpi
       module procedure :: comm_send_integer64_array
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
+      module procedure :: comm_send_real_dp_array_2d
    end interface send
 
    interface recv
@@ -106,6 +107,7 @@ module pic_mpi
       module procedure :: comm_recv_integer64_array
       module procedure :: comm_recv_real_dp
       module procedure :: comm_recv_real_dp_array
+      module procedure :: comm_recv_real_dp_array_2d
    end interface recv
 
    interface iprobe
@@ -128,6 +130,7 @@ module pic_mpi
       module procedure :: comm_isend_integer64_array
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
+      module procedure :: comm_isend_real_dp_array_2d
    end interface isend
 
    interface irecv
@@ -137,6 +140,7 @@ module pic_mpi
       module procedure :: comm_irecv_integer64_array
       module procedure :: comm_irecv_real_dp
       module procedure :: comm_irecv_real_dp_array
+      module procedure :: comm_irecv_real_dp_array_2d
    end interface irecv
 
    interface wait
@@ -398,6 +402,23 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array
 
+   subroutine comm_send_real_dp_array_2d(comm, data, dest, tag)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data
+      call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_dp_array_2d
+
    subroutine comm_recv_integer(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
@@ -516,6 +537,33 @@ contains
       ! Convert status
       status = status_array_to_type(stat)
    end subroutine comm_recv_real_dp_array
+
+   subroutine comm_recv_real_dp_array_2d(comm, data, source, tag, status)
+      !! Receive 2D real(dp) array (must be pre-allocated by receiver)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: ierr, count, dim1, dim2
+      integer :: stat(MPI_STATUS_SIZE)
+
+      ! Receive dimensions first
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data
+      count = dim1*dim2
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, stat, ierr)
+
+      ! Convert status
+      status = status_array_to_type(stat)
+   end subroutine comm_recv_real_dp_array_2d
 
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
       type(comm_t), intent(in) :: comm
@@ -708,6 +756,25 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array
 
+   subroutine comm_isend_real_dp_array_2d(comm, data, dest, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first (blocking - simple approach)
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data (non-blocking)
+      call MPI_Isend(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array_2d
+
    ! ========================================================================
    ! Non-blocking receive operations
    ! ========================================================================
@@ -785,6 +852,29 @@ contains
       call MPI_Irecv(data, size(data), MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array
+
+   subroutine comm_irecv_real_dp_array_2d(comm, data, source, tag, request)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+      integer :: stat(MPI_STATUS_SIZE)
+
+      ! Receive dimensions first (blocking - needed to allocate)
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, stat, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data (non-blocking)
+      call MPI_Irecv(data, dim1*dim2, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_dp_array_2d
 
    ! ========================================================================
    ! Request completion operations

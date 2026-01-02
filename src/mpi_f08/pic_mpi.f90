@@ -17,7 +17,7 @@ module pic_mpi_f08
                       MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, &
                       MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
                       MPI_ANY_SOURCE, MPI_ANY_TAG, &
-                      MPI_MAX_PROCESSOR_NAME, &
+                      MPI_MAX_PROCESSOR_NAME, MPI_LOGICAL, &
                       operator(==), operator(/=), MPI_DOUBLE_PRECISION, &
                       MPI_Win, MPI_Op, MPI_WIN_NULL, MPI_Win_create, MPI_Win_create_dynamic, &
                       MPI_Win_free, MPI_Win_fence, MPI_Win_lock, MPI_Win_unlock, &
@@ -35,14 +35,12 @@ module pic_mpi_f08
    public :: allreduce
 
    ! Export MPI types and constants needed by applications
-   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
+   public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME, MPI_Request
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
 
-   !> Request type for non-blocking MPI operations
-   !!
+   type :: request_t
    !! Wraps MPI_Request to provide object-oriented interface for
    !! non-blocking communication operations (isend, irecv)
-   type :: request_t
       private
       type(MPI_Request) :: m_request = MPI_REQUEST_NULL !! Internal MPI request handle
       logical :: is_valid = .false. !! Validity flag
@@ -75,10 +73,10 @@ module pic_mpi_f08
 
    !> MPI communicator wrapper type
    !!
+   type :: comm_t
    !! Provides object-oriented interface to MPI communicators with
    !! type-bound procedures for common operations. Automatically caches
    !! rank and size information for efficient access.
-   type :: comm_t
       private
       type(MPI_Comm) :: m_comm = MPI_COMM_NULL !! Internal MPI communicator
       integer(int32) :: m_rank = -1 !! Cached rank in this communicator
@@ -113,15 +111,23 @@ module pic_mpi_f08
    interface send
       module procedure :: comm_send_integer
       module procedure :: comm_send_integer_array
+      module procedure :: comm_send_integer64
+      module procedure :: comm_send_integer64_array
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
+      module procedure :: comm_send_real_dp_array_2d
+      module procedure :: comm_send_logical
    end interface send
 
    interface recv
       module procedure :: comm_recv_integer
       module procedure :: comm_recv_integer_array
+      module procedure :: comm_recv_integer64
+      module procedure :: comm_recv_integer64_array
       module procedure :: comm_recv_real_dp
       module procedure :: comm_recv_real_dp_array
+      module procedure :: comm_recv_real_dp_array_2d
+      module procedure :: comm_recv_logical
    end interface recv
 
    interface iprobe
@@ -140,15 +146,23 @@ module pic_mpi_f08
    interface isend
       module procedure :: comm_isend_integer
       module procedure :: comm_isend_integer_array
+      module procedure :: comm_isend_integer64
+      module procedure :: comm_isend_integer64_array
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
+      module procedure :: comm_isend_real_dp_array_2d
+      module procedure :: comm_isend_logical
    end interface isend
 
    interface irecv
       module procedure :: comm_irecv_integer
       module procedure :: comm_irecv_integer_array
+      module procedure :: comm_irecv_integer64
+      module procedure :: comm_irecv_integer64_array
       module procedure :: comm_irecv_real_dp
       module procedure :: comm_irecv_real_dp_array
+      module procedure :: comm_irecv_real_dp_array_2d
+      module procedure :: comm_irecv_logical
    end interface irecv
 
    interface wait
@@ -180,11 +194,9 @@ module pic_mpi_f08
 
 contains
 
-   !> Create comm_t from MPI_Comm handle
-   !!
+   function create_comm_from_mpi(mpi_comm_in) result(comm)
    !! Internal helper function that wraps an MPI_Comm into a comm_t object
    !! and caches rank and size information
-   function create_comm_from_mpi(mpi_comm_in) result(comm)
       type(MPI_Comm), intent(in) :: mpi_comm_in
       type(comm_t) :: comm
       integer(int32) :: ierr
@@ -200,11 +212,9 @@ contains
 
    end function create_comm_from_mpi
 
-   !> Create a duplicate of MPI_COMM_WORLD
-   !!
+   function create_world_comm() result(comm)
    !! Creates a new communicator that duplicates MPI_COMM_WORLD.
    !! This is the standard way to obtain a communicator for application use.
-   function create_world_comm() result(comm)
       type(comm_t) :: comm
       type(MPI_Comm) :: dup_comm
       integer(int32) :: ierr
@@ -214,11 +224,9 @@ contains
 
    end function create_world_comm
 
-   !> Create a null communicator
-   !!
+   function create_null_comm() result(comm)
    !! Creates an invalid/null communicator object that can be used
    !! for initialization or to represent absence of a communicator.
-   function create_null_comm() result(comm)
       type(comm_t) :: comm
 
       ! Explicitly initialize to null/invalid state
@@ -228,28 +236,23 @@ contains
       comm%is_valid = .false.
    end function create_null_comm
 
-   !> Get rank of calling process in communicator
+   pure function comm_rank(this) result(rank)
    !!
    !! Returns the 0-indexed rank of the calling process
-   pure function comm_rank(this) result(rank)
       class(comm_t), intent(in) :: this
       integer :: rank
       rank = this%m_rank
    end function comm_rank
 
-   !> Get size of communicator
-   !!
-   !! Returns the number of processes in the communicator
    pure function m_size_func(this) result(size)
+   !! Returns the number of processes in the communicator
       class(comm_t), intent(in) :: this
       integer :: size
       size = this%m_size
    end function m_size_func
 
-   !> Check if calling process is the leader
-   !!
-   !! Returns true if the calling process has rank 0
    pure function comm_leader(this) result(is_leader)
+   !! Returns true if the calling process has rank 0
       class(comm_t), intent(in) :: this
       logical :: is_leader
       is_leader = (this%m_rank == 0)
@@ -271,20 +274,16 @@ contains
       mpi_comm_out = this%m_comm
    end function comm_get
 
-   !> Synchronization barrier
-   !!
-   !! Blocks until all processes in the communicator have called barrier
    subroutine comm_barrier(this)
+   !! Blocks until all processes in the communicator have called barrier
       class(comm_t), intent(in) :: this
       integer(int32) :: ierr
       call MPI_Barrier(this%m_comm, ierr)
    end subroutine comm_barrier
 
-   !> Split communicator into shared memory communicators
-   !!
+   function comm_split_shared(this) result(new_comm)
    !! Creates a new communicator containing only processes that share
    !! memory with each other (typically processes on the same node)
-   function comm_split_shared(this) result(new_comm)
       class(comm_t), intent(in) :: this
       type(comm_t) :: new_comm
       type(MPI_Comm) :: mpi_comm_new
@@ -299,11 +298,9 @@ contains
       new_comm = create_comm_from_mpi(mpi_comm_new)
    end function comm_split_shared
 
-   !> Split communicator by color
-   !!
+   function comm_split_by_color(this, color) result(new_comm)
    !! Partitions the communicator into disjoint subgroups based on color.
    !! Processes with the same color end up in the same new communicator.
-   function comm_split_by_color(this, color) result(new_comm)
       class(comm_t), intent(in) :: this
       integer, intent(in) :: color
       type(comm_t) :: new_comm
@@ -371,10 +368,8 @@ contains
       new_comm = create_comm_from_mpi(mpi_comm_new)
    end function comm_duplicate
 
-   !> Send a single integer value
-   !!
-   !! Blocking send of an integer to specified destination
    subroutine comm_send_integer(comm, data, dest, tag)
+   !! Blocking send of an integer to specified destination
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data
       integer(int32), intent(in) :: dest
@@ -384,10 +379,8 @@ contains
       call MPI_Send(data, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_integer
 
-   !> Send an integer array
-   !!
-   !! Blocking send of an integer array to specified destination
    subroutine comm_send_integer_array(comm, data, dest, tag)
+   !! Blocking send of an integer array to specified destination
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data(:)
       integer(int32), intent(in) :: dest
@@ -397,7 +390,30 @@ contains
       call MPI_Send(data, size(data), MPI_INTEGER, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_integer_array
 
+   subroutine comm_send_integer64(comm, data, dest, tag)
+   !! Blocking send of an integer64 to specified destination
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_INTEGER8, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_integer64
+
+   subroutine comm_send_integer64_array(comm, data, dest, tag)
+   !! Blocking send of an integer64 array to specified destination
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, size(data), MPI_INTEGER8, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_integer64_array
+
    subroutine comm_send_real_dp(comm, data, dest, tag)
+      !! Blocking send of a single double precision real to specified destination
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data
       integer(int32), intent(in) :: dest
@@ -408,6 +424,7 @@ contains
    end subroutine comm_send_real_dp
 
    subroutine comm_send_real_dp_array(comm, data, dest, tag)
+      !! Blocking send of a double precision real array to specified destination
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data(:)
       integer(int32), intent(in) :: dest
@@ -417,11 +434,38 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array
 
-   !> Receive a single integer value
-   !!
+   subroutine comm_send_real_dp_array_2d(comm, data, dest, tag)
+   !! Blocking send of a 2D double precision real array to specified destination
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data
+      call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_dp_array_2d
+
+   subroutine comm_send_logical(comm, data, dest, tag)
+   !! Blocking send of a logical value to specified destination
+      type(comm_t), intent(in) :: comm
+      logical, intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_LOGICAL, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_logical
+
+   subroutine comm_recv_integer(comm, data, source, tag, status)
    !! Blocking receive of an integer from specified source.
    !! Use MPI_ANY_SOURCE or MPI_ANY_TAG for wildcards.
-   subroutine comm_recv_integer(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
       integer(int32), intent(in) :: source
@@ -437,6 +481,7 @@ contains
    end subroutine comm_recv_integer
 
    subroutine comm_recv_integer_array(comm, data, source, tag, status)
+   !! Blocking receive of an integer array from specified source.
       type(comm_t), intent(in) :: comm
       integer(int32), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
@@ -454,7 +499,45 @@ contains
       call MPI_Recv(data, count, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
    end subroutine comm_recv_integer_array
 
+   subroutine comm_recv_integer64(comm, data, source, tag, status)
+   !! Blocking receive of an integer64 from specified source.
+   !! Use MPI_ANY_SOURCE or MPI_ANY_TAG for wildcards.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+      type(MPI_Status), intent(out), optional :: status
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_integer64
+
+   subroutine comm_recv_integer64_array(comm, data, source, tag, status)
+   !! Blocking receive of an integer64 array from specified source.
+   !! Array is automatically allocated to the correct size.
+      type(comm_t), intent(in) :: comm
+      integer(int64), allocatable, intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: count
+      integer(int32) :: ierr
+
+      ! First probe to get message size
+      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
+      call MPI_Get_count(status, MPI_INTEGER8, count, ierr)
+
+      ! Allocate and receive
+      allocate (data(count))
+      call MPI_Recv(data, count, MPI_INTEGER8, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+   end subroutine comm_recv_integer64_array
+
    subroutine comm_recv_real_dp(comm, data, source, tag, status)
+      !! Blocking receive of a single double precision real from specified source.
       type(comm_t), intent(in) :: comm
       real(dp), intent(out) :: data
       integer(int32), intent(in) :: source
@@ -470,6 +553,7 @@ contains
    end subroutine comm_recv_real_dp
 
    subroutine comm_recv_real_dp_array(comm, data, source, tag, status)
+      !! Blocking receive of a double precision real array from specified source.
       type(comm_t), intent(in) :: comm
       real(dp), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
@@ -487,7 +571,47 @@ contains
       call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
    end subroutine comm_recv_real_dp_array
 
+   subroutine comm_recv_real_dp_array_2d(comm, data, source, tag, status)
+   !! Blocking receive of a 2D allocatable double precision real array
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: ierr, count, dim1, dim2
+
+      ! Receive dimensions first
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data
+      count = dim1*dim2
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
+   end subroutine comm_recv_real_dp_array_2d
+
+   subroutine comm_recv_logical(comm, data, source, tag, status)
+   !! Blocking receive of a logical value from specified source
+      type(comm_t), intent(in) :: comm
+      logical, intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_logical
+
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
+      !! Non-blocking probe for incoming messages
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
@@ -499,6 +623,7 @@ contains
    end subroutine comm_iprobe
 
    subroutine comm_finalize(this)
+      !! Frees the MPI communicator resources
       class(comm_t), intent(inout) :: this
       integer(int32) :: ierr
 
@@ -510,6 +635,7 @@ contains
    end subroutine comm_finalize
 
    subroutine abort_comm(comm, errorcode)
+      !! Aborts all processes in the communicator with the given error code
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: errorcode
       integer(int32) :: ierr
@@ -518,6 +644,7 @@ contains
    end subroutine abort_comm
 
    subroutine comm_allgather_integer(comm, sendbuf, recvbuf)
+      !! Gathers integer values from all processes in the communicator
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: sendbuf
       integer(int32), intent(out) :: recvbuf(:)
@@ -527,6 +654,7 @@ contains
    end subroutine comm_allgather_integer
 
    subroutine comm_bcast_integer(comm, buffer, count, root)
+      !! Broadcasts integer data from root process to all processes in communicator
       type(comm_t), intent(in) :: comm
       integer(int32), intent(inout) :: buffer
       integer(int32), intent(in) :: count
@@ -537,6 +665,7 @@ contains
    end subroutine comm_bcast_integer
 
    subroutine comm_bcast_integer64(comm, buffer, count, root)
+      !! Broadcasts integer64 data from root process to all processes in communicator
       type(comm_t), intent(in) :: comm
       integer(int64), intent(inout) :: buffer
       integer(int32), intent(in) :: count
@@ -547,6 +676,7 @@ contains
    end subroutine comm_bcast_integer64
 
    subroutine get_processor_name(name, namelen)
+      !! Retrieves the name of the processor
       character(len=*), intent(inout) :: name
       integer(int32), intent(out) :: namelen
       integer(int32) :: ierr
@@ -618,12 +748,14 @@ contains
    ! ========================================================================
 
    pure function request_is_null(this) result(is_null)
+      !! Checks if the request is null/invalid
       class(request_t), intent(in) :: this
       logical :: is_null
       is_null = .not. this%is_valid
    end function request_is_null
 
    function request_get(this) result(mpi_request_out)
+      !! Retrieves the underlying MPI_Request handle
       class(request_t), intent(in) :: this
       type(MPI_Request) :: mpi_request_out
 
@@ -634,6 +766,7 @@ contains
    end function request_get
 
    subroutine request_free(this)
+      !! Frees the MPI request resources
       class(request_t), intent(inout) :: this
       this%m_request = MPI_REQUEST_NULL
       this%is_valid = .false.
@@ -643,11 +776,9 @@ contains
    ! Non-blocking send operations
    ! ========================================================================
 
-   !> Non-blocking send of a single integer
-   !!
+   subroutine comm_isend_integer(comm, data, dest, tag, request)
    !! Initiates a non-blocking send operation. The request must be
    !! waited on using wait() or test() before the buffer can be reused.
-   subroutine comm_isend_integer(comm, data, dest, tag, request)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data
       integer(int32), intent(in) :: dest
@@ -660,6 +791,8 @@ contains
    end subroutine comm_isend_integer
 
    subroutine comm_isend_integer_array(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation. The request must be
+   !! waited on using wait() or test() before the buffer can be reused.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data(:)
       integer(int32), intent(in) :: dest
@@ -671,7 +804,37 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_integer_array
 
+   subroutine comm_isend_integer64(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation. The request must be
+   !! waited on using wait() or test() before the buffer can be reused.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_INTEGER8, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer64
+
+   subroutine comm_isend_integer64_array(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation. The request must be
+   !! waited on using wait() or test() before the buffer can be reused.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, size(data), MPI_INTEGER8, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_integer64_array
+
    subroutine comm_isend_real_dp(comm, data, dest, tag, request)
+   !! Initiates a non-blocking send operation. The request must be
+   !! waited on using wait() or test() before the buffer can be reused.
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data
       integer(int32), intent(in) :: dest
@@ -684,6 +847,8 @@ contains
    end subroutine comm_isend_real_dp
 
    subroutine comm_isend_real_dp_array(comm, data, dest, tag, request)
+      !! Initiates a non-blocking send operation. The request must be
+      !! waited on using wait() or test() before the buffer can be reused.
       type(comm_t), intent(in) :: comm
       real(dp), intent(in) :: data(:)
       integer(int32), intent(in) :: dest
@@ -695,11 +860,46 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array
 
+   subroutine comm_isend_real_dp_array_2d(comm, data, dest, tag, request)
+   !! Non-blocking send of a 2D double precision real array
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first (blocking - simple approach)
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data (non-blocking)
+      call MPI_Isend(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array_2d
+
+   subroutine comm_isend_logical(comm, data, dest, tag, request)
+   !! Non-blocking send of a logical value
+      type(comm_t), intent(in) :: comm
+      logical, intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_LOGICAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_logical
+
    ! ========================================================================
    ! Non-blocking receive operations
    ! ========================================================================
 
    subroutine comm_irecv_integer(comm, data, source, tag, request)
+      !! Initiates a non-blocking receive operation. The request must be
+      !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data
       integer(int32), intent(in) :: source
@@ -711,18 +911,47 @@ contains
       request%is_valid = .true.
    end subroutine comm_irecv_integer
 
-   subroutine comm_irecv_integer_array(comm, data, count, source, tag, request)
+   subroutine comm_irecv_integer_array(comm, data, source, tag, request)
+      !! Initiates a non-blocking receive operation. The request must be
+      !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(out) :: data(:)
-      integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
-      call MPI_Irecv(data, count, MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
+      call MPI_Irecv(data, size(data), MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer_array
+
+   subroutine comm_irecv_integer64(comm, data, source, tag, request)
+   !! Initiates a non-blocking receive operation. The request must be
+   !! waited on using wait() or test() before the buffer can be used.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer64
+
+   subroutine comm_irecv_integer64_array(comm, data, source, tag, request)
+   !! Initiates a non-blocking receive operation. The request must be
+   !! waited on using wait() or test() before the buffer can be used.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, size(data), MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_integer64_array
 
    subroutine comm_irecv_real_dp(comm, data, source, tag, request)
       type(comm_t), intent(in) :: comm
@@ -736,28 +965,61 @@ contains
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp
 
-   subroutine comm_irecv_real_dp_array(comm, data, count, source, tag, request)
+   subroutine comm_irecv_real_dp_array(comm, data, source, tag, request)
       type(comm_t), intent(in) :: comm
       real(dp), intent(out) :: data(:)
-      integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
-      call MPI_Irecv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      call MPI_Irecv(data, size(data), MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array
+
+   subroutine comm_irecv_real_dp_array_2d(comm, data, source, tag, request)
+   !! Non-blocking receive of a 2D allocatable double precision real array
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Receive dimensions first (blocking - needed to allocate)
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data (non-blocking)
+      call MPI_Irecv(data, dim1*dim2, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_dp_array_2d
+
+   subroutine comm_irecv_logical(comm, data, source, tag, request)
+   !! Non-blocking receive of a logical value
+      type(comm_t), intent(in) :: comm
+      logical, intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_logical
 
    ! ========================================================================
    ! Request completion operations
    ! ========================================================================
 
-   !> Wait for a non-blocking operation to complete
-   !!
+   subroutine request_wait(request, status)
    !! Blocks until the operation associated with the request completes.
    !! The request is freed after completion.
-   subroutine request_wait(request, status)
       type(request_t), intent(inout) :: request
       type(MPI_Status), intent(out), optional :: status
       integer(int32) :: ierr
@@ -775,11 +1037,9 @@ contains
       call request%free()
    end subroutine request_wait
 
-   !> Wait for all non-blocking operations to complete
-   !!
+   subroutine request_waitall(requests, statuses)
    !! Blocks until all operations in the request array complete.
    !! All requests are freed after completion.
-   subroutine request_waitall(requests, statuses)
       type(request_t), intent(inout) :: requests(:)
       type(MPI_Status), intent(out), optional :: statuses(:)
       type(MPI_Request), allocatable :: mpi_requests(:)

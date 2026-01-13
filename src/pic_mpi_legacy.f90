@@ -14,7 +14,7 @@ module pic_mpi
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
                   MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, MPI_LOGICAL, &
                   MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
-                  MPI_Request, MPI_LOGICAL, &
+                  MPI_Request_NULL, MPI_LOGICAL, &
                   MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME
    implicit none
    private
@@ -28,7 +28,7 @@ module pic_mpi
    ! Export MPI constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
-   public :: MPI_Request
+   !public :: MPI_Request
 
    type :: MPI_Status
    !! MPI_Status wrapper type for legacy MPI compatibility

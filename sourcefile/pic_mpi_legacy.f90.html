@@ -88,7 +88,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="51.3% of total for source files.">788 statements</a>
+                 title="51.3% of total for source files.">787 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -183,7 +183,7 @@
 <a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">                  </span><span class="n">MPI_Abort</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Allgather</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Get_processor_name</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">                  </span><span class="n">MPI_Bcast</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Init</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Init_thread</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Query_thread</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_Finalize</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">                  </span><span class="n">MPI_THREAD_SINGLE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_FUNNELED</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_SERIALIZED</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_MULTIPLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">                  </span><span class="n">MPI_Request</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">                  </span><span class="n">MPI_Request_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">                  </span><span class="n">MPI_ANY_SOURCE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ANY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_SOURCE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_MAX_PROCESSOR_NAME</span>
 <a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">implicit none</span>
 <a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">   private</span>
@@ -197,7 +197,7 @@
 <a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="c">! Export MPI constants needed by applications</span>
 <a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MPI_Status</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ANY_SOURCE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ANY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_MAX_PROCESSOR_NAME</span>
 <a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MPI_THREAD_SINGLE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_FUNNELED</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_SERIALIZED</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_THREAD_MULTIPLE</span>
-<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MPI_Request</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="c">!public :: MPI_Request</span>
 <a id="ln-32" name="ln-32" href="#ln-32"></a>
 <a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MPI_Status</span>
 <a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="c">!! MPI_Status wrapper type for legacy MPI compatibility</span>
@@ -1246,7 +1246,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-01-13 03:25 +0000             </p>
+ on 2026-01-13 23:02 +0000             </p>
           </div>
         </div>
         <br>

@@ -12,7 +12,8 @@ module pic_mpi
                   MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall, MPI_Test, &
                   MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
-                  MPI_Bcast, MPI_Init, MPI_Finalize, MPI_LOGICAL, &
+                  MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, MPI_LOGICAL, &
+                  MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
                   MPI_Request, MPI_LOGICAL, &
                   MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME
    implicit none
@@ -22,10 +23,11 @@ module pic_mpi
    public :: send, recv, isend, irecv
    public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
-   public :: pic_mpi_init, pic_mpi_finalize
+   public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
 
    ! Export MPI constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
+   public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
    public :: MPI_Request
 
    type :: MPI_Status
@@ -667,13 +669,55 @@ contains
       call MPI_Get_processor_name(name, namelen, ierr)
    end subroutine get_processor_name
 
-   subroutine pic_mpi_init(ierr)
-      !! Initialize MPI environment
-      integer(int32), optional, intent(out) :: ierr
-      integer(int32) :: ierr_local
-      call MPI_Init(ierr_local)
-      if (present(ierr)) ierr = ierr_local
+   subroutine pic_mpi_init(requested_thread_level, provided_thread_level)
+      !! Initialize MPI environment with optional threading support
+      !!
+      !! If no thread level is requested, uses MPI_THREAD_FUNNELED by default
+      !! to allow OpenMP threading in compute_mbe_energy and similar functions.
+      !!
+      !! Thread levels:
+      !!   MPI_THREAD_SINGLE: No threading support
+      !!   MPI_THREAD_FUNNELED: Only main thread makes MPI calls (good for OpenMP)
+      !!   MPI_THREAD_SERIALIZED: Multiple threads can make MPI calls, but not simultaneously
+      !!   MPI_THREAD_MULTIPLE: Full thread safety
+      integer(int32), intent(in), optional :: requested_thread_level
+      integer(int32), intent(out), optional :: provided_thread_level
+      integer(int32) :: ierr, requested, provided
+
+      ! Default to FUNNELED for OpenMP compatibility
+      if (present(requested_thread_level)) then
+         requested = requested_thread_level
+      else
+         requested = MPI_THREAD_FUNNELED
+      end if
+
+      call MPI_Init_thread(requested, provided, ierr)
+
+      ! Return the provided level if requested
+      if (present(provided_thread_level)) then
+         provided_thread_level = provided
+      end if
+
+      ! Warn if we didn't get what we asked for
+      if (provided < requested .and. requested /= MPI_THREAD_SINGLE) then
+         if (requested == MPI_THREAD_FUNNELED) then
+            write (*, '(a)') "Warning: MPI_THREAD_FUNNELED requested but not provided."
+            write (*, '(a)') "OpenMP threading in compute functions may not work correctly."
+         else if (requested == MPI_THREAD_SERIALIZED) then
+            write (*, '(a)') "Warning: MPI_THREAD_SERIALIZED requested but not provided."
+         else if (requested == MPI_THREAD_MULTIPLE) then
+            write (*, '(a)') "Warning: MPI_THREAD_MULTIPLE requested but not provided."
+         end if
+      end if
    end subroutine pic_mpi_init
+
+   function pic_mpi_query_thread_level() result(thread_level)
+      !! Query the current MPI thread support level
+      integer(int32) :: thread_level
+      integer(int32) :: ierr
+
+      call MPI_Query_thread(thread_level, ierr)
+   end function pic_mpi_query_thread_level
 
    subroutine pic_mpi_finalize(ierr)
       !! Finalize MPI environment

@@ -1,0 +1,72 @@
+name: Build PIC-MPI using local conda env
+
+on: [push]
+
+jobs:
+  cmake-build:
+    name: CMake build (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "mpi_f08"
+            legacy_mpi: false
+          - name: "legacy MPI"
+            legacy_mpi: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          miniforge-version: latest
+
+      - name: Install conda environment
+        shell: bash -el {0}
+        run: |
+          conda env create --name pic-mpi --file environment.yml
+          conda install -c conda-forge -n pic-mpi gfortran=14.2.0
+
+      - name: Execute cmake and build
+        shell: bash -el {0}
+        run: |
+          conda activate pic-mpi
+          export FC=gfortran
+          cmake -DPIC_USE_LEGACY_MPI=${{ matrix.legacy_mpi && 'ON' || 'OFF' }} \
+                -DENABLE_TESTING=ON \
+                -B build
+          cmake --build build
+
+      - name: Run unit tests
+        shell: bash -el {0}
+        run: |
+          conda activate pic-mpi
+          ctest --test-dir build --output-on-failure
+
+  fpm-build:
+    name: FPM build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          miniforge-version: latest
+
+      - name: Install conda environment
+        shell: bash -el {0}
+        run: |
+          conda env create --name pic-mpi --file environment.yml
+          conda install -c conda-forge -n pic-mpi gfortran=14.2.0
+
+      - name: Build with fpm
+        shell: bash -el {0}
+        run: |
+          conda activate pic-mpi
+          fpm build --compiler mpifort
+
+      - name: Run fpm tests
+        shell: bash -el {0}
+        run: |
+          conda activate pic-mpi
+          fpm test --compiler mpifort

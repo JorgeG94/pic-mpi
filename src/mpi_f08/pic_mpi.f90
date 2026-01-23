@@ -5,7 +5,7 @@
 !! requests into derived types with type-bound procedures.
 !!
 module pic_mpi_f08
-   use pic_types, only: int32, int64, dp
+   use pic_types, only: int32, int64, sp, dp
    use mpi_f08, only: MPI_Comm, MPI_Status, MPI_Request, MPI_COMM_NULL, MPI_COMM_WORLD, &
                       MPI_COMM_TYPE_SHARED, MPI_INFO_NULL, MPI_UNDEFINED, &
                       MPI_INTEGER, MPI_INTEGER8, MPI_STATUS_IGNORE, MPI_REQUEST_NULL, MPI_Comm_rank, &
@@ -18,9 +18,11 @@ module pic_mpi_f08
                       MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
                       MPI_ANY_SOURCE, MPI_ANY_TAG, &
                       MPI_MAX_PROCESSOR_NAME, MPI_LOGICAL, &
-                      operator(==), operator(/=), MPI_DOUBLE_PRECISION, &
+                      operator(==), operator(/=), MPI_DOUBLE_PRECISION, MPI_REAL, &
                       MPI_Win, MPI_Op, MPI_WIN_NULL, MPI_Win_create, MPI_Win_create_dynamic, &
                       MPI_Win_free, MPI_Win_fence, MPI_Win_lock, MPI_Win_unlock, &
+                      MPI_Win_lock_all, MPI_Win_unlock_all, MPI_Win_flush, MPI_Win_flush_all, &
+                      MPI_Rget, MPI_Rput, MPI_Win_allocate, &
                       MPI_Get, MPI_Put, MPI_Accumulate, MPI_Fetch_and_op, &
                       MPI_Allreduce, MPI_ADDRESS_KIND, MPI_LOCK_SHARED, MPI_SUM, MPI_IN_PLACE
    implicit none
@@ -31,7 +33,7 @@ module pic_mpi_f08
    public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
-   public :: win_t, win_create, win_create_dynamic
+   public :: win_t, win_create, win_create_dynamic, win_allocate
    public :: allreduce
 
    ! Export MPI types and constants needed by applications
@@ -64,9 +66,34 @@ module pic_mpi_f08
       procedure :: fence => win_fence
       procedure :: lock => win_lock
       procedure :: unlock => win_unlock
+      procedure :: lock_all => win_lock_all
+      procedure :: unlock_all => win_unlock_all
+      procedure :: flush => win_flush
+      procedure :: flush_all => win_flush_all
+      ! Double precision (dp) RMA operations
       procedure :: get_dp => win_get_dp
       procedure :: put_dp => win_put_dp
+      procedure :: rget_dp => win_rget_dp
+      procedure :: rput_dp => win_rput_dp
       procedure :: accumulate_dp => win_accumulate_dp
+      ! Single precision (sp) RMA operations
+      procedure :: get_sp => win_get_sp
+      procedure :: put_sp => win_put_sp
+      procedure :: rget_sp => win_rget_sp
+      procedure :: rput_sp => win_rput_sp
+      procedure :: accumulate_sp => win_accumulate_sp
+      ! Integer32 RMA operations
+      procedure :: get_i32 => win_get_i32
+      procedure :: put_i32 => win_put_i32
+      procedure :: rget_i32 => win_rget_i32
+      procedure :: rput_i32 => win_rput_i32
+      procedure :: accumulate_i32 => win_accumulate_i32
+      ! Integer64 RMA operations
+      procedure :: get_i64 => win_get_i64
+      procedure :: put_i64 => win_put_i64
+      procedure :: rget_i64 => win_rget_i64
+      procedure :: rput_i64 => win_rput_i64
+      procedure :: accumulate_i64 => win_accumulate_i64
       procedure :: fetch_and_add_i64 => win_fetch_and_add_i64
       procedure :: finalize => win_finalize
    end type win_t
@@ -184,6 +211,14 @@ module pic_mpi_f08
    interface win_create_dynamic
       module procedure create_win_dynamic
    end interface win_create_dynamic
+
+   interface win_allocate
+      module procedure create_win_allocate_dp_1d
+      module procedure create_win_allocate_dp_2d
+      module procedure create_win_allocate_sp_1d
+      module procedure create_win_allocate_i32_1d
+      module procedure create_win_allocate_i64_1d
+   end interface win_allocate
 
    interface allreduce
       module procedure :: allreduce_dp
@@ -1107,9 +1142,9 @@ contains
       integer(int32) :: ierr
       integer(int32) :: disp_unit
 
-      disp_unit = int(storage_size(base(1))/8, int32)
+      disp_unit = int(storage_size(base(1))/8_int32, int32)
       call MPI_Win_create(base, win_size, disp_unit, &
-                         MPI_INFO_NULL, comm%get(), win%m_win, ierr)
+                          MPI_INFO_NULL, comm%get(), win%m_win, ierr)
       win%is_valid = .true.
    end function create_win_dp_array
 
@@ -1125,6 +1160,117 @@ contains
       call MPI_Win_create_dynamic(MPI_INFO_NULL, comm%get(), win%m_win, ierr)
       win%is_valid = .true.
    end function create_win_dynamic
+
+   !> Allocate window memory and create window in one call (1D array)
+   !!
+   !! This is more efficient than separate allocation + win_create.
+   !! The baseptr is associated with the allocated memory.
+   !! Memory is freed when window is finalized.
+   subroutine create_win_allocate_dp_1d(comm, length, baseptr, win)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: length
+      real(dp), pointer, intent(out) :: baseptr(:)
+      type(win_t), intent(out) :: win
+      type(c_ptr) :: cptr
+      integer(MPI_ADDRESS_KIND) :: win_size
+      integer(int32) :: disp_unit, ierr
+
+      win_size = int(length, MPI_ADDRESS_KIND)*int(storage_size(1.0_dp)/8_int32, MPI_ADDRESS_KIND)
+      disp_unit = int(storage_size(1.0_dp)/8_int32, int32)
+
+      call MPI_Win_allocate(win_size, disp_unit, MPI_INFO_NULL, &
+                            comm%get(), cptr, win%m_win, ierr)
+      call c_f_pointer(cptr, baseptr, [length])
+      win%is_valid = .true.
+   end subroutine create_win_allocate_dp_1d
+
+   !> Allocate window memory and create window in one call (2D array)
+   !!
+   !! This is more efficient than separate allocation + win_create.
+   !! The baseptr is associated with the allocated memory.
+   !! Memory is freed when window is finalized.
+   subroutine create_win_allocate_dp_2d(comm, dim1, dim2, baseptr, win)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: dim1, dim2
+      real(dp), pointer, intent(out) :: baseptr(:, :)
+      type(win_t), intent(out) :: win
+      type(c_ptr) :: cptr
+      integer(MPI_ADDRESS_KIND) :: win_size
+      integer(int32) :: disp_unit, ierr, total_size
+
+      total_size = dim1*dim2
+      win_size = int(total_size, MPI_ADDRESS_KIND)*int(storage_size(1.0_dp)/8_int32, MPI_ADDRESS_KIND)
+      disp_unit = int(storage_size(1.0_dp)/8_int32, int32)
+
+      call MPI_Win_allocate(win_size, disp_unit, MPI_INFO_NULL, &
+                            comm%get(), cptr, win%m_win, ierr)
+      call c_f_pointer(cptr, baseptr, [dim1, dim2])
+      win%is_valid = .true.
+   end subroutine create_win_allocate_dp_2d
+
+   !> Allocate window memory for integer64 array
+   !!
+   !! Used for atomic counters in dynamic load balancing.
+   subroutine create_win_allocate_i64_1d(comm, length, baseptr, win)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: length
+      integer(int64), pointer, intent(out) :: baseptr(:)
+      type(win_t), intent(out) :: win
+      type(c_ptr) :: cptr
+      integer(MPI_ADDRESS_KIND) :: win_size
+      integer(int32) :: disp_unit, ierr
+
+      win_size = int(length, MPI_ADDRESS_KIND)*int(storage_size(1_int64)/8_int32, MPI_ADDRESS_KIND)
+      disp_unit = int(storage_size(1_int64)/8_int32, int32)
+
+      call MPI_Win_allocate(win_size, disp_unit, MPI_INFO_NULL, &
+                            comm%get(), cptr, win%m_win, ierr)
+      call c_f_pointer(cptr, baseptr, [length])
+      win%is_valid = .true.
+   end subroutine create_win_allocate_i64_1d
+
+   !> Allocate window memory for single precision array
+   subroutine create_win_allocate_sp_1d(comm, length, baseptr, win)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: length
+      real(sp), pointer, intent(out) :: baseptr(:)
+      type(win_t), intent(out) :: win
+      type(c_ptr) :: cptr
+      integer(MPI_ADDRESS_KIND) :: win_size
+      integer(int32) :: disp_unit, ierr
+
+      win_size = int(length, MPI_ADDRESS_KIND)*int(storage_size(1.0_sp)/8_int32, MPI_ADDRESS_KIND)
+      disp_unit = int(storage_size(1.0_sp)/8_int32, int32)
+
+      call MPI_Win_allocate(win_size, disp_unit, MPI_INFO_NULL, &
+                            comm%get(), cptr, win%m_win, ierr)
+      call c_f_pointer(cptr, baseptr, [length])
+      win%is_valid = .true.
+   end subroutine create_win_allocate_sp_1d
+
+   !> Allocate window memory for integer32 array
+   subroutine create_win_allocate_i32_1d(comm, length, baseptr, win)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: length
+      integer(int32), pointer, intent(out) :: baseptr(:)
+      type(win_t), intent(out) :: win
+      type(c_ptr) :: cptr
+      integer(MPI_ADDRESS_KIND) :: win_size
+      integer(int32) :: disp_unit, ierr
+
+      win_size = int(length, MPI_ADDRESS_KIND)*int(storage_size(1_int32)/8_int32, MPI_ADDRESS_KIND)
+      disp_unit = int(storage_size(1_int32)/8_int32, int32)
+
+      call MPI_Win_allocate(win_size, disp_unit, MPI_INFO_NULL, &
+                            comm%get(), cptr, win%m_win, ierr)
+      call c_f_pointer(cptr, baseptr, [length])
+      win%is_valid = .true.
+   end subroutine create_win_allocate_i32_1d
 
    ! ========================================================================
    ! Window query methods
@@ -1196,6 +1342,56 @@ contains
       call MPI_Win_unlock(rank, this%m_win, ierr)
    end subroutine win_unlock
 
+   !> Lock window on all ranks for passive target RMA
+   !!
+   !! Begins RMA access epoch for all ranks simultaneously.
+   !! More efficient than individual locks when accessing multiple ranks.
+   !! Must be paired with unlock_all.
+   subroutine win_lock_all(this, assert)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in), optional :: assert
+      integer(int32) :: ierr, assert_val
+
+      if (present(assert)) then
+         assert_val = assert
+      else
+         assert_val = 0_int32
+      end if
+
+      call MPI_Win_lock_all(assert_val, this%m_win, ierr)
+   end subroutine win_lock_all
+
+   !> Unlock window on all ranks for passive target RMA
+   subroutine win_unlock_all(this)
+      class(win_t), intent(in) :: this
+      integer(int32) :: ierr
+
+      call MPI_Win_unlock_all(this%m_win, ierr)
+   end subroutine win_unlock_all
+
+   !> Flush pending RMA operations to a specific rank
+   !!
+   !! Ensures all RMA operations to target rank have completed.
+   !! Use within lock_all/unlock_all epoch.
+   subroutine win_flush(this, rank)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: rank
+      integer(int32) :: ierr
+
+      call MPI_Win_flush(rank, this%m_win, ierr)
+   end subroutine win_flush
+
+   !> Flush pending RMA operations to all ranks
+   !!
+   !! Ensures all RMA operations to all ranks have completed.
+   !! Use within lock_all/unlock_all epoch.
+   subroutine win_flush_all(this)
+      class(win_t), intent(in) :: this
+      integer(int32) :: ierr
+
+      call MPI_Win_flush_all(this%m_win, ierr)
+   end subroutine win_flush_all
+
    ! ========================================================================
    ! RMA Get/Put/Accumulate operations
    ! ========================================================================
@@ -1234,6 +1430,46 @@ contains
                    this%m_win, ierr)
    end subroutine win_put_dp
 
+   !> Non-blocking get data from remote window
+   !!
+   !! Retrieves data from target rank's window into local buffer.
+   !! Returns a request handle for later completion via wait().
+   !! Must be called between lock_all/unlock_all pairs.
+   subroutine win_rget_dp(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(dp), intent(out) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rget(buffer, count, MPI_DOUBLE_PRECISION, &
+                    target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rget_dp
+
+   !> Non-blocking put data to remote window
+   !!
+   !! Sends data from local buffer to target rank's window.
+   !! Returns a request handle for later completion via wait().
+   !! Must be called between lock_all/unlock_all pairs.
+   subroutine win_rput_dp(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(dp), intent(in) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rput(buffer, count, MPI_DOUBLE_PRECISION, &
+                    target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rput_dp
+
    !> Accumulate data to remote window
    !!
    !! Atomically adds local buffer to target rank's window.
@@ -1259,6 +1495,249 @@ contains
                           mpi_op, this%m_win, ierr)
    end subroutine win_accumulate_dp
 
+   ! ========================================================================
+   ! Single precision (sp) RMA operations
+   ! ========================================================================
+
+   subroutine win_get_sp(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(sp), intent(out) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Get(buffer, count, MPI_REAL, &
+                   target_rank, target_disp, count, MPI_REAL, &
+                   this%m_win, ierr)
+   end subroutine win_get_sp
+
+   subroutine win_put_sp(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(sp), intent(in) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Put(buffer, count, MPI_REAL, &
+                   target_rank, target_disp, count, MPI_REAL, &
+                   this%m_win, ierr)
+   end subroutine win_put_sp
+
+   subroutine win_rget_sp(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(sp), intent(out) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rget(buffer, count, MPI_REAL, &
+                    target_rank, target_disp, count, MPI_REAL, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rget_sp
+
+   subroutine win_rput_sp(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(sp), intent(in) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rput(buffer, count, MPI_REAL, &
+                    target_rank, target_disp, count, MPI_REAL, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rput_sp
+
+   subroutine win_accumulate_sp(this, target_rank, target_disp, count, buffer, op)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      real(sp), intent(in) :: buffer(*)
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer(int32) :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Accumulate(buffer, count, MPI_REAL, &
+                          target_rank, target_disp, count, MPI_REAL, &
+                          mpi_op, this%m_win, ierr)
+   end subroutine win_accumulate_sp
+
+   ! ========================================================================
+   ! Integer32 (i32) RMA operations
+   ! ========================================================================
+
+   subroutine win_get_i32(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int32), intent(out) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Get(buffer, count, MPI_INTEGER, &
+                   target_rank, target_disp, count, MPI_INTEGER, &
+                   this%m_win, ierr)
+   end subroutine win_get_i32
+
+   subroutine win_put_i32(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Put(buffer, count, MPI_INTEGER, &
+                   target_rank, target_disp, count, MPI_INTEGER, &
+                   this%m_win, ierr)
+   end subroutine win_put_i32
+
+   subroutine win_rget_i32(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int32), intent(out) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rget(buffer, count, MPI_INTEGER, &
+                    target_rank, target_disp, count, MPI_INTEGER, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rget_i32
+
+   subroutine win_rput_i32(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rput(buffer, count, MPI_INTEGER, &
+                    target_rank, target_disp, count, MPI_INTEGER, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rput_i32
+
+   subroutine win_accumulate_i32(this, target_rank, target_disp, count, buffer, op)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: buffer(*)
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer(int32) :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Accumulate(buffer, count, MPI_INTEGER, &
+                          target_rank, target_disp, count, MPI_INTEGER, &
+                          mpi_op, this%m_win, ierr)
+   end subroutine win_accumulate_i32
+
+   ! ========================================================================
+   ! Integer64 (i64) RMA operations
+   ! ========================================================================
+
+   subroutine win_get_i64(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int64), intent(out) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Get(buffer, count, MPI_INTEGER8, &
+                   target_rank, target_disp, count, MPI_INTEGER8, &
+                   this%m_win, ierr)
+   end subroutine win_get_i64
+
+   subroutine win_put_i64(this, target_rank, target_disp, count, buffer)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int64), intent(in) :: buffer(*)
+      integer(int32) :: ierr
+
+      call MPI_Put(buffer, count, MPI_INTEGER8, &
+                   target_rank, target_disp, count, MPI_INTEGER8, &
+                   this%m_win, ierr)
+   end subroutine win_put_i64
+
+   subroutine win_rget_i64(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int64), intent(out) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rget(buffer, count, MPI_INTEGER8, &
+                    target_rank, target_disp, count, MPI_INTEGER8, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rget_i64
+
+   subroutine win_rput_i64(this, target_rank, target_disp, count, buffer, request)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int64), intent(in) :: buffer(*)
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Rput(buffer, count, MPI_INTEGER8, &
+                    target_rank, target_disp, count, MPI_INTEGER8, &
+                    this%m_win, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine win_rput_i64
+
+   subroutine win_accumulate_i64(this, target_rank, target_disp, count, buffer, op)
+      class(win_t), intent(in) :: this
+      integer(int32), intent(in) :: target_rank
+      integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
+      integer(int32), intent(in) :: count
+      integer(int64), intent(in) :: buffer(*)
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer(int32) :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Accumulate(buffer, count, MPI_INTEGER8, &
+                          target_rank, target_disp, count, MPI_INTEGER8, &
+                          mpi_op, this%m_win, ierr)
+   end subroutine win_accumulate_i64
+
    !> Atomic fetch-and-add for load balancing
    !!
    !! Atomically increments remote counter and returns old value.
@@ -1272,7 +1751,7 @@ contains
       integer(int32) :: ierr
 
       call MPI_Fetch_and_op(value, result, MPI_INTEGER8, &
-                           target_rank, target_disp, MPI_SUM, this%m_win, ierr)
+                            target_rank, target_disp, MPI_SUM, this%m_win, ierr)
    end subroutine win_fetch_and_add_i64
 
    ! ========================================================================
@@ -1311,7 +1790,7 @@ contains
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_DOUBLE_PRECISION, &
-                        mpi_op, comm%get(), ierr)
+                         mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp
 
    !> Allreduce for double precision array
@@ -1339,7 +1818,7 @@ contains
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_DOUBLE_PRECISION, &
-                        mpi_op, comm%get(), ierr)
+                         mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp_array
 
    !> Allreduce for scalar integer
@@ -1359,7 +1838,7 @@ contains
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_INTEGER, &
-                        mpi_op, comm%get(), ierr)
+                         mpi_op, comm%get(), ierr)
    end subroutine allreduce_i32
 
    !> Allreduce for integer array
@@ -1386,7 +1865,7 @@ contains
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_INTEGER, &
-                        mpi_op, comm%get(), ierr)
+                         mpi_op, comm%get(), ierr)
    end subroutine allreduce_i32_array
 
 end module pic_mpi_f08

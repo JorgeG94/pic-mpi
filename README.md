@@ -67,6 +67,7 @@ Comments in the code that are prefixed with `!!` are considered documentation co
 | Option Name            | Default | Description                                |
 |------------------------|---------|--------------------------------------------|
 | `PIC_USE_VAPAA`        | `OFF`   | Use vapaa for binding to MPI               |
+| `PIC_USE_LEGACY_MPI`   | `OFF`   | Use legacy MPI interface instead of mpi_f08 |
 
 Information on vapaa see [here](https://github.com/JorgeG94/vapaa/tree/main) which is my
 personal fork which is pulled from here, and Jeff's [project](https://github.com/jeffhammond/vapaa).

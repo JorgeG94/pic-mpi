@@ -24,14 +24,13 @@ program hierarchical_mpi_test
 
    ! Test parameters
    integer(default_int) :: n_tasks, matrix_size
-   integer :: narg, ierr
+   integer :: narg
    character(len=32) :: arg
 
    !==============================
    ! MPI Initialization
    !==============================
-   !call MPI_Init()
-   call pic_mpi_init(ierr)
+   call pic_mpi_init()
    world_comm = comm_world()
    node_comm = world_comm%split()   ! shared memory communicator
 
@@ -180,7 +179,7 @@ program hierarchical_mpi_test
    deallocate (all_node_leader_ranks, node_leader_ranks)
    call node_comm%finalize()
    call world_comm%finalize()
-   call MPI_Finalize()
+   call pic_mpi_finalize()
 
 contains
 
@@ -256,7 +255,7 @@ contains
          recv_array = 0
 
          call isend(comm, send_array, partner, 200, send_req)
-         call irecv(comm, recv_array, 10, partner, 201, recv_req)
+         call irecv(comm, recv_array, partner, 201, recv_req)
 
          call wait(send_req)
          call wait(recv_req)
@@ -275,7 +274,7 @@ contains
          send_array = [(i*3, i=1, 10)]
          recv_array = 0
 
-         call irecv(comm, recv_array, 10, partner, 200, recv_req)
+         call irecv(comm, recv_array, partner, 200, recv_req)
          call isend(comm, send_array, partner, 201, send_req)
 
          call wait(recv_req)
@@ -492,7 +491,7 @@ contains
       type(comm_t), intent(in) :: world_comm, node_comm
       integer, intent(in) :: matrix_size
 
-      integer :: task_id, ierr, dummy_msg
+      integer :: task_id, dummy_msg
       integer :: finished_workers
       integer :: local_dummy
       type(MPI_Status) :: status, global_status

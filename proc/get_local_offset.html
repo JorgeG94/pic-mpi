@@ -1,0 +1,929 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="A set of commonly used programs in Fortran aimed at scientific computing">
+    <meta name="author" content="Jorge Luis Galvez Vallejo" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_local_offset &ndash; PIC-MPI</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PIC-MPI </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_local_offset
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for procedures.">8 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/darrays_distrib.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/darrays_distrib.f90.html'>darrays_distrib.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/darrays_distrib.html'>darrays_distrib</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_local_offset</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/get_local_offset.html#variable-local_col">local_col</a>
+            <a class="list-group-item" href="../proc/get_local_offset.html#variable-owner_first_col">owner_first_col</a>
+            <a class="list-group-item" href="../proc/get_local_offset.html#variable-owner_ncols">owner_ncols</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_local_offset.html#src">get_local_offset</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public pure function get_local_offset(nrows, ncols, nranks, row, col) result(offset)  
+</h2>
+    
+
+    <p>Get local offset in owner&rsquo;s window for a given (row, col)</p>
+<p>Returns the displacement in the owner&rsquo;s local_data array
+for the element at (row, col) in the global array.
+Data is stored column-major: offset = row + (local_col * nrows)</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrows"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrows</strong></td>
+            <td>
+                <p>Number of rows in array</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ncols~3"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncols</strong></td>
+            <td>
+                <p>Number of rows in array
+Number of columns in array</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nranks~3"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nranks</strong></td>
+            <td>
+                <p>Number of rows in array
+Number of columns in array
+Number of MPI ranks</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-row"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>row</strong></td>
+            <td>
+                <p>Number of rows in array
+Number of columns in array
+Number of MPI ranks
+Row index (0-indexed)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-col~2"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>col</strong></td>
+            <td>
+                <p>Number of rows in array
+Number of columns in array
+Number of MPI ranks
+Row index (0-indexed)
+Column index (0-indexed)</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-offset"></span>
+          integer(kind=MPI_ADDRESS_KIND)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_local_offset~~CallsGraph Pages: 1 -->
+<svg id="procget_local_offsetCallsGraph" width="267pt" height="74pt"
+ viewBox="0.00 0.00 267.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_local_offset~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~get_local_offset~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 263,-70 263,4 -4,4"/>
+<!-- proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CallsGraph_node1" class="node">
+<title>proc~get_local_offset</title>
+<polygon fill="none" stroke="black" points="96,-45 0,-45 0,-21 96,-21 96,-45"/>
+<text text-anchor="middle" x="48" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_local_offset</text>
+</g>
+<!-- proc~calculate_distribution -->
+<g id="proc~~get_local_offset~~CallsGraph_node2" class="node">
+<title>proc~calculate_distribution</title>
+<g id="a_proc~~get_local_offset~~CallsGraph_node2"><a xlink:href="../proc/calculate_distribution.html" xlink:title="calculate_distribution">
+<polygon fill="#d9534f" stroke="#d9534f" points="259,-66 132,-66 132,-42 259,-42 259,-66"/>
+<text text-anchor="middle" x="195.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calculate_distribution</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_offset&#45;&gt;proc~calculate_distribution -->
+<g id="proc~~get_local_offset~~CallsGraph_edge1" class="edge">
+<title>proc~get_local_offset&#45;&gt;proc~calculate_distribution</title>
+<path fill="none" stroke="#ff0000" d="M96.24,-39.82C104.41,-41 113.07,-42.25 121.74,-43.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.48,-47 131.88,-44.96 122.48,-40.07 121.48,-47"/>
+</g>
+<!-- proc~get_owner -->
+<g id="proc~~get_local_offset~~CallsGraph_node3" class="node">
+<title>proc~get_owner</title>
+<g id="a_proc~~get_local_offset~~CallsGraph_node3"><a xlink:href="../proc/get_owner.html" xlink:title="get_owner">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="229.5,-24 161.5,-24 161.5,0 229.5,0 229.5,-24"/>
+<text text-anchor="middle" x="195.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_owner</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_offset&#45;&gt;proc~get_owner -->
+<g id="proc~~get_local_offset~~CallsGraph_edge2" class="edge">
+<title>proc~get_local_offset&#45;&gt;proc~get_owner</title>
+<path fill="none" stroke="#ff0000" d="M96.24,-26.18C113.83,-23.64 133.7,-20.78 150.95,-18.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="151.9,-21.68 161.3,-16.79 150.9,-14.76 151.9,-21.68"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_local_offset~~CalledByGraph Pages: 1 -->
+<svg id="procget_local_offsetCalledByGraph" width="342pt" height="494pt"
+ viewBox="0.00 0.00 342.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_local_offset~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>proc~~get_local_offset~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 338,-490 338,4 -4,4"/>
+<!-- proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_node1" class="node">
+<title>proc~get_local_offset</title>
+<polygon fill="none" stroke="black" points="334,-255 238,-255 238,-231 334,-231 334,-255"/>
+<text text-anchor="middle" x="286" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_local_offset</text>
+</g>
+<!-- proc~darray_acc_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node2" class="node">
+<title>proc~darray_acc_dp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node2"><a xlink:href="../proc/darray_acc_dp.html" xlink:title="darray_acc_dp">
+<polygon fill="#d9534f" stroke="#d9534f" points="200.5,-486 109.5,-486 109.5,-462 200.5,-462 200.5,-486"/>
+<text text-anchor="middle" x="155" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_acc_dp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_acc_dp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge1" class="edge">
+<title>proc~darray_acc_dp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M190.63,-461.83C194.8,-459.36 198.74,-456.44 202,-453 254.03,-398.19 274.77,-306.85 281.83,-265.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.3,-265.55 283.41,-255.12 278.39,-264.45 285.3,-265.55"/>
+</g>
+<!-- proc~darray_acc_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node3" class="node">
+<title>proc~darray_acc_i32</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node3"><a xlink:href="../proc/darray_acc_i32.html" xlink:title="darray_acc_i32">
+<polygon fill="#d9534f" stroke="#d9534f" points="202,-444 108,-444 108,-420 202,-420 202,-444"/>
+<text text-anchor="middle" x="155" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_acc_i32</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_acc_i32&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge2" class="edge">
+<title>proc~darray_acc_i32&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M189.9,-419.84C194.28,-417.35 198.47,-414.42 202,-411 245.17,-369.13 269.28,-300.12 279.34,-265"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.74,-265.83 282.01,-255.26 275.99,-263.98 282.74,-265.83"/>
+</g>
+<!-- proc~darray_acc_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node4" class="node">
+<title>proc~darray_acc_i64</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node4"><a xlink:href="../proc/darray_acc_i64.html" xlink:title="darray_acc_i64">
+<polygon fill="#d9534f" stroke="#d9534f" points="202,-402 108,-402 108,-378 202,-378 202,-402"/>
+<text text-anchor="middle" x="155" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_acc_i64</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_acc_i64&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge3" class="edge">
+<title>proc~darray_acc_i64&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M188.57,-377.95C193.35,-375.4 198,-372.43 202,-369 236.73,-339.25 262.69,-291.49 275.69,-264.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.87,-265.56 279.88,-255.02 272.52,-262.63 278.87,-265.56"/>
+</g>
+<!-- proc~darray_acc_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node5" class="node">
+<title>proc~darray_acc_sp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node5"><a xlink:href="../proc/darray_acc_sp.html" xlink:title="darray_acc_sp">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.5,-360 110.5,-360 110.5,-336 199.5,-336 199.5,-360"/>
+<text text-anchor="middle" x="155" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_acc_sp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_acc_sp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge4" class="edge">
+<title>proc~darray_acc_sp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M186.56,-335.95C191.89,-333.32 197.25,-330.32 202,-327 228.23,-308.67 253.33,-281.46 268.93,-263.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.7,-265.16 275.4,-255.23 266.32,-260.69 271.7,-265.16"/>
+</g>
+<!-- proc~darray_get_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node6" class="node">
+<title>proc~darray_get_dp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node6"><a xlink:href="../proc/darray_get_dp.html" xlink:title="darray_get_dp">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.5,-318 110.5,-318 110.5,-294 199.5,-294 199.5,-318"/>
+<text text-anchor="middle" x="155" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_get_dp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_get_dp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge5" class="edge">
+<title>proc~darray_get_dp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M182.84,-293.97C189.15,-291.08 195.83,-287.97 202,-285 218.87,-276.88 237.49,-267.5 252.8,-259.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.57,-262.7 261.87,-255.02 251.37,-256.47 254.57,-262.7"/>
+</g>
+<!-- proc~darray_get_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node7" class="node">
+<title>proc~darray_get_i32</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node7"><a xlink:href="../proc/darray_get_i32.html" xlink:title="darray_get_i32">
+<polygon fill="#d9534f" stroke="#d9534f" points="201,-276 109,-276 109,-252 201,-252 201,-276"/>
+<text text-anchor="middle" x="155" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_get_i32</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_get_i32&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge6" class="edge">
+<title>proc~darray_get_i32&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M201.12,-256.66C209.78,-255.25 218.95,-253.75 227.92,-252.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.63,-255.72 237.94,-250.66 227.51,-248.81 228.63,-255.72"/>
+</g>
+<!-- proc~darray_get_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node8" class="node">
+<title>proc~darray_get_i64</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node8"><a xlink:href="../proc/darray_get_i64.html" xlink:title="darray_get_i64">
+<polygon fill="#d9534f" stroke="#d9534f" points="201,-234 109,-234 109,-210 201,-210 201,-234"/>
+<text text-anchor="middle" x="155" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_get_i64</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_get_i64&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge7" class="edge">
+<title>proc~darray_get_i64&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M201.12,-229.34C209.78,-230.75 218.95,-232.25 227.92,-233.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.51,-237.19 237.94,-235.34 228.63,-230.28 227.51,-237.19"/>
+</g>
+<!-- proc~darray_get_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node9" class="node">
+<title>proc~darray_get_sp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node9"><a xlink:href="../proc/darray_get_sp.html" xlink:title="darray_get_sp">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-192 111,-192 111,-168 199,-168 199,-192"/>
+<text text-anchor="middle" x="155" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_get_sp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_get_sp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge8" class="edge">
+<title>proc~darray_get_sp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M182.84,-192.03C189.15,-194.92 195.83,-198.03 202,-201 218.87,-209.12 237.49,-218.5 252.8,-226.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.37,-229.53 261.87,-230.98 254.57,-223.3 251.37,-229.53"/>
+</g>
+<!-- proc~darray_put_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node10" class="node">
+<title>proc~darray_put_dp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node10"><a xlink:href="../proc/darray_put_dp.html" xlink:title="darray_put_dp">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.5,-150 110.5,-150 110.5,-126 199.5,-126 199.5,-150"/>
+<text text-anchor="middle" x="155" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put_dp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_dp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge9" class="edge">
+<title>proc~darray_put_dp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M186.56,-150.05C191.89,-152.68 197.25,-155.68 202,-159 228.23,-177.33 253.33,-204.54 268.93,-222.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.32,-225.31 275.4,-230.77 271.7,-220.84 266.32,-225.31"/>
+</g>
+<!-- proc~darray_put_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node11" class="node">
+<title>proc~darray_put_i32</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node11"><a xlink:href="../proc/darray_put_i32.html" xlink:title="darray_put_i32">
+<polygon fill="#d9534f" stroke="#d9534f" points="201,-108 109,-108 109,-84 201,-84 201,-108"/>
+<text text-anchor="middle" x="155" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put_i32</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i32&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge10" class="edge">
+<title>proc~darray_put_i32&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M188.57,-108.05C193.35,-110.6 198,-113.57 202,-117 236.73,-146.75 262.69,-194.51 275.69,-221.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.52,-223.37 279.88,-230.98 278.87,-220.44 272.52,-223.37"/>
+</g>
+<!-- proc~darray_put_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_node12" class="node">
+<title>proc~darray_put_i64</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node12"><a xlink:href="../proc/darray_put_i64.html" xlink:title="darray_put_i64">
+<polygon fill="#d9534f" stroke="#d9534f" points="201,-66 109,-66 109,-42 201,-42 201,-66"/>
+<text text-anchor="middle" x="155" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put_i64</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge11" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M189.9,-66.16C194.28,-68.65 198.47,-71.58 202,-75 245.17,-116.87 269.28,-185.88 279.34,-221"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.99,-222.02 282.01,-230.74 282.74,-220.17 275.99,-222.02"/>
+</g>
+<!-- proc~darray_put_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_node13" class="node">
+<title>proc~darray_put_sp</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node13"><a xlink:href="../proc/darray_put_sp.html" xlink:title="darray_put_sp">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-24 111,-24 111,0 199,0 199,-24"/>
+<text text-anchor="middle" x="155" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put_sp</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_sp&#45;&gt;proc~get_local_offset -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge12" class="edge">
+<title>proc~darray_put_sp&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M190.63,-24.17C194.8,-26.64 198.74,-29.56 202,-33 254.03,-87.81 274.77,-179.15 281.83,-220.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.39,-221.55 283.41,-230.88 285.3,-220.45 278.39,-221.55"/>
+</g>
+<!-- interface~darray_acc -->
+<g id="proc~~get_local_offset~~CalledByGraph_node14" class="node">
+<title>interface~darray_acc</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node14"><a xlink:href="../interface/darray_acc.html" xlink:title="darray_acc">
+<polygon fill="#a7506f" stroke="#a7506f" points="72,-423 0,-423 0,-399 72,-399 72,-423"/>
+<text text-anchor="middle" x="36" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_acc</text>
+</a>
+</g>
+</g>
+<!-- interface~darray_acc&#45;&gt;proc~darray_acc_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge13" class="edge">
+<title>interface~darray_acc&#45;&gt;proc~darray_acc_dp</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M56.27,-423.15C70.38,-431.86 90.1,-443.65 108,-453 110.88,-454.5 113.89,-456.01 116.93,-457.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.51,-460.69 126.04,-461.81 118.5,-454.36 115.51,-460.69"/>
+</g>
+<!-- interface~darray_acc&#45;&gt;proc~darray_acc_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge14" class="edge">
+<title>interface~darray_acc&#45;&gt;proc~darray_acc_i32</title>
+<path fill="none" stroke="#ff7f00" stroke-dasharray="5,2" d="M72.1,-417.3C80.13,-418.74 88.87,-420.31 97.55,-421.87"/>
+<polygon fill="#ff7f00" stroke="#ff7f00" points="97.2,-425.36 107.66,-423.68 98.43,-418.47 97.2,-425.36"/>
+</g>
+<!-- interface~darray_acc&#45;&gt;proc~darray_acc_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge15" class="edge">
+<title>interface~darray_acc&#45;&gt;proc~darray_acc_i64</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M72.1,-404.7C80.13,-403.26 88.87,-401.69 97.55,-400.13"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="98.43,-403.53 107.66,-398.32 97.2,-396.64 98.43,-403.53"/>
+</g>
+<!-- interface~darray_acc&#45;&gt;proc~darray_acc_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge16" class="edge">
+<title>interface~darray_acc&#45;&gt;proc~darray_acc_sp</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M56.27,-398.85C70.38,-390.14 90.1,-378.35 108,-369 110.88,-367.5 113.89,-365.99 116.93,-364.51"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="118.5,-367.64 126.04,-360.19 115.51,-361.31 118.5,-367.64"/>
+</g>
+<!-- interface~darray_get -->
+<g id="proc~~get_local_offset~~CalledByGraph_node15" class="node">
+<title>interface~darray_get</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node15"><a xlink:href="../interface/darray_get.html" xlink:title="darray_get">
+<polygon fill="#a7506f" stroke="#a7506f" points="71,-255 1,-255 1,-231 71,-231 71,-255"/>
+<text text-anchor="middle" x="36" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_get</text>
+</a>
+</g>
+</g>
+<!-- interface~darray_get&#45;&gt;proc~darray_get_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge17" class="edge">
+<title>interface~darray_get&#45;&gt;proc~darray_get_dp</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M56.27,-255.15C70.38,-263.86 90.1,-275.65 108,-285 110.88,-286.5 113.89,-288.01 116.93,-289.49"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="115.51,-292.69 126.04,-293.81 118.5,-286.36 115.51,-292.69"/>
+</g>
+<!-- interface~darray_get&#45;&gt;proc~darray_get_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge18" class="edge">
+<title>interface~darray_get&#45;&gt;proc~darray_get_i32</title>
+<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M71.16,-249.13C79.77,-250.68 89.25,-252.38 98.62,-254.06"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="98.24,-257.55 108.7,-255.87 99.48,-250.66 98.24,-257.55"/>
+</g>
+<!-- interface~darray_get&#45;&gt;proc~darray_get_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge19" class="edge">
+<title>interface~darray_get&#45;&gt;proc~darray_get_i64</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M71.16,-236.87C79.77,-235.32 89.25,-233.62 98.62,-231.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="99.48,-235.34 108.7,-230.13 98.24,-228.45 99.48,-235.34"/>
+</g>
+<!-- interface~darray_get&#45;&gt;proc~darray_get_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge20" class="edge">
+<title>interface~darray_get&#45;&gt;proc~darray_get_sp</title>
+<path fill="none" stroke="#007fff" stroke-dasharray="5,2" d="M56.27,-230.85C70.38,-222.14 90.1,-210.35 108,-201 110.88,-199.5 113.89,-197.99 116.93,-196.51"/>
+<polygon fill="#007fff" stroke="#007fff" points="118.5,-199.64 126.04,-192.19 115.51,-193.31 118.5,-199.64"/>
+</g>
+<!-- interface~darray_put -->
+<g id="proc~~get_local_offset~~CalledByGraph_node16" class="node">
+<title>interface~darray_put</title>
+<g id="a_proc~~get_local_offset~~CalledByGraph_node16"><a xlink:href="../interface/darray_put.html" xlink:title="darray_put">
+<polygon fill="#a7506f" stroke="#a7506f" points="71,-87 1,-87 1,-63 71,-63 71,-87"/>
+<text text-anchor="middle" x="36" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put</text>
+</a>
+</g>
+</g>
+<!-- interface~darray_put&#45;&gt;proc~darray_put_dp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge21" class="edge">
+<title>interface~darray_put&#45;&gt;proc~darray_put_dp</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M56.27,-87.15C70.38,-95.86 90.1,-107.65 108,-117 110.88,-118.5 113.89,-120.01 116.93,-121.49"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="115.51,-124.69 126.04,-125.81 118.5,-118.36 115.51,-124.69"/>
+</g>
+<!-- interface~darray_put&#45;&gt;proc~darray_put_i32 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge22" class="edge">
+<title>interface~darray_put&#45;&gt;proc~darray_put_i32</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M71.16,-81.13C79.77,-82.68 89.25,-84.38 98.62,-86.06"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="98.24,-89.55 108.7,-87.87 99.48,-82.66 98.24,-89.55"/>
+</g>
+<!-- interface~darray_put&#45;&gt;proc~darray_put_i64 -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge23" class="edge">
+<title>interface~darray_put&#45;&gt;proc~darray_put_i64</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M71.16,-68.87C79.77,-67.32 89.25,-65.62 98.62,-63.94"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="99.48,-67.34 108.7,-62.13 98.24,-60.45 99.48,-67.34"/>
+</g>
+<!-- interface~darray_put&#45;&gt;proc~darray_put_sp -->
+<g id="proc~~get_local_offset~~CalledByGraph_edge24" class="edge">
+<title>interface~darray_put&#45;&gt;proc~darray_put_sp</title>
+<path fill="none" stroke="#ff007f" stroke-dasharray="5,2" d="M56.27,-62.85C70.38,-54.14 90.1,-42.35 108,-33 110.88,-31.5 113.89,-29.99 116.93,-28.51"/>
+<polygon fill="#ff007f" stroke="#ff007f" points="118.5,-31.64 126.04,-24.19 115.51,-25.31 118.5,-31.64"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    <section>    
+      <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-local_col"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>local_col</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-owner_first_col"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>owner_first_col</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-owner_ncols"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>owner_ncols</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">pure function </span><span class="n">get_local_offset</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">owner_first_col</span><span class="p">,</span><span class="w"> </span><span class="n">owner_ncols</span><span class="p">,</span><span class="w"> </span><span class="n">local_col</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">calculate_distribution</span><span class="p">(</span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">get_owner</span><span class="p">(</span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                  </span><span class="n">owner_first_col</span><span class="p">,</span><span class="w"> </span><span class="n">owner_ncols</span><span class="p">)</span>
+<span class="w">      </span><span class="n">local_col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">owner_first_col</span>
+<span class="w">      </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">local_col</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_local_offset</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PIC-MPI
+ was developed by Jorge Luis Galvez Vallejo<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2026-01-24 00:08 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

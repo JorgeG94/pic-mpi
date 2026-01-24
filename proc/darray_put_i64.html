@@ -1,0 +1,976 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="A set of commonly used programs in Fortran aimed at scientific computing">
+    <meta name="author" content="Jorge Luis Galvez Vallejo" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>darray_put_i64 &ndash; PIC-MPI</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PIC-MPI </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>darray_put_i64
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.9% of total for procedures.">26 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/darrays_core.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/darrays_core.f90.html'>darrays_core.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/darrays_core.html'>darrays_core</a></li>
+            <li class="breadcrumb-item active" aria-current="page">darray_put_i64</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-arr~15">arr</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-buf_offset~11">buf_offset</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-col~13">col</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-disp~11">disp</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-j~11">j</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-nranks~14">nranks</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-nrows_patch~11">nrows_patch</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-owner~12">owner</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-req_count~8">req_count</a>
+            <a class="list-group-item" href="../proc/darray_put_i64.html#variable-requests~10">requests</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/darray_put_i64.html#src">darray_put_i64</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine darray_put_i64(handle, ilo, ihi, jlo, jhi, buffer)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-handle~15"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>handle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ilo~11"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ilo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ihi~11"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ihi</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jlo~11"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jlo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jhi~11"></span>
+              integer(kind=int32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jhi</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~63"></span>
+              integer(kind=int64),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(*)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~darray_put_i64~~CallsGraph Pages: 1 -->
+<svg id="procdarray_put_i64CallsGraph" width="534pt" height="284pt"
+ viewBox="0.00 0.00 534.00 284.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~darray_put_i64~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 280)">
+<title>proc~~darray_put_i64~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 530,-280 530,4 -4,4"/>
+<!-- proc~darray_put_i64 -->
+<g id="proc~~darray_put_i64~~CallsGraph_node1" class="node">
+<title>proc~darray_put_i64</title>
+<polygon fill="none" stroke="black" points="92,-150 0,-150 0,-126 92,-126 92,-150"/>
+<text text-anchor="middle" x="46" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">darray_put_i64</text>
+</g>
+<!-- interface~waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_node2" class="node">
+<title>interface~waitall</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node2"><a xlink:href="../interface/waitall.html" xlink:title="waitall">
+<polygon fill="#a7506f" stroke="#a7506f" points="218,-274 164,-274 164,-250 218,-250 218,-274"/>
+<text text-anchor="middle" x="191" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">waitall</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;interface~waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge1" class="edge">
+<title>proc~darray_put_i64&#45;&gt;interface~waitall</title>
+<path fill="none" stroke="#ff0000" d="M54.53,-150.3C67.38,-170.42 95.34,-210.54 128,-235 135.95,-240.96 145.42,-245.92 154.53,-249.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.24,-253.16 163.82,-253.7 155.89,-246.68 153.24,-253.16"/>
+</g>
+<!-- proc~get_local_offset -->
+<g id="proc~~darray_put_i64~~CallsGraph_node3" class="node">
+<title>proc~get_local_offset</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node3"><a xlink:href="../proc/get_local_offset.html" xlink:title="get_local_offset">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="239,-192 143,-192 143,-168 239,-168 239,-192"/>
+<text text-anchor="middle" x="191" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_local_offset</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~get_local_offset -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge2" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~get_local_offset</title>
+<path fill="none" stroke="#ff0000" d="M87.98,-150.04C103.98,-154.74 122.5,-160.18 139.33,-165.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.43,-168.5 149.02,-167.96 140.41,-161.79 138.43,-168.5"/>
+</g>
+<!-- proc~get_owner -->
+<g id="proc~~darray_put_i64~~CallsGraph_node4" class="node">
+<title>proc~get_owner</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node4"><a xlink:href="../proc/get_owner.html" xlink:title="get_owner">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="387.5,-234 319.5,-234 319.5,-210 387.5,-210 387.5,-234"/>
+<text text-anchor="middle" x="353.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_owner</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~get_owner -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge3" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~get_owner</title>
+<path fill="none" stroke="#ff0000" d="M58.24,-150.25C72.74,-165.16 99.51,-189.72 128,-201 187.55,-224.59 262.69,-226.6 309.16,-224.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="309.35,-228.48 319.2,-224.56 309.06,-221.49 309.35,-228.48"/>
+</g>
+<!-- proc~win_flush_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node5" class="node">
+<title>proc~win_flush_all</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node5"><a xlink:href="../proc/win_flush_all.html" xlink:title="win_t%win_flush_all">
+<polygon fill="#d9534f" stroke="#d9534f" points="249,-150 133,-150 133,-126 249,-126 249,-150"/>
+<text text-anchor="middle" x="191" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">win_t%win_flush_all</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~win_flush_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge4" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~win_flush_all</title>
+<path fill="none" stroke="#ff0000" d="M92.25,-138C101.94,-138 112.39,-138 122.71,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.97,-141.5 132.97,-138 122.97,-134.5 122.97,-141.5"/>
+</g>
+<!-- proc~win_lock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node6" class="node">
+<title>proc~win_lock_all</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node6"><a xlink:href="../proc/win_lock_all.html" xlink:title="win_t%win_lock_all">
+<polygon fill="#d9534f" stroke="#d9534f" points="247,-108 135,-108 135,-84 247,-84 247,-108"/>
+<text text-anchor="middle" x="191" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">win_t%win_lock_all</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~win_lock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge5" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~win_lock_all</title>
+<path fill="none" stroke="#ff0000" d="M87.98,-125.96C103.98,-121.26 122.5,-115.82 139.33,-110.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.41,-114.21 149.02,-108.04 138.43,-107.5 140.41,-114.21"/>
+</g>
+<!-- proc~win_rput_i64 -->
+<g id="proc~~darray_put_i64~~CallsGraph_node7" class="node">
+<title>proc~win_rput_i64</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node7"><a xlink:href="../proc/win_rput_i64.html" xlink:title="win_t%win_rput_i64">
+<polygon fill="#d9534f" stroke="#d9534f" points="249,-66 133,-66 133,-42 249,-42 249,-66"/>
+<text text-anchor="middle" x="191" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">win_t%win_rput_i64</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~win_rput_i64 -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge6" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~win_rput_i64</title>
+<path fill="none" stroke="#ff0000" d="M59.79,-125.81C75,-111.88 101.65,-89.19 128,-75 131.45,-73.14 135.09,-71.41 138.81,-69.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.2,-73.01 148.17,-66.02 137.58,-66.51 140.2,-73.01"/>
+</g>
+<!-- proc~win_unlock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node8" class="node">
+<title>proc~win_unlock_all</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node8"><a xlink:href="../proc/win_unlock_all.html" xlink:title="win_t%win_unlock_all">
+<polygon fill="#d9534f" stroke="#d9534f" points="254,-24 128,-24 128,0 254,0 254,-24"/>
+<text text-anchor="middle" x="191" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">win_t%win_unlock_all</text>
+</a>
+</g>
+</g>
+<!-- proc~darray_put_i64&#45;&gt;proc~win_unlock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge7" class="edge">
+<title>proc~darray_put_i64&#45;&gt;proc~win_unlock_all</title>
+<path fill="none" stroke="#ff0000" d="M53.28,-125.73C65.03,-103.95 92.4,-58.42 128,-33 130.22,-31.41 132.57,-29.94 135.01,-28.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.7,-31.64 144.12,-24.07 133.6,-25.36 136.7,-31.64"/>
+</g>
+<!-- proc~request_waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_node14" class="node">
+<title>proc~request_waitall</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node14"><a xlink:href="../proc/request_waitall.html" xlink:title="request_waitall">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.5,-276 307.5,-276 307.5,-252 399.5,-252 399.5,-276"/>
+<text text-anchor="middle" x="353.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">request_waitall</text>
+</a>
+</g>
+</g>
+<!-- interface~waitall&#45;&gt;proc~request_waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge8" class="edge">
+<title>interface~waitall&#45;&gt;proc~request_waitall</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M218.14,-262.33C239.49,-262.59 270.39,-262.98 297.18,-263.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.18,-266.81 307.22,-263.44 297.26,-259.81 297.18,-266.81"/>
+</g>
+<!-- proc~get_local_offset&#45;&gt;proc~get_owner -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge10" class="edge">
+<title>proc~get_local_offset&#45;&gt;proc~get_owner</title>
+<path fill="none" stroke="#ffda00" d="M237.99,-192.04C260.48,-197.92 287.4,-204.96 309.48,-210.74"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="308.69,-214.15 319.25,-213.3 310.46,-207.38 308.69,-214.15"/>
+</g>
+<!-- proc~calculate_distribution -->
+<g id="proc~~darray_put_i64~~CallsGraph_node13" class="node">
+<title>proc~calculate_distribution</title>
+<g id="a_proc~~darray_put_i64~~CallsGraph_node13"><a xlink:href="../proc/calculate_distribution.html" xlink:title="calculate_distribution">
+<polygon fill="#d9534f" stroke="#d9534f" points="417,-192 290,-192 290,-168 417,-168 417,-192"/>
+<text text-anchor="middle" x="353.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calculate_distribution</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_offset&#45;&gt;proc~calculate_distribution -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge9" class="edge">
+<title>proc~get_local_offset&#45;&gt;proc~calculate_distribution</title>
+<path fill="none" stroke="#ffda00" d="M239.29,-180C251.89,-180 265.8,-180 279.43,-180"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="279.78,-183.5 289.78,-180 279.78,-176.5 279.78,-183.5"/>
+</g>
+<!-- mpi_win_flush_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node10" class="node">
+<title>mpi_win_flush_all</title>
+<polygon fill="#777777" stroke="#777777" points="406,-150 301,-150 301,-126 406,-126 406,-150"/>
+<text text-anchor="middle" x="353.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_flush_all</text>
+</g>
+<!-- proc~win_flush_all&#45;&gt;mpi_win_flush_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge11" class="edge">
+<title>proc~win_flush_all&#45;&gt;mpi_win_flush_all</title>
+<path fill="none" stroke="#00ff91" d="M249.04,-138C262.54,-138 276.99,-138 290.69,-138"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="290.99,-141.5 300.99,-138 290.99,-134.5 290.99,-141.5"/>
+</g>
+<!-- mpi_win_lock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node11" class="node">
+<title>mpi_win_lock_all</title>
+<polygon fill="#777777" stroke="#777777" points="404,-108 303,-108 303,-84 404,-84 404,-108"/>
+<text text-anchor="middle" x="353.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_lock_all</text>
+</g>
+<!-- proc~win_lock_all&#45;&gt;mpi_win_lock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge12" class="edge">
+<title>proc~win_lock_all&#45;&gt;mpi_win_lock_all</title>
+<path fill="none" stroke="#0091ff" d="M247.23,-96C261.9,-96 277.8,-96 292.69,-96"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="292.81,-99.5 302.81,-96 292.81,-92.5 292.81,-99.5"/>
+</g>
+<!-- mpi_rput -->
+<g id="proc~~darray_put_i64~~CallsGraph_node9" class="node">
+<title>mpi_rput</title>
+<polygon fill="#777777" stroke="#777777" points="383.5,-66 323.5,-66 323.5,-42 383.5,-42 383.5,-66"/>
+<text text-anchor="middle" x="353.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_rput</text>
+</g>
+<!-- proc~win_rput_i64&#45;&gt;mpi_rput -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge13" class="edge">
+<title>proc~win_rput_i64&#45;&gt;mpi_rput</title>
+<path fill="none" stroke="#4800ff" d="M249.04,-54C270.17,-54 293.66,-54 312.9,-54"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="313.12,-57.5 323.12,-54 313.12,-50.5 313.12,-57.5"/>
+</g>
+<!-- mpi_win_unlock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_node12" class="node">
+<title>mpi_win_unlock_all</title>
+<polygon fill="#777777" stroke="#777777" points="411,-24 296,-24 296,0 411,0 411,-24"/>
+<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_unlock_all</text>
+</g>
+<!-- proc~win_unlock_all&#45;&gt;mpi_win_unlock_all -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge14" class="edge">
+<title>proc~win_unlock_all&#45;&gt;mpi_win_unlock_all</title>
+<path fill="none" stroke="#ff00da" d="M254.05,-12C264.37,-12 275.12,-12 285.55,-12"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="285.86,-15.5 295.86,-12 285.86,-8.5 285.86,-15.5"/>
+</g>
+<!-- mpi_waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_node15" class="node">
+<title>mpi_waitall</title>
+<polygon fill="#777777" stroke="#777777" points="526,-276 453,-276 453,-252 526,-252 526,-276"/>
+<text text-anchor="middle" x="489.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_waitall</text>
+</g>
+<!-- proc~request_waitall&#45;&gt;mpi_waitall -->
+<g id="proc~~darray_put_i64~~CallsGraph_edge15" class="edge">
+<title>proc~request_waitall&#45;&gt;mpi_waitall</title>
+<path fill="none" stroke="#ff00ff" d="M399.87,-264C413.66,-264 428.83,-264 442.65,-264"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="442.92,-267.5 452.92,-264 442.92,-260.5 442.92,-267.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~darray_put_i64~~CalledByGraph Pages: 1 -->
+<svg id="procdarray_put_i64CalledByGraph" width="206pt" height="32pt"
+ viewBox="0.00 0.00 206.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~darray_put_i64~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~darray_put_i64~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 202,-28 202,4 -4,4"/>
+<!-- proc~darray_put_i64 -->
+<g id="proc~~darray_put_i64~~CalledByGraph_node1" class="node">
+<title>proc~darray_put_i64</title>
+<polygon fill="none" stroke="black" points="198,-24 106,-24 106,0 198,0 198,-24"/>
+<text text-anchor="middle" x="152" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">darray_put_i64</text>
+</g>
+<!-- interface~darray_put -->
+<g id="proc~~darray_put_i64~~CalledByGraph_node2" class="node">
+<title>interface~darray_put</title>
+<g id="a_proc~~darray_put_i64~~CalledByGraph_node2"><a xlink:href="../interface/darray_put.html" xlink:title="darray_put">
+<polygon fill="#a7506f" stroke="#a7506f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">darray_put</text>
+</a>
+</g>
+</g>
+<!-- interface~darray_put&#45;&gt;proc~darray_put_i64 -->
+<g id="proc~~darray_put_i64~~CalledByGraph_edge1" class="edge">
+<title>interface~darray_put&#45;&gt;proc~darray_put_i64</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M70.19,-12C78.19,-12 86.91,-12 95.56,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.65,-15.5 105.65,-12 95.65,-8.5 95.65,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    <section>    
+      <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arr~15"></span>
+              type(<a href='../type/darray_t.html'>darray_t</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>arr</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buf_offset~11"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buf_offset</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-col~13"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>col</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-disp~11"></span>
+              integer(kind=MPI_ADDRESS_KIND),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>disp</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-j~11"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>j</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nranks~14"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nranks</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrows_patch~11"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrows_patch</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-owner~12"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>owner</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-req_count~8"></span>
+              integer(kind=int32),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>req_count</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-requests~10"></span>
+              type(<a href='../type/request_t~2.html'>request_t</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>requests</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">darray_put_i64</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">ilo</span><span class="p">,</span><span class="w"> </span><span class="n">ihi</span><span class="p">,</span><span class="w"> </span><span class="n">jlo</span><span class="p">,</span><span class="w"> </span><span class="n">jhi</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">ilo</span><span class="p">,</span><span class="w"> </span><span class="n">ihi</span><span class="p">,</span><span class="w"> </span><span class="n">jlo</span><span class="p">,</span><span class="w"> </span><span class="n">jhi</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">darray_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">arr</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">request_t</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">requests</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">disp</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">owner</span><span class="p">,</span><span class="w"> </span><span class="n">nrows_patch</span><span class="p">,</span><span class="w"> </span><span class="n">buf_offset</span><span class="p">,</span><span class="w"> </span><span class="n">req_count</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span>
+
+<span class="w">      </span><span class="n">arr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<span class="w">      </span><span class="n">nrows_patch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ihi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ilo</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">nranks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_comm</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">requests</span><span class="p">(</span><span class="n">jhi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">jlo</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">arr</span><span class="p">%</span><span class="n">win</span><span class="p">%</span><span class="n">lock_all</span><span class="p">()</span>
+
+<span class="w">      </span><span class="n">req_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jlo</span><span class="p">,</span><span class="w"> </span><span class="n">jhi</span>
+<span class="w">         </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">owner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_owner</span><span class="p">(</span><span class="n">arr</span><span class="p">%</span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">)</span>
+<span class="w">         </span><span class="n">disp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_local_offset</span><span class="p">(</span><span class="n">arr</span><span class="p">%</span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">arr</span><span class="p">%</span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">ilo</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">)</span>
+<span class="w">         </span><span class="n">buf_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">jlo</span><span class="p">)</span><span class="o">*</span><span class="n">nrows_patch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">req_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req_count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">arr</span><span class="p">%</span><span class="n">win</span><span class="p">%</span><span class="n">rput_i64</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span><span class="w"> </span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="n">nrows_patch</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="n">buf_offset</span><span class="p">),</span><span class="w"> </span><span class="n">requests</span><span class="p">(</span><span class="n">req_count</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      call </span><span class="n">arr</span><span class="p">%</span><span class="n">win</span><span class="p">%</span><span class="n">flush_all</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">waitall</span><span class="p">(</span><span class="n">requests</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">req_count</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">arr</span><span class="p">%</span><span class="n">win</span><span class="p">%</span><span class="n">unlock_all</span><span class="p">()</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">requests</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">darray_put_i64</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PIC-MPI
+ was developed by Jorge Luis Galvez Vallejo<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2026-01-24 00:08 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

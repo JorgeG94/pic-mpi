@@ -5,6 +5,7 @@
 program test_darrays
    use pic_mpi_lib
    use pic_types, only: sp, dp, int32, int64
+   use groups
    use darrays
    implicit none
 
@@ -32,9 +33,12 @@ program test_darrays
       print *, "Number of ranks:", world_comm%size()
    end if
 
+   ! Initialize groups first (required by darrays)
+   call groups_init(world_comm)
+
    ! Initialize darrays
    call darrays_init(world_comm)
-   call darrays_set_comm(world_comm)
+   call darrays_set_comm(world_comm)  ! No-op now, kept for compatibility
    call dlb_init(world_comm)
 
    call world_comm%barrier()
@@ -58,6 +62,7 @@ program test_darrays
 
    call dlb_finalize()
    call darrays_finalize()
+   call groups_finalize()
    call world_comm%finalize()
    call pic_mpi_finalize()
 

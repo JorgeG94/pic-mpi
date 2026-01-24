@@ -31,6 +31,7 @@ module darrays_types
       integer(int32) :: my_first_col = 0    !! First column owned (0-indexed)
       integer(int32) :: my_ncols = 0        !! Number of columns owned
       integer(int64) :: local_size = 0      !! Size of local data (nrows * my_ncols)
+      integer(int32) :: comm_id = 0         !! Communicator ID where array was created
       ! Data pointers - only one is active based on dtype
       real(dp), pointer :: data_dp(:) => null()
       real(sp), pointer :: data_sp(:) => null()

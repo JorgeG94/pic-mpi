@@ -7,20 +7,22 @@ module pic_mpi
    use pic_types, only: int32, dp, int64, sp
    use mpi, only: MPI_COMM_NULL, MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, &
                   MPI_INFO_NULL, MPI_UNDEFINED, MPI_INTEGER, MPI_INTEGER8, MPI_STATUS_SIZE, &
+                  MPI_STATUS_IGNORE, MPI_STATUSES_IGNORE, &
                   MPI_REQUEST_NULL, MPI_Comm_rank, MPI_Comm_size, MPI_Comm_dup, MPI_Barrier, &
                   MPI_Comm_split_type, MPI_Comm_split, MPI_Send, MPI_Recv, &
                   MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall, MPI_Test, &
                   MPI_Probe, MPI_Get_count, MPI_Iprobe, MPI_Comm_free, &
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
-                  MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, MPI_LOGICAL, &
+                  MPI_Bcast, MPI_Init, MPI_Initialized, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, MPI_LOGICAL, &
                   MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
                   MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME, &
                   MPI_WIN_NULL, MPI_Win_create, MPI_Win_create_dynamic, MPI_Win_free, &
                   MPI_Win_fence, MPI_Win_lock, MPI_Win_unlock, MPI_Get, MPI_Put, &
                   MPI_Win_lock_all, MPI_Win_unlock_all, MPI_Win_flush, MPI_Win_flush_all, &
+                  MPI_Win_sync, &
                   MPI_Rget, MPI_Rput, MPI_Win_allocate, &
                   MPI_Accumulate, MPI_Fetch_and_op, MPI_Allreduce, MPI_ADDRESS_KIND, &
-                  MPI_LOCK_SHARED, MPI_SUM, MPI_IN_PLACE, MPI_REAL
+                  MPI_LOCK_SHARED, MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_REAL, MPI_Wtime
    implicit none
    private
 
@@ -35,7 +37,18 @@ module pic_mpi
    ! Export MPI constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
-   !public :: MPI_Request
+
+   ! Export raw MPI symbols for pic-ddi and other downstream projects
+   ! Note: In legacy MPI, MPI_Request and MPI_Win are integers, not types
+   public :: MPI_ADDRESS_KIND, MPI_COMM_WORLD, MPI_UNDEFINED
+   public :: MPI_DOUBLE_PRECISION, MPI_REAL, MPI_INTEGER, MPI_INTEGER8
+   public :: MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE
+   public :: MPI_STATUS_IGNORE, MPI_STATUSES_IGNORE, MPI_LOCK_SHARED
+   public :: MPI_Bcast, MPI_Send, MPI_Recv, MPI_Isend, MPI_Irecv, MPI_Wait, MPI_Waitall
+   public :: MPI_Allreduce, MPI_Comm_rank, MPI_Comm_size
+   public :: MPI_Initialized, MPI_Init, MPI_Wtime
+   public :: MPI_Rget, MPI_Rput, MPI_Accumulate
+   public :: MPI_Win_lock_all, MPI_Win_unlock_all, MPI_Win_flush_all, MPI_Win_sync
 
    type :: MPI_Status
    !! MPI_Status wrapper type for legacy MPI compatibility

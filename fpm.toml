@@ -31,6 +31,6 @@ pic = { git = "https://github.com/JorgeG94/pic.git", branch = "main"}
 
 [extra.fortitude.check]
 select = ["C", "E", "S"]
-ignore = ["C003"]
+ignore = ["C003", "C121", "C131"]
 line-length = 132
 per-file-ignores = { "pic_mpi.f90" = ["C072"], "pic_mpi_legacy.f90" = ["C072"]}

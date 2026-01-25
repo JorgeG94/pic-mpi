@@ -14,9 +14,9 @@
 !! @date 2025
 module pic_mpi_lib
 #ifdef USE_LEGACY
-   use pic_mpi !! Legacy MPI interface (integer handles)
+   use pic_mpi  !! Legacy MPI interface (integer handles)
 #else
-   use pic_mpi_f08 !! Modern MPI interface (mpi_f08)
+   use pic_mpi_f08  !! Modern MPI interface (mpi_f08)
 #endif
    implicit none
 

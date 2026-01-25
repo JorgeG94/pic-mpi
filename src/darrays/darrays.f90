@@ -23,7 +23,7 @@ module darrays
    use darrays_types, only: darray_t, DTYPE_DP, DTYPE_SP, DTYPE_I32, DTYPE_I64
 
    ! Re-export core operations
-   use darrays_core, only: darrays_init, darrays_finalize, &
+   use darrays_core, only: darrays_init, darrays_finalize, darrays_sync_all, &
                            darray_create, darray_destroy, darray_distrib, &
                            darray_get, darray_put, darray_acc, &
                            darrays_get_comm
@@ -42,7 +42,7 @@ module darrays
    public :: DTYPE_DP, DTYPE_SP, DTYPE_I32, DTYPE_I64
 
    ! Initialization
-   public :: darrays_init, darrays_finalize
+   public :: darrays_init, darrays_finalize, darrays_sync_all
 
    ! Array operations
    public :: darray_create, darray_destroy, darray_distrib

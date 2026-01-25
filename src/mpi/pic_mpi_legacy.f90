@@ -42,10 +42,10 @@ module pic_mpi
    !!
    !! This type mimics the mpi_f08 MPI_Status type interface,
    !! providing a consistent API between legacy and modern MPI versions
-      integer :: MPI_SOURCE = 0 !! Source rank of received message
-      integer :: MPI_TAG = 0 !! Tag of received message
-      integer :: MPI_ERROR = 0 !! Error code
-      integer :: internal(3) = 0 !! Additional status fields
+      integer :: MPI_SOURCE = 0  !! Source rank of received message
+      integer :: MPI_TAG = 0  !! Tag of received message
+      integer :: MPI_ERROR = 0  !! Error code
+      integer :: internal(3) = 0  !! Additional status fields
    end type MPI_Status
 
    type :: request_t
@@ -54,12 +54,12 @@ module pic_mpi
    !! Wraps MPI request handles to provide object-oriented interface for
    !! non-blocking communication operations (isend, irecv)
       private
-      integer :: m_request = MPI_REQUEST_NULL !! Internal MPI request handle (integer)
-      logical :: is_valid = .false. !! Validity flag
+      integer :: m_request = MPI_REQUEST_NULL  !! Internal MPI request handle (integer)
+      logical :: is_valid = .false.  !! Validity flag
    contains
-      procedure :: is_null => request_is_null !! Check if request is null
-      procedure :: get => request_get !! Get underlying MPI request handle
-      procedure :: free => request_free !! Free the request
+      procedure :: is_null => request_is_null  !! Check if request is null
+      procedure :: get => request_get  !! Get underlying MPI request handle
+      procedure :: free => request_free  !! Free the request
    end type request_t
 
    !> MPI-3 Window type for one-sided communication (RMA) - legacy version
@@ -112,26 +112,26 @@ module pic_mpi
    !! type-bound procedures for common operations. Uses integer handles
    !! for compatibility with legacy MPI implementations.
       private
-      integer :: m_comm = MPI_COMM_NULL !! Internal MPI communicator (integer handle)
-      integer(int32) :: m_rank = -1_int32 !! Cached rank in this communicator
-      integer(int32) :: m_size = -1_int32 !! Cached size of this communicator
-      logical :: is_valid = .false. !! Validity flag
+      integer :: m_comm = MPI_COMM_NULL  !! Internal MPI communicator (integer handle)
+      integer(int32) :: m_rank = -1_int32  !! Cached rank in this communicator
+      integer(int32) :: m_size = -1_int32  !! Cached size of this communicator
+      logical :: is_valid = .false.  !! Validity flag
    contains
-      procedure :: rank => comm_rank !! Get rank in communicator
-      procedure :: size => m_size_func !! Get size of communicator
-      procedure :: leader => comm_leader !! Check if this rank is leader (rank 0)
-      procedure :: is_null => comm_is_null !! Check if communicator is null
-      procedure :: get => comm_get !! Get underlying MPI communicator handle
+      procedure :: rank => comm_rank  !! Get rank in communicator
+      procedure :: size => m_size_func  !! Get size of communicator
+      procedure :: leader => comm_leader  !! Check if this rank is leader (rank 0)
+      procedure :: is_null => comm_is_null  !! Check if communicator is null
+      procedure :: get => comm_get  !! Get underlying MPI communicator handle
 
-      procedure :: barrier => comm_barrier !! Synchronization barrier
+      procedure :: barrier => comm_barrier  !! Synchronization barrier
 
-      procedure :: split => comm_split_shared !! Split into shared memory communicators
-      procedure :: split_by => comm_split_by_color !! Split communicator by color
-      procedure :: discard_leader => comm_discard_leader !! Create communicator without leader
-      procedure :: discard_to => comm_discard_to !! Create communicator with first N ranks
-      procedure :: duplicate => comm_duplicate !! Duplicate communicator
+      procedure :: split => comm_split_shared  !! Split into shared memory communicators
+      procedure :: split_by => comm_split_by_color  !! Split communicator by color
+      procedure :: discard_leader => comm_discard_leader  !! Create communicator without leader
+      procedure :: discard_to => comm_discard_to  !! Create communicator with first N ranks
+      procedure :: duplicate => comm_duplicate  !! Duplicate communicator
 
-      procedure :: finalize => comm_finalize !! Free communicator resources
+      procedure :: finalize => comm_finalize  !! Free communicator resources
    end type comm_t
 
    interface comm_world

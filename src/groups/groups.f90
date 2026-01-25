@@ -32,7 +32,10 @@ module groups
    public :: ddi_scope, ddi_ascope, get_working_comm
 
    ! Communicator registry access
-   public :: groups_register_comm, groups_get_comm, groups_get_working_comm_id
+   public :: groups_register_comm, groups_unregister_comm, groups_get_comm, groups_get_working_comm_id
+
+   ! Group queries
+   public :: groups_get_ngroups, groups_get_group_id
 
    ! Maximum number of registered communicators
    integer(int32), parameter :: MAX_COMMS = 32
@@ -299,5 +302,60 @@ contains
 
       comm = comm_registry(comm_id)
    end function groups_get_comm
+
+   !> Unregister and free a communicator
+   !!
+   !! @param comm_id Communicator ID to unregister
+   subroutine groups_unregister_comm(comm_id)
+      integer(int32), intent(in) :: comm_id
+
+      if (.not. groups_initialized) then
+         error stop "groups: groups_init must be called before groups_unregister_comm"
+      end if
+
+      if (comm_id < 4 .or. comm_id > MAX_COMMS) then
+         error stop "groups: cannot unregister reserved or invalid communicator ID"
+      end if
+
+      if (.not. comm_valid(comm_id)) then
+         return  ! Already unregistered
+      end if
+
+      call comm_registry(comm_id)%finalize()
+      comm_valid(comm_id) = .false.
+
+      ! If we were using this communicator, switch back to world
+      if (working_comm_id == comm_id) then
+         working_comm_id = DDI_COMM_WORLD
+      end if
+   end subroutine groups_unregister_comm
+
+   !> Get the number of groups
+   !!
+   !! @return Number of groups (1 if no groups created)
+   function groups_get_ngroups() result(ngroups)
+      integer(int32) :: ngroups
+
+      if (.not. groups_initialized) then
+         ngroups = 1
+         return
+      end if
+
+      ngroups = current_group%ngroups
+   end function groups_get_ngroups
+
+   !> Get the current group ID
+   !!
+   !! @return Group ID (0-indexed, 0 if no groups created)
+   function groups_get_group_id() result(group_id)
+      integer(int32) :: group_id
+
+      if (.not. groups_initialized) then
+         group_id = 0
+         return
+      end if
+
+      group_id = current_group%group_id
+   end function groups_get_group_id
 
 end module groups

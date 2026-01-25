@@ -14,7 +14,7 @@ module darrays_core
    implicit none
    private
 
-   public :: darrays_init, darrays_finalize
+   public :: darrays_init, darrays_finalize, darrays_sync_all
    public :: darray_create, darray_destroy, darray_distrib
    public :: darray_get, darray_put, darray_acc
    public :: darrays_get_comm
@@ -88,6 +88,28 @@ contains
 
       initialized = .false.
    end subroutine darrays_finalize
+
+   !> Sync all active array windows
+   !!
+   !! Ensures all pending RMA operations are visible to all ranks.
+   !! Should be called from DDI_SYNC.
+   !! Does lock_all + MPI_Win_sync + flush_all + unlock_all to ensure visibility.
+   subroutine darrays_sync_all()
+      use mpi_f08, only: MPI_Win_sync, MPI_Win_flush_all
+      integer(int32) :: i, ierr
+
+      if (.not. initialized) return
+
+      do i = 1, MAX_ARRAYS
+         if (registry(i)%active) then
+            ! Establish access epoch, sync memory, flush, end epoch
+            call registry(i)%win%lock_all()
+            call MPI_Win_sync(registry(i)%win%get_handle(), ierr)
+            call MPI_Win_flush_all(registry(i)%win%get_handle(), ierr)
+            call registry(i)%win%unlock_all()
+         end if
+      end do
+   end subroutine darrays_sync_all
 
    !> Get communicator for an array by its comm_id
    !!
@@ -164,12 +186,37 @@ contains
       type(request_t), allocatable :: requests(:)
       integer(MPI_ADDRESS_KIND) :: disp
       integer(int32) :: j, col, owner, nrows_patch, buf_offset, req_count, nranks, ncols_req
+      integer(int32) :: me
+      character(len=16) :: debug_env
+      logical :: debug_rma
+
+      ! Check for RMA debug
+      call get_environment_variable("DDI_DEBUG_RMA", debug_env)
+      debug_rma = (len_trim(debug_env) > 0)
+
+      ! Validate handle
+      if (handle < 1 .or. handle > MAX_ARRAYS) then
+         write (*, '(A,I0)') "ERROR: darray_get_dp invalid handle: ", handle
+         error stop "darray_get_dp: invalid handle"
+      end if
+      if (.not. registry(handle)%active) then
+         write (*, '(A,I0)') "ERROR: darray_get_dp handle not active: ", handle
+         error stop "darray_get_dp: handle not active (destroyed or never created)"
+      end if
 
       arr => registry(handle)
       arr_comm = groups_get_comm(arr%comm_id)
+      me = arr_comm%rank()
       nrows_patch = ihi - ilo + 1
       nranks = arr_comm%size()
       ncols_req = jhi - jlo + 1
+
+      if (debug_rma) then
+         write (*, '(A,I2,A,I4,A,I4,A,I4,A,I4,A,I4,A,I4)') &
+            "[RMA_GET rank ", me, "] h=", handle, " [", ilo, ":", ihi, ",", jlo, ":", jhi, &
+            "] ncols=", arr%ncols, " nranks=", nranks
+         flush (6)
+      end if
 
       allocate (requests(ncols_req))
       call arr%win%lock_all()
@@ -181,6 +228,11 @@ contains
          disp = get_local_offset(arr%nrows, arr%ncols, nranks, ilo - 1, col)
          buf_offset = (j - jlo)*nrows_patch + 1
          req_count = req_count + 1
+         if (debug_rma) then
+            write (*, '(A,I2,A,I4,A,I4,A,I12,A,I4)') &
+               "[RMA_GET rank ", me, "] col=", j, " -> owner=", owner, " disp=", disp, " count=", nrows_patch
+            flush (6)
+         end if
          call arr%win%rget_dp(owner, disp, nrows_patch, buffer(buf_offset), requests(req_count))
       end do
 
@@ -198,6 +250,16 @@ contains
       type(request_t), allocatable :: requests(:)
       integer(MPI_ADDRESS_KIND) :: disp
       integer(int32) :: j, col, owner, nrows_patch, buf_offset, req_count, nranks
+
+      ! Validate handle
+      if (handle < 1 .or. handle > MAX_ARRAYS) then
+         write (*, '(A,I0)') "ERROR: darray_put_dp invalid handle: ", handle
+         error stop "darray_put_dp: invalid handle"
+      end if
+      if (.not. registry(handle)%active) then
+         write (*, '(A,I0)') "ERROR: darray_put_dp handle not active: ", handle
+         error stop "darray_put_dp: handle not active"
+      end if
 
       arr => registry(handle)
       arr_comm = groups_get_comm(arr%comm_id)
@@ -231,20 +293,34 @@ contains
       integer(MPI_ADDRESS_KIND) :: disp
       integer(int32) :: j, col, owner, nrows_patch, buf_offset, nranks
 
+      ! Validate handle
+      if (handle < 1 .or. handle > MAX_ARRAYS) then
+         write (*, '(A,I0)') "ERROR: darray_acc_dp invalid handle: ", handle
+         error stop "darray_acc_dp: invalid handle"
+      end if
+      if (.not. registry(handle)%active) then
+         write (*, '(A,I0)') "ERROR: darray_acc_dp handle not active: ", handle
+         error stop "darray_acc_dp: handle not active"
+      end if
+
       arr => registry(handle)
       arr_comm = groups_get_comm(arr%comm_id)
       nrows_patch = ihi - ilo + 1
       nranks = arr_comm%size()
+
+      ! Optimized: use lock_all/flush_all to batch all accumulates
+      call arr%win%lock_all()
 
       do j = jlo, jhi
          col = j - 1
          owner = get_owner(arr%ncols, nranks, col)
          disp = get_local_offset(arr%nrows, arr%ncols, nranks, ilo - 1, col)
          buf_offset = (j - jlo)*nrows_patch + 1
-         call arr%win%lock(owner)
          call arr%win%accumulate_dp(owner, disp, nrows_patch, buffer(buf_offset))
-         call arr%win%unlock(owner)
       end do
+
+      call arr%win%flush_all()
+      call arr%win%unlock_all()
    end subroutine darray_acc_dp
 
    ! ========================================================================
@@ -366,15 +442,19 @@ contains
       nrows_patch = ihi - ilo + 1
       nranks = arr_comm%size()
 
+      ! Optimized: use lock_all/flush_all to batch all accumulates
+      call arr%win%lock_all()
+
       do j = jlo, jhi
          col = j - 1
          owner = get_owner(arr%ncols, nranks, col)
          disp = get_local_offset(arr%nrows, arr%ncols, nranks, ilo - 1, col)
          buf_offset = (j - jlo)*nrows_patch + 1
-         call arr%win%lock(owner)
          call arr%win%accumulate_sp(owner, disp, nrows_patch, buffer(buf_offset))
-         call arr%win%unlock(owner)
       end do
+
+      call arr%win%flush_all()
+      call arr%win%unlock_all()
    end subroutine darray_acc_sp
 
    ! ========================================================================
@@ -496,15 +576,19 @@ contains
       nrows_patch = ihi - ilo + 1
       nranks = arr_comm%size()
 
+      ! Optimized: use lock_all/flush_all to batch all accumulates
+      call arr%win%lock_all()
+
       do j = jlo, jhi
          col = j - 1
          owner = get_owner(arr%ncols, nranks, col)
          disp = get_local_offset(arr%nrows, arr%ncols, nranks, ilo - 1, col)
          buf_offset = (j - jlo)*nrows_patch + 1
-         call arr%win%lock(owner)
          call arr%win%accumulate_i32(owner, disp, nrows_patch, buffer(buf_offset))
-         call arr%win%unlock(owner)
       end do
+
+      call arr%win%flush_all()
+      call arr%win%unlock_all()
    end subroutine darray_acc_i32
 
    ! ========================================================================
@@ -626,15 +710,19 @@ contains
       nrows_patch = ihi - ilo + 1
       nranks = arr_comm%size()
 
+      ! Optimized: use lock_all/flush_all to batch all accumulates
+      call arr%win%lock_all()
+
       do j = jlo, jhi
          col = j - 1
          owner = get_owner(arr%ncols, nranks, col)
          disp = get_local_offset(arr%nrows, arr%ncols, nranks, ilo - 1, col)
          buf_offset = (j - jlo)*nrows_patch + 1
-         call arr%win%lock(owner)
          call arr%win%accumulate_i64(owner, disp, nrows_patch, buffer(buf_offset))
-         call arr%win%unlock(owner)
       end do
+
+      call arr%win%flush_all()
+      call arr%win%unlock_all()
    end subroutine darray_acc_i64
 
    ! ========================================================================
@@ -680,6 +768,16 @@ contains
       type(darray_t), pointer :: arr
       type(comm_t) :: arr_comm
       integer(int32) :: first_col, ncols_owned
+
+      ! Validate handle
+      if (handle < 1 .or. handle > MAX_ARRAYS) then
+         write (*, '(A,I0)') "ERROR: darray_distrib invalid handle: ", handle
+         error stop "darray_distrib: invalid handle"
+      end if
+      if (.not. registry(handle)%active) then
+         write (*, '(A,I0)') "ERROR: darray_distrib handle not active: ", handle
+         error stop "darray_distrib: handle not active"
+      end if
 
       arr => registry(handle)
       arr_comm = groups_get_comm(arr%comm_id)

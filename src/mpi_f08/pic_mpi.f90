@@ -593,7 +593,7 @@ contains
       real(dp), allocatable, intent(out) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
-      type(MPI_Status) :: status
+      type(MPI_Status), intent(out) :: status
       integer(int32) :: count
       integer(int32) :: ierr
 
@@ -1136,7 +1136,7 @@ contains
    !! Used for DDI distributed arrays.
    function create_win_dp_array(comm, base, win_size) result(win)
       type(comm_t), intent(in) :: comm
-      real(dp), target :: base(:)
+      real(dp), target, intent(inout) :: base(:)
       integer(MPI_ADDRESS_KIND), intent(in) :: win_size
       type(win_t) :: win
       integer(int32) :: ierr
@@ -1405,7 +1405,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(dp), intent(out) :: buffer(*)
+      real(dp), intent(out), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Get(buffer, count, MPI_DOUBLE_PRECISION, &
@@ -1422,7 +1422,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(dp), intent(in) :: buffer(*)
+      real(dp), intent(in), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Put(buffer, count, MPI_DOUBLE_PRECISION, &
@@ -1440,7 +1440,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(dp), intent(out) :: buffer(*)
+      real(dp), intent(out), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1460,7 +1460,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(dp), intent(in) :: buffer(*)
+      real(dp), intent(in), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1479,7 +1479,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(dp), intent(in) :: buffer(*)
+      real(dp), intent(in), contiguous :: buffer(:)
       type(MPI_Op), intent(in), optional :: op
       type(MPI_Op) :: mpi_op
       integer(int32) :: ierr
@@ -1504,7 +1504,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(sp), intent(out) :: buffer(*)
+      real(sp), intent(out), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Get(buffer, count, MPI_REAL, &
@@ -1517,7 +1517,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(sp), intent(in) :: buffer(*)
+      real(sp), intent(in), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Put(buffer, count, MPI_REAL, &
@@ -1530,7 +1530,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(sp), intent(out) :: buffer(*)
+      real(sp), intent(out), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1545,7 +1545,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(sp), intent(in) :: buffer(*)
+      real(sp), intent(in), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1560,7 +1560,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      real(sp), intent(in) :: buffer(*)
+      real(sp), intent(in), contiguous :: buffer(:)
       type(MPI_Op), intent(in), optional :: op
       type(MPI_Op) :: mpi_op
       integer(int32) :: ierr
@@ -1585,7 +1585,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int32), intent(out) :: buffer(*)
+      integer(int32), intent(out), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Get(buffer, count, MPI_INTEGER, &
@@ -1598,7 +1598,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int32), intent(in) :: buffer(*)
+      integer(int32), intent(in), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Put(buffer, count, MPI_INTEGER, &
@@ -1611,7 +1611,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int32), intent(out) :: buffer(*)
+      integer(int32), intent(out), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1626,7 +1626,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int32), intent(in) :: buffer(*)
+      integer(int32), intent(in), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1641,7 +1641,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int32), intent(in) :: buffer(*)
+      integer(int32), intent(in), contiguous :: buffer(:)
       type(MPI_Op), intent(in), optional :: op
       type(MPI_Op) :: mpi_op
       integer(int32) :: ierr
@@ -1666,7 +1666,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int64), intent(out) :: buffer(*)
+      integer(int64), intent(out), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Get(buffer, count, MPI_INTEGER8, &
@@ -1679,7 +1679,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int64), intent(in) :: buffer(*)
+      integer(int64), intent(in), contiguous :: buffer(:)
       integer(int32) :: ierr
 
       call MPI_Put(buffer, count, MPI_INTEGER8, &
@@ -1692,7 +1692,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int64), intent(out) :: buffer(*)
+      integer(int64), intent(out), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1707,7 +1707,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int64), intent(in) :: buffer(*)
+      integer(int64), intent(in), contiguous :: buffer(:)
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 
@@ -1722,7 +1722,7 @@ contains
       integer(int32), intent(in) :: target_rank
       integer(MPI_ADDRESS_KIND), intent(in) :: target_disp
       integer(int32), intent(in) :: count
-      integer(int64), intent(in) :: buffer(*)
+      integer(int64), intent(in), contiguous :: buffer(:)
       type(MPI_Op), intent(in), optional :: op
       type(MPI_Op) :: mpi_op
       integer(int32) :: ierr

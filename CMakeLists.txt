@@ -24,7 +24,6 @@ include(demo_status)
 option(PIC_USE_LEGACY_MPI "Use the old mpi module" OFF)
 option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
-option(PIC_MPI_ENABLE_DDI "Enable DDI compatibility layer for GAMESS" ON)
 mark_as_advanced(PIC_USE_VAPAA)
 
 if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)

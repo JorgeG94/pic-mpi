@@ -25,7 +25,8 @@ module pic_mpi
    private
 
    public :: comm_t, comm_world, comm_null
-   public :: send, recv, isend, irecv, isend_n, irecv_n
+   public :: send, recv, isend, irecv
+   public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
@@ -201,15 +202,6 @@ module pic_mpi
       module procedure :: comm_irecv_logical
    end interface irecv
 
-   !> Explicit-count isend for device pointers (nvhpc can't resolve in generic)
-   interface isend_n
-      module procedure :: comm_isend_real_dp_array_n
-   end interface isend_n
-
-   !> Explicit-count irecv for device pointers (nvhpc can't resolve in generic)
-   interface irecv_n
-      module procedure :: comm_irecv_real_dp_array_n
-   end interface irecv_n
 
    interface wait
       module procedure :: request_wait

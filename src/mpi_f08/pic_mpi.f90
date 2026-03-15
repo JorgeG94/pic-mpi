@@ -24,7 +24,7 @@ module pic_mpi_f08
                       MPI_Win_lock_all, MPI_Win_unlock_all, MPI_Win_flush, MPI_Win_flush_all, &
                       MPI_Rget, MPI_Rput, MPI_Win_allocate, &
                       MPI_Get, MPI_Put, MPI_Accumulate, MPI_Fetch_and_op, &
-                      MPI_Allreduce, MPI_ADDRESS_KIND, MPI_LOCK_SHARED, MPI_SUM, MPI_IN_PLACE
+                      MPI_Allreduce, MPI_ADDRESS_KIND, MPI_LOCK_SHARED, MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE
    implicit none
    private
 
@@ -39,6 +39,7 @@ module pic_mpi_f08
    ! Export MPI types and constants needed by applications
    public :: MPI_Status, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_MAX_PROCESSOR_NAME, MPI_Request
    public :: MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE
+   public :: MPI_SUM, MPI_MIN, MPI_MAX
 
    type :: request_t
    !! Wraps MPI_Request to provide object-oriented interface for
@@ -168,6 +169,8 @@ module pic_mpi_f08
    interface bcast
       module procedure :: comm_bcast_integer
       module procedure :: comm_bcast_integer64
+      module procedure :: comm_bcast_real_dp
+      module procedure :: comm_bcast_real_dp_array
    end interface bcast
 
    interface isend
@@ -225,6 +228,8 @@ module pic_mpi_f08
       module procedure :: allreduce_dp_array
       module procedure :: allreduce_i32
       module procedure :: allreduce_i32_array
+      module procedure :: allreduce_dp_to
+      module procedure :: allreduce_dp_array_to
    end interface allreduce
 
 contains
@@ -709,6 +714,28 @@ contains
 
       call MPI_Bcast(buffer, count, MPI_INTEGER8, root, comm%m_comm, ierr)
    end subroutine comm_bcast_integer64
+
+   subroutine comm_bcast_real_dp(comm, buffer, count, root)
+      !! Broadcasts double precision data from root process to all processes in communicator
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout) :: buffer
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_DOUBLE_PRECISION, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_real_dp
+
+   subroutine comm_bcast_real_dp_array(comm, buffer, count, root)
+      !! Broadcasts double precision array from root process to all processes in communicator
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(inout) :: buffer(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_DOUBLE_PRECISION, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_real_dp_array
 
    subroutine get_processor_name(name, namelen)
       !! Retrieves the name of the processor
@@ -1867,5 +1894,55 @@ contains
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_INTEGER, &
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_i32_array
+
+   !> Non-in-place allreduce for scalar double precision
+   !!
+   !! Reduces sendbuf and stores result in recvbuf.
+   !! Useful for timestep reduction where local value must be preserved.
+   subroutine allreduce_dp_to(comm, sendbuf, recvbuf, op)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: sendbuf
+      real(dp), intent(out) :: recvbuf
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(sendbuf, recvbuf, 1, MPI_DOUBLE_PRECISION, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_dp_to
+
+   !> Non-in-place allreduce for double precision array
+   !!
+   !! Reduces sendbuf and stores result in recvbuf.
+   subroutine allreduce_dp_array_to(comm, sendbuf, recvbuf, count, op)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: sendbuf(:)
+      real(dp), intent(out) :: recvbuf(:)
+      integer, intent(in), optional :: count
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr, n
+
+      if (present(count)) then
+         n = count
+      else
+         n = size(sendbuf)
+      end if
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(sendbuf, recvbuf, n, MPI_DOUBLE_PRECISION, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_dp_array_to
 
 end module pic_mpi_f08

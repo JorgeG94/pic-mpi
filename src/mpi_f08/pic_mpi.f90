@@ -1,10 +1,9 @@
-!> Modern MPI wrapper module using mpi_f08 interface
-!!
-!! This module provides a high-level object-oriented interface to MPI
-!! using the modern mpi_f08 bindings. It wraps MPI communicators and
-!! requests into derived types with type-bound procedures.
-!!
 module pic_mpi_f08
+   !! Modern MPI wrapper module using mpi_f08 interface
+   !!
+   !! This module provides a high-level object-oriented interface to MPI
+   !! using the modern mpi_f08 bindings. It wraps MPI communicators and
+   !! requests into derived types with type-bound procedures.
    use pic_types, only: int32, int64, sp, dp
    use mpi_f08, only: MPI_Comm, MPI_Status, MPI_Request, MPI_COMM_NULL, MPI_COMM_WORLD, &
                       MPI_COMM_TYPE_SHARED, MPI_INFO_NULL, MPI_UNDEFINED, &
@@ -54,11 +53,11 @@ module pic_mpi_f08
       procedure :: free => request_free !! Free the request
    end type request_t
 
-   !> MPI-3 Window type for one-sided communication (RMA)
-   !!
-   !! Wraps MPI_Win to provide object-oriented interface for
-   !! Remote Memory Access (RMA) operations needed for DDI
    type :: win_t
+      !! MPI-3 Window type for one-sided communication (RMA)
+      !!
+      !! Wraps MPI_Win to provide object-oriented interface for
+      !! Remote Memory Access (RMA) operations needed for DDI
       private
       type(MPI_Win) :: m_win = MPI_WIN_NULL
       logical :: is_valid = .false.
@@ -100,12 +99,12 @@ module pic_mpi_f08
       procedure :: finalize => win_finalize
    end type win_t
 
-   !> MPI communicator wrapper type
-   !!
    type :: comm_t
-   !! Provides object-oriented interface to MPI communicators with
-   !! type-bound procedures for common operations. Automatically caches
-   !! rank and size information for efficient access.
+      !! MPI communicator wrapper type
+      !!
+      !! Provides object-oriented interface to MPI communicators with
+      !! type-bound procedures for common operations. Automatically caches
+      !! rank and size information for efficient access.
       private
       type(MPI_Comm) :: m_comm = MPI_COMM_NULL !! Internal MPI communicator
       integer(int32) :: m_rank = -1 !! Cached rank in this communicator
@@ -195,7 +194,6 @@ module pic_mpi_f08
       module procedure :: comm_irecv_real_dp_array_2d
       module procedure :: comm_irecv_logical
    end interface irecv
-
 
    interface wait
       module procedure :: request_wait
@@ -1187,11 +1185,11 @@ contains
    ! Window creation
    ! ========================================================================
 
-   !> Create MPI window for RMA operations
-   !!
-   !! Creates a window exposing local memory to remote RMA operations.
-   !! Used for DDI distributed arrays.
    function create_win_dp_array(comm, base, win_size) result(win)
+      !! Create MPI window for RMA operations
+      !!
+      !! Creates a window exposing local memory to remote RMA operations.
+      !! Used for DDI distributed arrays.
       type(comm_t), intent(in) :: comm
       real(dp), target :: base(:)
       integer(MPI_ADDRESS_KIND), intent(in) :: win_size
@@ -1205,11 +1203,11 @@ contains
       win%is_valid = .true.
    end function create_win_dp_array
 
-   !> Create dynamic MPI window
-   !!
-   !! For windows where memory will be attached later.
-   !! Useful for load balancing counters.
    function create_win_dynamic(comm) result(win)
+      !! Create dynamic MPI window
+      !!
+      !! For windows where memory will be attached later.
+      !! Useful for load balancing counters.
       type(comm_t), intent(in) :: comm
       type(win_t) :: win
       integer(int32) :: ierr
@@ -1218,11 +1216,6 @@ contains
       win%is_valid = .true.
    end function create_win_dynamic
 
-   !> Allocate window memory and create window in one call (1D array)
-   !!
-   !! This is more efficient than separate allocation + win_create.
-   !! The baseptr is associated with the allocated memory.
-   !! Memory is freed when window is finalized.
    subroutine create_win_allocate_dp_1d(comm, length, baseptr, win)
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(comm_t), intent(in) :: comm
@@ -1242,7 +1235,7 @@ contains
       win%is_valid = .true.
    end subroutine create_win_allocate_dp_1d
 
-   !> Allocate window memory and create window in one call (2D array)
+   !! Allocate window memory and create window in one call (2D array)
    !!
    !! This is more efficient than separate allocation + win_create.
    !! The baseptr is associated with the allocated memory.
@@ -1267,7 +1260,7 @@ contains
       win%is_valid = .true.
    end subroutine create_win_allocate_dp_2d
 
-   !> Allocate window memory for integer64 array
+   !! Allocate window memory for integer64 array
    !!
    !! Used for atomic counters in dynamic load balancing.
    subroutine create_win_allocate_i64_1d(comm, length, baseptr, win)
@@ -1289,7 +1282,7 @@ contains
       win%is_valid = .true.
    end subroutine create_win_allocate_i64_1d
 
-   !> Allocate window memory for single precision array
+   !! Allocate window memory for single precision array
    subroutine create_win_allocate_sp_1d(comm, length, baseptr, win)
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(comm_t), intent(in) :: comm
@@ -1309,7 +1302,7 @@ contains
       win%is_valid = .true.
    end subroutine create_win_allocate_sp_1d
 
-   !> Allocate window memory for integer32 array
+   !! Allocate window memory for integer32 array
    subroutine create_win_allocate_i32_1d(comm, length, baseptr, win)
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(comm_t), intent(in) :: comm
@@ -1353,7 +1346,7 @@ contains
    ! Synchronization
    ! ========================================================================
 
-   !> Fence synchronization for active target RMA
+   !! Fence synchronization for active target RMA
    !!
    !! Completes all pending RMA operations.
    !! Use before/after Get/Put/Accumulate operations.
@@ -1371,7 +1364,7 @@ contains
       call MPI_Win_fence(assert_val, this%m_win, ierr)
    end subroutine win_fence
 
-   !> Lock window for passive target RMA
+   !! Lock window for passive target RMA
    !!
    !! Begins RMA access epoch for specified target rank.
    !! Must be paired with unlock.
@@ -1390,7 +1383,7 @@ contains
       call MPI_Win_lock(ltype, rank, 0_int32, this%m_win, ierr)
    end subroutine win_lock
 
-   !> Unlock window for passive target RMA
+   !! Unlock window for passive target RMA
    subroutine win_unlock(this, rank)
       class(win_t), intent(in) :: this
       integer(int32), intent(in) :: rank
@@ -1399,7 +1392,7 @@ contains
       call MPI_Win_unlock(rank, this%m_win, ierr)
    end subroutine win_unlock
 
-   !> Lock window on all ranks for passive target RMA
+   !! Lock window on all ranks for passive target RMA
    !!
    !! Begins RMA access epoch for all ranks simultaneously.
    !! More efficient than individual locks when accessing multiple ranks.
@@ -1418,7 +1411,7 @@ contains
       call MPI_Win_lock_all(assert_val, this%m_win, ierr)
    end subroutine win_lock_all
 
-   !> Unlock window on all ranks for passive target RMA
+   !! Unlock window on all ranks for passive target RMA
    subroutine win_unlock_all(this)
       class(win_t), intent(in) :: this
       integer(int32) :: ierr
@@ -1426,7 +1419,7 @@ contains
       call MPI_Win_unlock_all(this%m_win, ierr)
    end subroutine win_unlock_all
 
-   !> Flush pending RMA operations to a specific rank
+   !! Flush pending RMA operations to a specific rank
    !!
    !! Ensures all RMA operations to target rank have completed.
    !! Use within lock_all/unlock_all epoch.
@@ -1438,7 +1431,7 @@ contains
       call MPI_Win_flush(rank, this%m_win, ierr)
    end subroutine win_flush
 
-   !> Flush pending RMA operations to all ranks
+   !! Flush pending RMA operations to all ranks
    !!
    !! Ensures all RMA operations to all ranks have completed.
    !! Use within lock_all/unlock_all epoch.
@@ -1453,7 +1446,7 @@ contains
    ! RMA Get/Put/Accumulate operations
    ! ========================================================================
 
-   !> Get data from remote window
+   !! Get data from remote window
    !!
    !! Retrieves data from target rank's window into local buffer.
    !! Must be called between fence or lock/unlock pairs.
@@ -1470,7 +1463,7 @@ contains
                    this%m_win, ierr)
    end subroutine win_get_dp
 
-   !> Put data to remote window
+   !! Put data to remote window
    !!
    !! Sends data from local buffer to target rank's window.
    !! Must be called between fence or lock/unlock pairs.
@@ -1487,7 +1480,7 @@ contains
                    this%m_win, ierr)
    end subroutine win_put_dp
 
-   !> Non-blocking get data from remote window
+   !! Non-blocking get data from remote window
    !!
    !! Retrieves data from target rank's window into local buffer.
    !! Returns a request handle for later completion via wait().
@@ -1507,7 +1500,7 @@ contains
       request%is_valid = .true.
    end subroutine win_rget_dp
 
-   !> Non-blocking put data to remote window
+   !! Non-blocking put data to remote window
    !!
    !! Sends data from local buffer to target rank's window.
    !! Returns a request handle for later completion via wait().
@@ -1527,7 +1520,7 @@ contains
       request%is_valid = .true.
    end subroutine win_rput_dp
 
-   !> Accumulate data to remote window
+   !! Accumulate data to remote window
    !!
    !! Atomically adds local buffer to target rank's window.
    !! Critical for DDI_ACC (Fock matrix accumulation).
@@ -1795,7 +1788,7 @@ contains
                           mpi_op, this%m_win, ierr)
    end subroutine win_accumulate_i64
 
-   !> Atomic fetch-and-add for load balancing
+   !! Atomic fetch-and-add for load balancing
    !!
    !! Atomically increments remote counter and returns old value.
    !! Used for DDI_DLBNEXT (dynamic load balancing).
@@ -1830,7 +1823,7 @@ contains
    ! Allreduce operations (for DDI_GSUMF/GSUMI)
    ! ========================================================================
 
-   !> Allreduce for scalar double precision
+   !! Allreduce for scalar double precision
    !!
    !! In-place global reduction. Replaces DDI_GSUMF for scalars.
    subroutine allreduce_dp(comm, buffer, op)
@@ -1850,7 +1843,7 @@ contains
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp
 
-   !> Allreduce for double precision array
+   !! Allreduce for double precision array
    !!
    !! In-place global reduction. Replaces DDI_GSUMF for arrays.
    !! This is THE most-called DDI function (1,301 calls in GAMESS).
@@ -1878,7 +1871,7 @@ contains
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp_array
 
-   !> Allreduce for scalar integer
+   !! Allreduce for scalar integer
    !!
    !! In-place global reduction. Replaces DDI_GSUMI for scalars.
    subroutine allreduce_i32(comm, buffer, op)
@@ -1898,7 +1891,7 @@ contains
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_i32
 
-   !> Allreduce for integer array
+   !! Allreduce for integer array
    !!
    !! In-place global reduction. Replaces DDI_GSUMI for arrays.
    subroutine allreduce_i32_array(comm, buffer, count, op)
@@ -1925,7 +1918,7 @@ contains
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_i32_array
 
-   !> Non-in-place allreduce for scalar double precision
+   !! Non-in-place allreduce for scalar double precision
    !!
    !! Reduces sendbuf and stores result in recvbuf.
    !! Useful for timestep reduction where local value must be preserved.
@@ -1947,7 +1940,7 @@ contains
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp_to
 
-   !> Non-in-place allreduce for double precision array
+   !! Non-in-place allreduce for double precision array
    !!
    !! Reduces sendbuf and stores result in recvbuf.
    subroutine allreduce_dp_array_to(comm, sendbuf, recvbuf, count, op)

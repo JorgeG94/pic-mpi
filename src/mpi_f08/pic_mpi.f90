@@ -182,6 +182,7 @@ module pic_mpi_f08
       module procedure :: comm_isend_real_dp_array
       module procedure :: comm_isend_real_dp_array_2d
       module procedure :: comm_isend_logical
+      module procedure :: comm_isend_real_dp_array_n
    end interface isend
 
    interface irecv
@@ -193,6 +194,7 @@ module pic_mpi_f08
       module procedure :: comm_irecv_real_dp_array
       module procedure :: comm_irecv_real_dp_array_2d
       module procedure :: comm_irecv_logical
+      module procedure :: comm_irecv_real_dp_array_n
    end interface irecv
 
    interface wait
@@ -955,6 +957,20 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_logical
 
+   subroutine comm_isend_real_dp_array_n(comm, data, count, dest, tag, request)
+      !! Non-blocking send with explicit count (for device pointers in host_data blocks)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(*)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, count, MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array_n
+
    ! ========================================================================
    ! Non-blocking receive operations
    ! ========================================================================
@@ -1074,6 +1090,20 @@ contains
       call MPI_Irecv(data, 1, MPI_LOGICAL, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_logical
+
+   subroutine comm_irecv_real_dp_array_n(comm, data, count, source, tag, request)
+      !! Non-blocking receive with explicit count (for device pointers in host_data blocks)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data(*)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_dp_array_n
 
    ! ========================================================================
    ! Request completion operations

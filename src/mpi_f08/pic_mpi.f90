@@ -968,7 +968,7 @@ contains
    subroutine comm_isend_real_dp_array_n(comm, data, count, dest, tag, request)
       !! Non-blocking send with explicit count (for device pointers in host_data blocks)
       type(comm_t), intent(in) :: comm
-      real(dp), intent(in) :: data(:)
+      real(dp) :: data(:)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: dest
       integer(int32), intent(in) :: tag
@@ -1102,7 +1102,7 @@ contains
    subroutine comm_irecv_real_dp_array_n(comm, data, count, source, tag, request)
       !! Non-blocking receive with explicit count (for device pointers in host_data blocks)
       type(comm_t), intent(in) :: comm
-      real(dp), intent(out) :: data(:)
+      real(dp) :: data(:)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag

@@ -30,6 +30,7 @@ module pic_mpi_f08
    public :: comm_t, comm_world, comm_null
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
+   public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
    public :: request_t, wait, waitall, test
    public :: iprobe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
@@ -144,6 +145,9 @@ module pic_mpi_f08
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
       module procedure :: comm_send_real_dp_array_2d
+      module procedure :: comm_send_real_sp
+      module procedure :: comm_send_real_sp_array
+      module procedure :: comm_send_real_sp_array_2d
       module procedure :: comm_send_logical
    end interface send
 
@@ -155,6 +159,9 @@ module pic_mpi_f08
       module procedure :: comm_recv_real_dp
       module procedure :: comm_recv_real_dp_array
       module procedure :: comm_recv_real_dp_array_2d
+      module procedure :: comm_recv_real_sp
+      module procedure :: comm_recv_real_sp_array
+      module procedure :: comm_recv_real_sp_array_2d
       module procedure :: comm_recv_logical
    end interface recv
 
@@ -171,6 +178,8 @@ module pic_mpi_f08
       module procedure :: comm_bcast_integer64
       module procedure :: comm_bcast_real_dp
       module procedure :: comm_bcast_real_dp_array
+      module procedure :: comm_bcast_real_sp
+      module procedure :: comm_bcast_real_sp_array
    end interface bcast
 
    interface isend
@@ -181,6 +190,9 @@ module pic_mpi_f08
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
       module procedure :: comm_isend_real_dp_array_2d
+      module procedure :: comm_isend_real_sp
+      module procedure :: comm_isend_real_sp_array
+      module procedure :: comm_isend_real_sp_array_2d
       module procedure :: comm_isend_logical
    end interface isend
 
@@ -192,6 +204,9 @@ module pic_mpi_f08
       module procedure :: comm_irecv_real_dp
       module procedure :: comm_irecv_real_dp_array
       module procedure :: comm_irecv_real_dp_array_2d
+      module procedure :: comm_irecv_real_sp
+      module procedure :: comm_irecv_real_sp_array
+      module procedure :: comm_irecv_real_sp_array_2d
       module procedure :: comm_irecv_logical
    end interface irecv
 
@@ -226,10 +241,14 @@ module pic_mpi_f08
    interface allreduce
       module procedure :: allreduce_dp
       module procedure :: allreduce_dp_array
+      module procedure :: allreduce_sp
+      module procedure :: allreduce_sp_array
       module procedure :: allreduce_i32
       module procedure :: allreduce_i32_array
       module procedure :: allreduce_dp_to
       module procedure :: allreduce_dp_array_to
+      module procedure :: allreduce_sp_to
+      module procedure :: allreduce_sp_array_to
    end interface allreduce
 
 contains
@@ -492,6 +511,46 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array_2d
 
+   subroutine comm_send_real_sp(comm, data, dest, tag)
+      !! Blocking send of a single single-precision real to specified destination
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, 1, MPI_REAL, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_sp
+
+   subroutine comm_send_real_sp_array(comm, data, dest, tag)
+      !! Blocking send of a single-precision real array to specified destination
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, size(data), MPI_REAL, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_sp_array
+
+   subroutine comm_send_real_sp_array_2d(comm, data, dest, tag)
+   !! Blocking send of a 2D single-precision real array to specified destination
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data
+      call MPI_Send(data, size(data), MPI_REAL, dest, tag, comm%m_comm, ierr)
+   end subroutine comm_send_real_sp_array_2d
+
    subroutine comm_send_logical(comm, data, dest, tag)
    !! Blocking send of a logical value to specified destination
       type(comm_t), intent(in) :: comm
@@ -634,6 +693,64 @@ contains
       call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
    end subroutine comm_recv_real_dp_array_2d
 
+   subroutine comm_recv_real_sp(comm, data, source, tag, status)
+      !! Blocking receive of a single single-precision real from specified source.
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+      type(MPI_Status), intent(out), optional :: status
+
+      if (present(status)) then
+         call MPI_Recv(data, 1, MPI_REAL, source, tag, comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, 1, MPI_REAL, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_real_sp
+
+   subroutine comm_recv_real_sp_array(comm, data, source, tag, status)
+      !! Blocking receive of a single-precision real array from specified source.
+      type(comm_t), intent(in) :: comm
+      real(sp), allocatable, intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status) :: status
+      integer(int32) :: count
+      integer(int32) :: ierr
+
+      ! First probe to get message size
+      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
+      call MPI_Get_count(status, MPI_REAL, count, ierr)
+
+      ! Allocate and receive
+      allocate (data(count))
+      call MPI_Recv(data, count, MPI_REAL, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+   end subroutine comm_recv_real_sp_array
+
+   subroutine comm_recv_real_sp_array_2d(comm, data, source, tag, status)
+   !! Blocking receive of a 2D allocatable single-precision real array
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: ierr, count, dim1, dim2
+
+      ! Receive dimensions first
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data
+      count = dim1*dim2
+      call MPI_Recv(data, count, MPI_REAL, source, tag, comm%m_comm, status, ierr)
+   end subroutine comm_recv_real_sp_array_2d
+
    subroutine comm_recv_logical(comm, data, source, tag, status)
    !! Blocking receive of a logical value from specified source
       type(comm_t), intent(in) :: comm
@@ -736,6 +853,28 @@ contains
 
       call MPI_Bcast(buffer, count, MPI_DOUBLE_PRECISION, root, comm%m_comm, ierr)
    end subroutine comm_bcast_real_dp_array
+
+   subroutine comm_bcast_real_sp(comm, buffer, count, root)
+      !! Broadcasts single-precision data from root process to all processes in communicator
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout) :: buffer
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_REAL, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_real_sp
+
+   subroutine comm_bcast_real_sp_array(comm, buffer, count, root)
+      !! Broadcasts single-precision array from root process to all processes in communicator
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout) :: buffer(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: root
+      integer(int32) :: ierr
+
+      call MPI_Bcast(buffer, count, MPI_REAL, root, comm%m_comm, ierr)
+   end subroutine comm_bcast_real_sp_array
 
    subroutine get_processor_name(name, namelen)
       !! Retrieves the name of the processor
@@ -969,6 +1108,66 @@ contains
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array_n
 
+   subroutine comm_isend_real_sp(comm, data, dest, tag, request)
+   !! Non-blocking send of a single single-precision real
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, 1, MPI_REAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_sp
+
+   subroutine comm_isend_real_sp_array(comm, data, dest, tag, request)
+      !! Non-blocking send of a single-precision real array
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data(:)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, size(data), MPI_REAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_sp_array
+
+   subroutine comm_isend_real_sp_array_2d(comm, data, dest, tag, request)
+   !! Non-blocking send of a 2D single-precision real array
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Send dimensions first (blocking - simple approach)
+      dim1 = size(data, 1)
+      dim2 = size(data, 2)
+      call MPI_Send(dim1, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+      call MPI_Send(dim2, 1, MPI_INTEGER, dest, tag, comm%m_comm, ierr)
+
+      ! Send data (non-blocking)
+      call MPI_Isend(data, size(data), MPI_REAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_sp_array_2d
+
+   subroutine comm_isend_real_sp_array_n(comm, data, count, dest, tag, request)
+      !! Non-blocking send with explicit count for single-precision (for device pointers in host_data blocks)
+      type(comm_t), intent(in) :: comm
+      real(sp) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, count, MPI_REAL, dest, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_sp_array_n
+
    ! ========================================================================
    ! Non-blocking receive operations
    ! ========================================================================
@@ -1102,6 +1301,69 @@ contains
       call MPI_Irecv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array_n
+
+   subroutine comm_irecv_real_sp(comm, data, source, tag, request)
+      !! Non-blocking receive of a single single-precision real
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(out) :: data
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, 1, MPI_REAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_sp
+
+   subroutine comm_irecv_real_sp_array(comm, data, source, tag, request)
+      !! Non-blocking receive of a single-precision real array
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(out) :: data(:)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, size(data), MPI_REAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_sp_array
+
+   subroutine comm_irecv_real_sp_array_2d(comm, data, source, tag, request)
+   !! Non-blocking receive of a 2D allocatable single-precision real array
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout), allocatable :: data(:, :)
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr, dim1, dim2
+
+      ! Receive dimensions first (blocking - needed to allocate)
+      call MPI_Recv(dim1, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      call MPI_Recv(dim2, 1, MPI_INTEGER, source, tag, comm%m_comm, MPI_STATUS_IGNORE, ierr)
+
+      ! Allocate array with received dimensions
+      if (.not. allocated(data)) then
+         allocate (data(dim1, dim2))
+      end if
+
+      ! Receive data (non-blocking)
+      call MPI_Irecv(data, dim1*dim2, MPI_REAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_sp_array_2d
+
+   subroutine comm_irecv_real_sp_array_n(comm, data, count, source, tag, request)
+      !! Non-blocking receive with explicit count for single-precision (for device pointers in host_data blocks)
+      type(comm_t), intent(in) :: comm
+      real(sp) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Irecv(data, count, MPI_REAL, source, tag, comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_irecv_real_sp_array_n
 
    ! ========================================================================
    ! Request completion operations
@@ -1967,5 +2229,93 @@ contains
       call MPI_Allreduce(sendbuf, recvbuf, n, MPI_DOUBLE_PRECISION, &
                          mpi_op, comm%get(), ierr)
    end subroutine allreduce_dp_array_to
+
+   !! Allreduce for single-precision scalar
+   subroutine allreduce_sp(comm, buffer, op)
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout) :: buffer
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_REAL, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_sp
+
+   !! Allreduce for single-precision array
+   subroutine allreduce_sp_array(comm, buffer, count, op)
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(inout) :: buffer(:)
+      integer, intent(in), optional :: count
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr, n
+
+      if (present(count)) then
+         n = count
+      else
+         n = size(buffer)
+      end if
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_REAL, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_sp_array
+
+   !! Non-in-place allreduce for scalar single-precision
+   subroutine allreduce_sp_to(comm, sendbuf, recvbuf, op)
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: sendbuf
+      real(sp), intent(out) :: recvbuf
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(sendbuf, recvbuf, 1, MPI_REAL, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_sp_to
+
+   !! Non-in-place allreduce for single-precision array
+   subroutine allreduce_sp_array_to(comm, sendbuf, recvbuf, count, op)
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(in) :: sendbuf(:)
+      real(sp), intent(out) :: recvbuf(:)
+      integer, intent(in), optional :: count
+      type(MPI_Op), intent(in), optional :: op
+      type(MPI_Op) :: mpi_op
+      integer :: ierr, n
+
+      if (present(count)) then
+         n = count
+      else
+         n = size(sendbuf)
+      end if
+
+      if (present(op)) then
+         mpi_op = op
+      else
+         mpi_op = MPI_SUM
+      end if
+
+      call MPI_Allreduce(sendbuf, recvbuf, n, MPI_REAL, &
+                         mpi_op, comm%get(), ierr)
+   end subroutine allreduce_sp_array_to
 
 end module pic_mpi_f08

@@ -4,7 +4,7 @@ cmake_policy(SET CMP0144 NEW)
 project(
   "pic-mpi"
   LANGUAGES Fortran C
-  VERSION 0.0
+  VERSION 0.2.1
   DESCRIPTION "ADD YOUR DESCRIPTION HERE")
 
 set(project_name pic-mpi)

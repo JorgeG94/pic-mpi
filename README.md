@@ -3,6 +3,10 @@
 PIC-MPI is an extension of the PIC library aimed at creating a nice and simple MPI interface that uses
 the native Fortran modules instead of going through C.
 
+<p align="center">
+  <img src="images/pic_mpi.png" alt="Otter coding logo" title="Project logo" width="250">
+</p>
+
 The main reason is to explore the limits of the Fortran modules and actively report these issues to the
 right developers and channels to get them fixed.
 

@@ -545,8 +545,8 @@ contains
       !! Blocking send of a contiguous 2D dp array using an explicit
       !! count.  No dim-prefix protocol — caller and receiver agree on
       !! shape externally.
-      type(comm_t),   intent(in) :: comm
-      real(dp),       intent(in) :: data(:, :)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: dest
       integer(int32), intent(in) :: tag
@@ -558,7 +558,7 @@ contains
 
    subroutine comm_send_integer_array_2d_n(comm, data, count, dest, tag)
       !! Blocking send of a contiguous 2D int32 array with explicit count.
-      type(comm_t),   intent(in) :: comm
+      type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data(:, :)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: dest
@@ -764,8 +764,8 @@ contains
 
    subroutine comm_recv_real_dp_array_2d_n(comm, data, count, source, tag, status)
       !! Blocking recv of a contiguous 2D dp array with explicit count.
-      type(comm_t),   intent(in)    :: comm
-      real(dp),       intent(out)   :: data(:, :)
+      type(comm_t), intent(in)    :: comm
+      real(dp), intent(out)   :: data(:, :)
       integer(int32), intent(in)    :: count
       integer(int32), intent(in)    :: source
       integer(int32), intent(in)    :: tag
@@ -780,7 +780,7 @@ contains
 
    subroutine comm_recv_integer_array_2d_n(comm, data, count, source, tag, status)
       !! Blocking recv of a contiguous 2D int32 array with explicit count.
-      type(comm_t),   intent(in)    :: comm
+      type(comm_t), intent(in)    :: comm
       integer(int32), intent(out)   :: data(:, :)
       integer(int32), intent(in)    :: count
       integer(int32), intent(in)    :: source
@@ -1260,11 +1260,11 @@ contains
       !! Non-blocking send of a contiguous 2D dp array with explicit
       !! count.  No dim-prefix protocol; pairs with
       !! `comm_recv_real_dp_array_2d_n` on the receive side.
-      type(comm_t),    intent(in)  :: comm
-      real(dp),        intent(in)  :: data(:, :)
-      integer(int32),  intent(in)  :: count
-      integer(int32),  intent(in)  :: dest
-      integer(int32),  intent(in)  :: tag
+      type(comm_t), intent(in)  :: comm
+      real(dp), intent(in)  :: data(:, :)
+      integer(int32), intent(in)  :: count
+      integer(int32), intent(in)  :: dest
+      integer(int32), intent(in)  :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 

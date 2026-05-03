@@ -540,8 +540,8 @@ contains
       !! caller and receiver agree on the shape via the protocol.  The
       !! receiver uses `comm_recv_real_dp_array_2d_n` (or any of the
       !! `_array_n` overloads) with the same `count`.
-      type(comm_t),   intent(in) :: comm
-      real(dp),       intent(in) :: data(:, :)
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: dest
       integer(int32), intent(in) :: tag
@@ -554,7 +554,7 @@ contains
    subroutine comm_send_integer_array_2d_n(comm, data, count, dest, tag)
       !! Blocking send of a contiguous 2D int32 array using an explicit
       !! count, no dim-prefix.  Pairs with `comm_recv_integer_array_2d_n`.
-      type(comm_t),   intent(in) :: comm
+      type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: data(:, :)
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: dest
@@ -751,8 +751,8 @@ contains
       !! Blocking receive of a contiguous 2D double-precision array
       !! with explicit `count`.  No dim-prefix protocol — the caller
       !! has already shaped `data`.  Mirrors `comm_send_real_dp_array_2d_n`.
-      type(comm_t),   intent(in)    :: comm
-      real(dp),       intent(out)   :: data(:, :)
+      type(comm_t), intent(in)    :: comm
+      real(dp), intent(out)   :: data(:, :)
       integer(int32), intent(in)    :: count
       integer(int32), intent(in)    :: source
       integer(int32), intent(in)    :: tag
@@ -770,7 +770,7 @@ contains
 
    subroutine comm_recv_integer_array_2d_n(comm, data, count, source, tag, status)
       !! Blocking recv of a contiguous 2D int32 array with explicit count.
-      type(comm_t),   intent(in)    :: comm
+      type(comm_t), intent(in)    :: comm
       integer(int32), intent(out)   :: data(:, :)
       integer(int32), intent(in)    :: count
       integer(int32), intent(in)    :: source
@@ -1282,11 +1282,11 @@ contains
       !! `comm_recv_real_dp_array_2d_n` on the receive side.  The
       !! caller must keep `data` valid until `wait`/`waitall` on the
       !! returned request completes.
-      type(comm_t),    intent(in)  :: comm
-      real(dp),        intent(in)  :: data(:, :)
-      integer(int32),  intent(in)  :: count
-      integer(int32),  intent(in)  :: dest
-      integer(int32),  intent(in)  :: tag
+      type(comm_t), intent(in)  :: comm
+      real(dp), intent(in)  :: data(:, :)
+      integer(int32), intent(in)  :: count
+      integer(int32), intent(in)  :: dest
+      integer(int32), intent(in)  :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
 

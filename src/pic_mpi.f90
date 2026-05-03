@@ -31,8 +31,15 @@ module pic_mpi_f08
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
+   public :: comm_recv_real_dp_array_n, comm_recv_real_sp_array_n    ! Fixed-size blocking recv variants
+   public :: comm_recv_integer_array_n, comm_recv_integer64_array_n
+   ! 2D fixed-count variants — send/recv contiguous (m, n) arrays without
+   ! the dim-prefix protocol used by the 2D allocatable overloads.
+   public :: comm_send_real_dp_array_2d_n, comm_recv_real_dp_array_2d_n
+   public :: comm_isend_real_dp_array_2d_n
+   public :: comm_send_integer_array_2d_n, comm_recv_integer_array_2d_n
    public :: request_t, wait, waitall, test
-   public :: iprobe, abort_comm, allgather, get_processor_name, bcast
+   public :: iprobe, probe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
    public :: win_t, win_create, win_create_dynamic, win_allocate
    public :: allreduce
@@ -145,6 +152,8 @@ module pic_mpi_f08
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
       module procedure :: comm_send_real_dp_array_2d
+      module procedure :: comm_send_real_dp_array_2d_n
+      module procedure :: comm_send_integer_array_2d_n
       module procedure :: comm_send_real_sp
       module procedure :: comm_send_real_sp_array
       module procedure :: comm_send_real_sp_array_2d
@@ -163,11 +172,23 @@ module pic_mpi_f08
       module procedure :: comm_recv_real_sp_array
       module procedure :: comm_recv_real_sp_array_2d
       module procedure :: comm_recv_logical
+      ! Fixed-size receive variants (count is positional, no probe-then-allocate).
+      ! Use these when receiving into a pre-allocated buffer.
+      module procedure :: comm_recv_integer_array_n
+      module procedure :: comm_recv_integer64_array_n
+      module procedure :: comm_recv_real_dp_array_n
+      module procedure :: comm_recv_real_sp_array_n
+      module procedure :: comm_recv_real_dp_array_2d_n
+      module procedure :: comm_recv_integer_array_2d_n
    end interface recv
 
    interface iprobe
       module procedure :: comm_iprobe
    end interface iprobe
+
+   interface probe
+      module procedure :: comm_probe
+   end interface probe
 
    interface allgather
       module procedure :: comm_allgather_integer
@@ -190,6 +211,7 @@ module pic_mpi_f08
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
       module procedure :: comm_isend_real_dp_array_2d
+      module procedure :: comm_isend_real_dp_array_2d_n
       module procedure :: comm_isend_real_sp
       module procedure :: comm_isend_real_sp_array
       module procedure :: comm_isend_real_sp_array_2d
@@ -511,6 +533,38 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array_2d
 
+   subroutine comm_send_real_dp_array_2d_n(comm, data, count, dest, tag)
+      !! Blocking send of a contiguous 2D double-precision array using
+      !! an explicit count.  Unlike `comm_send_real_dp_array_2d`, this
+      !! variant does NOT prefix the message with the dimensions —
+      !! caller and receiver agree on the shape via the protocol.  The
+      !! receiver uses `comm_recv_real_dp_array_2d_n` (or any of the
+      !! `_array_n` overloads) with the same `count`.
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, count, MPI_DOUBLE_PRECISION, dest, tag, &
+                    comm%m_comm, ierr)
+   end subroutine comm_send_real_dp_array_2d_n
+
+   subroutine comm_send_integer_array_2d_n(comm, data, count, dest, tag)
+      !! Blocking send of a contiguous 2D int32 array using an explicit
+      !! count, no dim-prefix.  Pairs with `comm_recv_integer_array_2d_n`.
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, count, MPI_INTEGER, dest, tag, &
+                    comm%m_comm, ierr)
+   end subroutine comm_send_integer_array_2d_n
+
    subroutine comm_send_real_sp(comm, data, dest, tag)
       !! Blocking send of a single single-precision real to specified destination
       type(comm_t), intent(in) :: comm
@@ -693,6 +747,46 @@ contains
       call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, status, ierr)
    end subroutine comm_recv_real_dp_array_2d
 
+   subroutine comm_recv_real_dp_array_2d_n(comm, data, count, source, tag, status)
+      !! Blocking receive of a contiguous 2D double-precision array
+      !! with explicit `count`.  No dim-prefix protocol — the caller
+      !! has already shaped `data`.  Mirrors `comm_send_real_dp_array_2d_n`.
+      type(comm_t), intent(in)    :: comm
+      real(dp), intent(out)   :: data(:, :)
+      integer(int32), intent(in)    :: count
+      integer(int32), intent(in)    :: source
+      integer(int32), intent(in)    :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_real_dp_array_2d_n
+
+   subroutine comm_recv_integer_array_2d_n(comm, data, count, source, tag, status)
+      !! Blocking recv of a contiguous 2D int32 array with explicit count.
+      type(comm_t), intent(in)    :: comm
+      integer(int32), intent(out)   :: data(:, :)
+      integer(int32), intent(in)    :: count
+      integer(int32), intent(in)    :: source
+      integer(int32), intent(in)    :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_integer_array_2d_n
+
    subroutine comm_recv_real_sp(comm, data, source, tag, status)
       !! Blocking receive of a single single-precision real from specified source.
       type(comm_t), intent(in) :: comm
@@ -767,6 +861,91 @@ contains
       end if
    end subroutine comm_recv_logical
 
+   ! ========================================================================
+   ! Fixed-size blocking receive variants
+   !
+   ! Mirror the existing `_array_n` shape used by the isend / irecv
+   ! interfaces.  Take an explicit `count` instead of probing for size,
+   ! so callers can receive into a pre-allocated buffer.  Useful for
+   ! the I/O server pattern where buffer shapes are known up front.
+   ! ========================================================================
+
+   subroutine comm_recv_real_dp_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated double-precision array.
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_real_dp_array_n
+
+   subroutine comm_recv_real_sp_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated single-precision array.
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_REAL, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_REAL, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_real_sp_array_n
+
+   subroutine comm_recv_integer_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated int32 array.
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_integer_array_n
+
+   subroutine comm_recv_integer64_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated int64 array.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer(int32) :: ierr
+
+      if (present(status)) then
+         call MPI_Recv(data, count, MPI_INTEGER8, source, tag, &
+                       comm%m_comm, status, ierr)
+      else
+         call MPI_Recv(data, count, MPI_INTEGER8, source, tag, &
+                       comm%m_comm, MPI_STATUS_IGNORE, ierr)
+      end if
+   end subroutine comm_recv_integer64_array_n
+
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
       !! Non-blocking probe for incoming messages
       type(comm_t), intent(in) :: comm
@@ -778,6 +957,22 @@ contains
 
       call MPI_Iprobe(source, tag, comm%m_comm, message_pending, status, ierr)
    end subroutine comm_iprobe
+
+   subroutine comm_probe(comm, source, tag, status)
+      !! Blocking probe for incoming messages.  Returns once a message
+      !! matching `(source, tag)` is queued at the receiver — caller
+      !! reads `status%MPI_SOURCE` and `status%MPI_TAG` to decide who's
+      !! talking and what kind of message it is, then issues the
+      !! matching `recv`.  Use `MPI_ANY_SOURCE` / `MPI_ANY_TAG` to
+      !! dispatch on whichever rank speaks first.
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: ierr
+
+      call MPI_Probe(source, tag, comm%m_comm, status, ierr)
+   end subroutine comm_probe
 
    subroutine comm_finalize(this)
       !! Frees the MPI communicator resources
@@ -1080,6 +1275,25 @@ contains
       call MPI_Isend(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array_2d
+
+   subroutine comm_isend_real_dp_array_2d_n(comm, data, count, dest, tag, request)
+      !! Non-blocking send of a contiguous 2D double-precision array
+      !! with explicit count — no dim-prefix protocol.  Pairs with
+      !! `comm_recv_real_dp_array_2d_n` on the receive side.  The
+      !! caller must keep `data` valid until `wait`/`waitall` on the
+      !! returned request completes.
+      type(comm_t), intent(in)  :: comm
+      real(dp), intent(in)  :: data(:, :)
+      integer(int32), intent(in)  :: count
+      integer(int32), intent(in)  :: dest
+      integer(int32), intent(in)  :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, count, MPI_DOUBLE_PRECISION, dest, tag, &
+                     comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array_2d_n
 
    subroutine comm_isend_logical(comm, data, dest, tag, request)
    !! Non-blocking send of a logical value

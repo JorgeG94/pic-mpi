@@ -700,6 +700,24 @@ waited on using wait() or test() before the buffer can be reused.</p></td>
                  <td></td>
                </tr>
 			   <tr>
+                 <td><a href='../proc/comm_isend_real_dp_array_2d_n.html'>comm_isend_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Non-blocking send of a contiguous 2D double-precision array
+with explicit count — no dim-prefix protocol.  Pairs with
+<code>comm_recv_real_dp_array_2d_n</code> on the receive side.  The
+caller must keep <code>data</code> valid until <code>wait</code>/<code>waitall</code> on the
+returned request completes.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_isend_real_dp_array_2d_n~2.html'>comm_isend_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Non-blocking send of a contiguous 2D dp array with explicit
+count.  No dim-prefix protocol; pairs with
+<code>comm_recv_real_dp_array_2d_n</code> on the receive side.</p></td>
+               </tr>
+			   <tr>
                  <td><a href='../proc/comm_isend_real_dp_array_n.html'>comm_isend_real_dp_array_n</a></td>
                  <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
                  <td>Subroutine</td>
@@ -784,6 +802,25 @@ waited on using wait() or test() before the buffer can be reused.</p></td>
                  <td></td>
                </tr>
 			   <tr>
+                 <td><a href='../proc/comm_probe.html'>comm_probe</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking probe for incoming messages.  Returns once a message
+matching <code>(source, tag)</code> is queued at the receiver — caller
+reads <code>status%MPI_SOURCE</code> and <code>status%MPI_TAG</code> to decide who&rsquo;s
+talking and what kind of message it is, then issues the
+matching <code>recv</code>.  Use <code>MPI_ANY_SOURCE</code> / <code>MPI_ANY_TAG</code> to
+dispatch on whichever rank speaks first.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_probe~2.html'>comm_probe</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking probe for incoming messages — caller reads
+<code>status%MPI_SOURCE</code> / <code>status%MPI_TAG</code> to dispatch the matching
+<code>recv</code>.  Mirrors the f08 backend&rsquo;s <code>comm_probe</code>.</p></td>
+               </tr>
+			   <tr>
                  <td><a href='../proc/comm_rank.html'>comm_rank</a></td>
                  <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
                  <td>Function</td>
@@ -835,6 +872,18 @@ Array is automatically allocated to the correct size.</p></td>
                  <td><p>Blocking receive of an integer64 array from specified source</p></td>
                </tr>
 			   <tr>
+                 <td><a href='../proc/comm_recv_integer64_array_n.html'>comm_recv_integer64_array_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated int64 array.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_integer64_array_n~2.html'>comm_recv_integer64_array_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated int64 array.</p></td>
+               </tr>
+			   <tr>
                  <td><a href='../proc/comm_recv_integer_array.html'>comm_recv_integer_array</a></td>
                  <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
                  <td>Subroutine</td>
@@ -845,6 +894,30 @@ Array is automatically allocated to the correct size.</p></td>
                  <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
                  <td>Subroutine</td>
                  <td></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_integer_array_2d_n.html'>comm_recv_integer_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking recv of a contiguous 2D int32 array with explicit count.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_integer_array_2d_n~2.html'>comm_recv_integer_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking recv of a contiguous 2D int32 array with explicit count.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_integer_array_n.html'>comm_recv_integer_array_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated int32 array.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_integer_array_n~2.html'>comm_recv_integer_array_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated int32 array.</p></td>
                </tr>
 			   <tr>
                  <td><a href='../proc/comm_recv_logical.html'>comm_recv_logical</a></td>
@@ -895,6 +968,32 @@ Array is automatically allocated to the correct size.</p></td>
                  <td><p>Receive 2D real(dp) array (must be pre-allocated by receiver)</p></td>
                </tr>
 			   <tr>
+                 <td><a href='../proc/comm_recv_real_dp_array_2d_n.html'>comm_recv_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive of a contiguous 2D double-precision array
+with explicit <code>count</code>.  No dim-prefix protocol — the caller
+has already shaped <code>data</code>.  Mirrors <code>comm_send_real_dp_array_2d_n</code>.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_real_dp_array_2d_n~2.html'>comm_recv_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking recv of a contiguous 2D dp array with explicit count.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_real_dp_array_n.html'>comm_recv_real_dp_array_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated double-precision array.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_real_dp_array_n~2.html'>comm_recv_real_dp_array_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated double-precision array.</p></td>
+               </tr>
+			   <tr>
                  <td><a href='../proc/comm_recv_real_sp.html'>comm_recv_real_sp</a></td>
                  <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
                  <td>Subroutine</td>
@@ -929,6 +1028,18 @@ Array is automatically allocated to the correct size.</p></td>
                  <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
                  <td>Subroutine</td>
                  <td><p>Receive 2D real(sp) array (must be pre-allocated by receiver)</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_real_sp_array_n.html'>comm_recv_real_sp_array_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated single-precision array.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_recv_real_sp_array_n~2.html'>comm_recv_real_sp_array_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking receive into a pre-allocated single-precision array.</p></td>
                </tr>
 			   <tr>
                  <td><a href='../proc/comm_send_integer.html'>comm_send_integer</a></td>
@@ -979,6 +1090,19 @@ Array is automatically allocated to the correct size.</p></td>
                  <td></td>
                </tr>
 			   <tr>
+                 <td><a href='../proc/comm_send_integer_array_2d_n.html'>comm_send_integer_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking send of a contiguous 2D int32 array using an explicit
+count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_send_integer_array_2d_n~2.html'>comm_send_integer_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking send of a contiguous 2D int32 array with explicit count.</p></td>
+               </tr>
+			   <tr>
                  <td><a href='../proc/comm_send_logical.html'>comm_send_logical</a></td>
                  <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
                  <td>Subroutine</td>
@@ -1025,6 +1149,25 @@ Array is automatically allocated to the correct size.</p></td>
                  <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
                  <td>Subroutine</td>
                  <td></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_send_real_dp_array_2d_n.html'>comm_send_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking send of a contiguous 2D double-precision array using
+an explicit count.  Unlike <code>comm_send_real_dp_array_2d</code>, this
+variant does NOT prefix the message with the dimensions —
+caller and receiver agree on the shape via the protocol.  The
+receiver uses <code>comm_recv_real_dp_array_2d_n</code> (or any of the
+<code>_array_n</code> overloads) with the same <code>count</code>.</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../proc/comm_send_real_dp_array_2d_n~2.html'>comm_send_real_dp_array_2d_n</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Subroutine</td>
+                 <td><p>Blocking send of a contiguous 2D dp array using an explicit
+count.  No dim-prefix protocol — caller and receiver agree on
+shape externally.</p></td>
                </tr>
 			   <tr>
                  <td><a href='../proc/comm_send_real_sp.html'>comm_send_real_sp</a></td>
@@ -1534,6 +1677,18 @@ This is the standard way to obtain a communicator for application use.</p></td>
                  <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
                  <td>Function</td>
                  <td><p>Query the current MPI thread support level</p></td>
+               </tr>
+			   <tr>
+                 <td><a href='../interface/probe.html'>probe</a></td>
+                 <td><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></td>
+                 <td>Interface</td>
+                 <td></td>
+               </tr>
+			   <tr>
+                 <td><a href='../interface/probe~2.html'>probe</a></td>
+                 <td><a href='../module/pic_mpi.html'>pic_mpi</a></td>
+                 <td>Interface</td>
+                 <td></td>
                </tr>
 			   <tr>
                  <td><a href='../interface/recv.html'>recv</a></td>
@@ -2108,7 +2263,7 @@ All requests are freed after completion.</p></td>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-04-17 13:44 +0000             </p>
+ on 2026-05-03 22:22 +0000             </p>
           </div>
         </div>
         <br>

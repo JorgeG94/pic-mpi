@@ -28,8 +28,13 @@ module pic_mpi
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
+   public :: comm_recv_real_dp_array_n, comm_recv_real_sp_array_n    ! Fixed-size blocking recv variants
+   public :: comm_recv_integer_array_n, comm_recv_integer64_array_n
+   public :: comm_send_real_dp_array_2d_n, comm_recv_real_dp_array_2d_n
+   public :: comm_isend_real_dp_array_2d_n
+   public :: comm_send_integer_array_2d_n, comm_recv_integer_array_2d_n
    public :: request_t, wait, waitall, test
-   public :: iprobe, abort_comm, allgather, get_processor_name, bcast
+   public :: iprobe, probe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
    public :: win_t, win_create, win_create_dynamic, win_allocate
    public :: allreduce
@@ -152,6 +157,8 @@ module pic_mpi
       module procedure :: comm_send_real_dp
       module procedure :: comm_send_real_dp_array
       module procedure :: comm_send_real_dp_array_2d
+      module procedure :: comm_send_real_dp_array_2d_n
+      module procedure :: comm_send_integer_array_2d_n
       module procedure :: comm_send_real_sp
       module procedure :: comm_send_real_sp_array
       module procedure :: comm_send_real_sp_array_2d
@@ -170,11 +177,22 @@ module pic_mpi
       module procedure :: comm_recv_real_sp_array
       module procedure :: comm_recv_real_sp_array_2d
       module procedure :: comm_recv_logical
+      ! Fixed-size receive variants (count is positional, no probe-then-allocate).
+      module procedure :: comm_recv_integer_array_n
+      module procedure :: comm_recv_integer64_array_n
+      module procedure :: comm_recv_real_dp_array_n
+      module procedure :: comm_recv_real_sp_array_n
+      module procedure :: comm_recv_real_dp_array_2d_n
+      module procedure :: comm_recv_integer_array_2d_n
    end interface recv
 
    interface iprobe
       module procedure :: comm_iprobe
    end interface iprobe
+
+   interface probe
+      module procedure :: comm_probe
+   end interface probe
 
    interface allgather
       module procedure :: comm_allgather_integer
@@ -197,6 +215,7 @@ module pic_mpi
       module procedure :: comm_isend_real_dp
       module procedure :: comm_isend_real_dp_array
       module procedure :: comm_isend_real_dp_array_2d
+      module procedure :: comm_isend_real_dp_array_2d_n
       module procedure :: comm_isend_real_sp
       module procedure :: comm_isend_real_sp_array
       module procedure :: comm_isend_real_sp_array_2d
@@ -522,6 +541,34 @@ contains
       call MPI_Send(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, ierr)
    end subroutine comm_send_real_dp_array_2d
 
+   subroutine comm_send_real_dp_array_2d_n(comm, data, count, dest, tag)
+      !! Blocking send of a contiguous 2D dp array using an explicit
+      !! count.  No dim-prefix protocol — caller and receiver agree on
+      !! shape externally.
+      type(comm_t),   intent(in) :: comm
+      real(dp),       intent(in) :: data(:, :)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, count, MPI_DOUBLE_PRECISION, dest, tag, &
+                    comm%m_comm, ierr)
+   end subroutine comm_send_real_dp_array_2d_n
+
+   subroutine comm_send_integer_array_2d_n(comm, data, count, dest, tag)
+      !! Blocking send of a contiguous 2D int32 array with explicit count.
+      type(comm_t),   intent(in) :: comm
+      integer(int32), intent(in) :: data(:, :)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: dest
+      integer(int32), intent(in) :: tag
+      integer(int32) :: ierr
+
+      call MPI_Send(data, count, MPI_INTEGER, dest, tag, &
+                    comm%m_comm, ierr)
+   end subroutine comm_send_integer_array_2d_n
+
    subroutine comm_send_real_sp(comm, data, dest, tag)
       type(comm_t), intent(in) :: comm
       real(sp), intent(in) :: data
@@ -715,6 +762,38 @@ contains
       status = status_array_to_type(stat)
    end subroutine comm_recv_real_dp_array_2d
 
+   subroutine comm_recv_real_dp_array_2d_n(comm, data, count, source, tag, status)
+      !! Blocking recv of a contiguous 2D dp array with explicit count.
+      type(comm_t),   intent(in)    :: comm
+      real(dp),       intent(out)   :: data(:, :)
+      integer(int32), intent(in)    :: count
+      integer(int32), intent(in)    :: source
+      integer(int32), intent(in)    :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_real_dp_array_2d_n
+
+   subroutine comm_recv_integer_array_2d_n(comm, data, count, source, tag, status)
+      !! Blocking recv of a contiguous 2D int32 array with explicit count.
+      type(comm_t),   intent(in)    :: comm
+      integer(int32), intent(out)   :: data(:, :)
+      integer(int32), intent(in)    :: count
+      integer(int32), intent(in)    :: source
+      integer(int32), intent(in)    :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_integer_array_2d_n
+
    subroutine comm_recv_real_sp(comm, data, source, tag, status)
       type(comm_t), intent(in) :: comm
       real(sp), intent(out) :: data
@@ -798,6 +877,74 @@ contains
       end if
    end subroutine comm_recv_logical
 
+   ! ========================================================================
+   ! Fixed-size blocking receive variants (legacy backend)
+   ! ========================================================================
+
+   subroutine comm_recv_real_dp_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated double-precision array.
+      type(comm_t), intent(in) :: comm
+      real(dp), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_DOUBLE_PRECISION, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_real_dp_array_n
+
+   subroutine comm_recv_real_sp_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated single-precision array.
+      type(comm_t), intent(in) :: comm
+      real(sp), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_REAL, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_real_sp_array_n
+
+   subroutine comm_recv_integer_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated int32 array.
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_INTEGER, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_integer_array_n
+
+   subroutine comm_recv_integer64_array_n(comm, data, count, source, tag, status)
+      !! Blocking receive into a pre-allocated int64 array.
+      type(comm_t), intent(in) :: comm
+      integer(int64), intent(out) :: data(:)
+      integer(int32), intent(in) :: count
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out), optional :: status
+      integer :: stat(MPI_STATUS_SIZE)
+      integer(int32) :: ierr
+
+      call MPI_Recv(data, count, MPI_INTEGER8, source, tag, &
+                    comm%m_comm, stat, ierr)
+      if (present(status)) status = status_array_to_type(stat)
+   end subroutine comm_recv_integer64_array_n
+
    subroutine comm_iprobe(comm, source, tag, message_pending, status)
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: source
@@ -811,6 +958,21 @@ contains
       ! Convert legacy status array to MPI_Status type
       status = status_array_to_type(status_array)
    end subroutine comm_iprobe
+
+   subroutine comm_probe(comm, source, tag, status)
+      !! Blocking probe for incoming messages — caller reads
+      !! `status%MPI_SOURCE` / `status%MPI_TAG` to dispatch the matching
+      !! `recv`.  Mirrors the f08 backend's `comm_probe`.
+      type(comm_t), intent(in) :: comm
+      integer(int32), intent(in) :: source
+      integer(int32), intent(in) :: tag
+      type(MPI_Status), intent(out) :: status
+      integer(int32) :: ierr
+      integer :: status_array(MPI_STATUS_SIZE)
+
+      call MPI_Probe(source, tag, comm%m_comm, status_array, ierr)
+      status = status_array_to_type(status_array)
+   end subroutine comm_probe
 
    subroutine comm_finalize(this)
       class(comm_t), intent(inout) :: this
@@ -1093,6 +1255,23 @@ contains
       call MPI_Isend(data, size(data), MPI_DOUBLE_PRECISION, dest, tag, comm%m_comm, request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_isend_real_dp_array_2d
+
+   subroutine comm_isend_real_dp_array_2d_n(comm, data, count, dest, tag, request)
+      !! Non-blocking send of a contiguous 2D dp array with explicit
+      !! count.  No dim-prefix protocol; pairs with
+      !! `comm_recv_real_dp_array_2d_n` on the receive side.
+      type(comm_t),    intent(in)  :: comm
+      real(dp),        intent(in)  :: data(:, :)
+      integer(int32),  intent(in)  :: count
+      integer(int32),  intent(in)  :: dest
+      integer(int32),  intent(in)  :: tag
+      type(request_t), intent(out) :: request
+      integer(int32) :: ierr
+
+      call MPI_Isend(data, count, MPI_DOUBLE_PRECISION, dest, tag, &
+                     comm%m_comm, request%m_request, ierr)
+      request%is_valid = .true.
+   end subroutine comm_isend_real_dp_array_2d_n
 
    subroutine comm_isend_logical(comm, data, dest, tag, request)
       type(comm_t), intent(in) :: comm

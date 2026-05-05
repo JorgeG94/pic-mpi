@@ -93,15 +93,15 @@
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pic_mpi.f90"> Source File</a>
+              <a href="../src/pic_mpi_legacy.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi.f90.html'>pic_mpi.f90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
             <li class="breadcrumb-item active" aria-current="page">send</li>
           </ol>
         </nav>
@@ -567,7 +567,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of an integer to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -582,8 +582,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~5"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~4"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -652,7 +652,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of an integer array to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -667,8 +667,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~6"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~5"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -752,8 +752,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~7"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~6"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -837,8 +837,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~8"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~7"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -907,7 +907,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a single double precision real to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -922,8 +922,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~9"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~8"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -992,7 +992,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a double precision real array to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1007,8 +1007,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~10"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~9"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1077,7 +1077,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a 2D double precision real array to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1092,8 +1092,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~11"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~10"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1162,12 +1162,9 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a contiguous 2D double-precision array using
-an explicit count.  Unlike <code>comm_send_real_dp_array_2d</code>, this
-variant does NOT prefix the message with the dimensions —
-caller and receiver agree on the shape via the protocol.  The
-receiver uses <code>comm_recv_real_dp_array_2d_n</code> (or any of the
-<code>_array_n</code> overloads) with the same <code>count</code>.</p>
+  <p>Blocking send of a contiguous 2D dp array using an explicit
+count.  No dim-prefix protocol — caller and receiver agree on
+shape externally.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1182,8 +1179,8 @@ receiver uses <code>comm_recv_real_dp_array_2d_n</code> (or any of the
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~12"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~11"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1267,8 +1264,7 @@ receiver uses <code>comm_recv_real_dp_array_2d_n</code> (or any of the
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a contiguous 2D int32 array using an explicit
-count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
+  <p>Blocking send of a contiguous 2D int32 array with explicit count.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1283,8 +1279,8 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~13"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~12"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1368,7 +1364,7 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a single single-precision real to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1383,8 +1379,8 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~14"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~13"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1453,7 +1449,7 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a single-precision real array to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1468,8 +1464,8 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~15"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~14"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1538,7 +1534,7 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a 2D single-precision real array to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1553,8 +1549,8 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~16"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~15"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1623,7 +1619,7 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Blocking send of a logical value to specified destination</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1638,8 +1634,8 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~17"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~16"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1720,7 +1716,7 @@ count, no dim-prefix.  Pairs with <code>comm_recv_integer_array_2d_n</code>.</p>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-05-03 22:22 +0000             </p>
+ on 2026-05-05 05:30 +0000             </p>
           </div>
         </div>
         <br>

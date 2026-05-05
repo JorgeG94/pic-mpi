@@ -36,7 +36,10 @@ module pic_mpi
    public :: request_t, wait, waitall, test
    public :: iprobe, probe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
-   public :: win_t, win_create, win_create_dynamic, win_allocate
+   public :: win_t, win_create, win_create_dynamic
+#ifndef MPICH_PERLMUTTER
+   public :: win_allocate
+#endif
    public :: allreduce
 
    ! Export MPI constants needed by applications
@@ -256,6 +259,7 @@ module pic_mpi
       module procedure create_win_dynamic
    end interface win_create_dynamic
 
+#ifndef MPICH_PERLMUTTER
    interface win_allocate
       module procedure create_win_allocate_dp_1d
       module procedure create_win_allocate_dp_2d
@@ -263,6 +267,7 @@ module pic_mpi
       module procedure create_win_allocate_i32_1d
       module procedure create_win_allocate_i64_1d
    end interface win_allocate
+#endif
 
    interface allreduce
       module procedure :: allreduce_dp
@@ -1659,6 +1664,7 @@ contains
       win%is_valid = .true.
    end function create_win_dynamic
 
+#ifndef MPICH_PERLMUTTER
    !! Allocate window memory and create window in one call (1D array)
    subroutine create_win_allocate_dp_1d(comm, length, baseptr, win)
       use iso_c_binding, only: c_ptr, c_f_pointer
@@ -1759,6 +1765,7 @@ contains
       call c_f_pointer(cptr, baseptr, [length])
       win%is_valid = .true.
    end subroutine create_win_allocate_i64_1d
+#endif
 
    ! ========================================================================
    ! Window query methods

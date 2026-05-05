@@ -88,20 +88,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="<p> 0.3% of total for procedures.</p>Including implementation: 133 statements,  3.4% of total for procedures.">13 statements</a>
+                 title="<p> 0.3% of total for procedures.</p>Including implementation: 135 statements,  3.4% of total for procedures.">13 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pic_mpi.f90"> Source File</a>
+              <a href="../src/pic_mpi_legacy.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi.f90.html'>pic_mpi.f90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
             <li class="breadcrumb-item active" aria-current="page">irecv</li>
           </ol>
         </nav>
@@ -541,8 +541,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking receive operation. The request must be
-waited on using wait() or test() before the buffer can be used.</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -557,8 +556,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~148"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~147"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -618,7 +617,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~52"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -642,8 +641,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking receive operation. The request must be
-waited on using wait() or test() before the buffer can be used.</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -658,8 +656,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~149"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~148"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -719,7 +717,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~53"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -743,8 +741,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking receive operation. The request must be
-waited on using wait() or test() before the buffer can be used.</p>
+  <p>Initiates a non-blocking receive operation of an integer64</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -759,8 +756,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~150"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~149"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -820,7 +817,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~54"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -844,8 +841,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking receive operation. The request must be
-waited on using wait() or test() before the buffer can be used.</p>
+  <p>Initiates a non-blocking receive operation of an integer64 array</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -860,8 +856,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~151"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~150"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -921,7 +917,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~55"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -960,8 +956,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~152"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~151"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1021,7 +1017,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~56"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1060,8 +1056,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~153"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~152"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1121,7 +1117,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~57"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1145,7 +1141,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking receive of a 2D allocatable double precision real array</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1160,8 +1156,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~154"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~153"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1221,7 +1217,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~58"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1245,7 +1241,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking receive of a single single-precision real</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1260,8 +1256,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~157"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~156"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1321,7 +1317,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~61"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1345,7 +1341,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking receive of a single-precision real array</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1360,8 +1356,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~158"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~157"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1421,7 +1417,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~62"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1445,7 +1441,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking receive of a 2D allocatable single-precision real array</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1460,8 +1456,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~159"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~158"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1521,7 +1517,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~63"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1545,7 +1541,7 @@ waited on using wait() or test() before the buffer can be used.</p>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking receive of a logical value</p>
+  
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1560,8 +1556,8 @@ waited on using wait() or test() before the buffer can be used.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~155"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~154"></span>
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1621,7 +1617,7 @@ waited on using wait() or test() before the buffer can be used.</p>
         <tr>
             <td>
               <span class="anchor" id="variable-request~59"></span>
-              type(<a href='../type/request_t~2.html'>request_t</a>),
+              type(<a href='../type/request_t.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1657,7 +1653,7 @@ waited on using wait() or test() before the buffer can be used.</p>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-05-05 09:36 +0000             </p>
+ on 2026-05-05 09:38 +0000             </p>
           </div>
         </div>
         <br>

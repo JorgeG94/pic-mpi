@@ -1,7 +1,7 @@
 set(_lib "vapaa")
 set(_pkg "VAPAA")
 set(_url "https://github.com/JorgeG94/vapaa")
-set(_rev "chore/update")
+set(_rev "dev")
 
 include("${CMAKE_CURRENT_LIST_DIR}/sample_utils.cmake")
 

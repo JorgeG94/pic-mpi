@@ -37,7 +37,7 @@ module pic_mpi
    public :: iprobe, probe, abort_comm, allgather, get_processor_name, bcast
    public :: pic_mpi_init, pic_mpi_finalize, pic_mpi_query_thread_level
    public :: win_t, win_create, win_create_dynamic
-#ifndef __NVCOMPILER_LLVM__
+#ifndef MPICH_PERLMUTTER
    public :: win_allocate
 #endif
    public :: allreduce
@@ -259,7 +259,7 @@ module pic_mpi
       module procedure create_win_dynamic
    end interface win_create_dynamic
 
-#ifndef __NVCOMPILER_LLVM__
+#ifndef MPICH_PERLMUTTER
    interface win_allocate
       module procedure create_win_allocate_dp_1d
       module procedure create_win_allocate_dp_2d
@@ -1664,7 +1664,7 @@ contains
       win%is_valid = .true.
    end function create_win_dynamic
 
-#ifndef __NVCOMPILER_LLVM__
+#ifndef MPICH_PERLMUTTER
    !! Allocate window memory and create window in one call (1D array)
    subroutine create_win_allocate_dp_1d(comm, length, baseptr, win)
       use iso_c_binding, only: c_ptr, c_f_pointer

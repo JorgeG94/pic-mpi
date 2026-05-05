@@ -26,6 +26,9 @@ option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
 option(PIC_ENABLE_DARRAYS
        "Build the distributed arrays (DDI-compatible) module" OFF)
+option(PIC_MPICH_PERLMUTTER
+       "Workaround for MPICH on Perlmutter: disable MPI_Win_allocate wrappers"
+       OFF)
 mark_as_advanced(PIC_USE_VAPAA)
 
 if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
@@ -39,6 +42,10 @@ add_library(${main_lib} STATIC)
 
 if(PIC_USE_LEGACY_MPI)
   target_compile_definitions(${main_lib} PRIVATE USE_LEGACY)
+endif()
+
+if(PIC_MPICH_PERLMUTTER)
+  target_compile_definitions(${main_lib} PRIVATE MPICH_PERLMUTTER)
 endif()
 
 set(libraries_to_link)

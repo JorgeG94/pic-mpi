@@ -74,11 +74,6 @@ find_package(
   COMPONENTS ${language_component}
   REQUIRED)
 
-find_package(
-  OpenMP
-  COMPONENTS Fortran
-  REQUIRED)
-
 # Enable position-independent code for shared-library linking support
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -91,8 +86,7 @@ endif()
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
                                              ${CMAKE_BINARY_DIR}/modules)
 
-list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component}
-     OpenMP::OpenMP_Fortran)
+list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component})
 
 target_link_libraries(${main_lib} ${libraries_to_link})
 

@@ -86,8 +86,7 @@ endif()
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
                                              ${CMAKE_BINARY_DIR}/modules)
 
-list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component}
-     )
+list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component})
 
 target_link_libraries(${main_lib} ${libraries_to_link})
 

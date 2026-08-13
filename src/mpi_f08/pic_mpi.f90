@@ -2007,18 +2007,18 @@ contains
       integer(int32), intent(in) :: count
       real(dp), intent(in) :: buffer(*)
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer(int32) :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Accumulate(buffer, count, MPI_DOUBLE_PRECISION, &
                           target_rank, target_disp, count, MPI_DOUBLE_PRECISION, &
-                          mpi_op, this%m_win, ierr)
+                          op_used, this%m_win, ierr)
    end subroutine win_accumulate_dp
 
    ! ========================================================================
@@ -2088,18 +2088,18 @@ contains
       integer(int32), intent(in) :: count
       real(sp), intent(in) :: buffer(*)
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer(int32) :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Accumulate(buffer, count, MPI_REAL, &
                           target_rank, target_disp, count, MPI_REAL, &
-                          mpi_op, this%m_win, ierr)
+                          op_used, this%m_win, ierr)
    end subroutine win_accumulate_sp
 
    ! ========================================================================
@@ -2169,18 +2169,18 @@ contains
       integer(int32), intent(in) :: count
       integer(int32), intent(in) :: buffer(*)
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer(int32) :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Accumulate(buffer, count, MPI_INTEGER, &
                           target_rank, target_disp, count, MPI_INTEGER, &
-                          mpi_op, this%m_win, ierr)
+                          op_used, this%m_win, ierr)
    end subroutine win_accumulate_i32
 
    ! ========================================================================
@@ -2250,18 +2250,18 @@ contains
       integer(int32), intent(in) :: count
       integer(int64), intent(in) :: buffer(*)
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer(int32) :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Accumulate(buffer, count, MPI_INTEGER8, &
                           target_rank, target_disp, count, MPI_INTEGER8, &
-                          mpi_op, this%m_win, ierr)
+                          op_used, this%m_win, ierr)
    end subroutine win_accumulate_i64
 
    !! Atomic fetch-and-add for load balancing
@@ -2306,17 +2306,17 @@ contains
       type(comm_t), intent(in) :: comm
       real(dp), intent(inout) :: buffer
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_DOUBLE_PRECISION, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_dp
 
    !! Allreduce for double precision array
@@ -2328,7 +2328,7 @@ contains
       real(dp), intent(inout) :: buffer(:)
       integer, intent(in), optional :: count
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr, n
 
       if (present(count)) then
@@ -2338,13 +2338,13 @@ contains
       end if
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_DOUBLE_PRECISION, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_dp_array
 
    !! Allreduce for scalar integer
@@ -2354,17 +2354,17 @@ contains
       type(comm_t), intent(in) :: comm
       integer(int32), intent(inout) :: buffer
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_INTEGER, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_i32
 
    !! Allreduce for integer array
@@ -2375,7 +2375,7 @@ contains
       integer(int32), intent(inout) :: buffer(:)
       integer, intent(in), optional :: count
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr, n
 
       if (present(count)) then
@@ -2385,13 +2385,13 @@ contains
       end if
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_INTEGER, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_i32_array
 
    !! Non-in-place allreduce for scalar double precision
@@ -2403,17 +2403,17 @@ contains
       real(dp), intent(in) :: sendbuf
       real(dp), intent(out) :: recvbuf
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(sendbuf, recvbuf, 1, MPI_DOUBLE_PRECISION, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_dp_to
 
    !! Non-in-place allreduce for double precision array
@@ -2425,7 +2425,7 @@ contains
       real(dp), intent(out) :: recvbuf(:)
       integer, intent(in), optional :: count
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr, n
 
       if (present(count)) then
@@ -2435,13 +2435,13 @@ contains
       end if
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(sendbuf, recvbuf, n, MPI_DOUBLE_PRECISION, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_dp_array_to
 
    !! Allreduce for single-precision scalar
@@ -2449,17 +2449,17 @@ contains
       type(comm_t), intent(in) :: comm
       real(sp), intent(inout) :: buffer
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, 1, MPI_REAL, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_sp
 
    !! Allreduce for single-precision array
@@ -2468,7 +2468,7 @@ contains
       real(sp), intent(inout) :: buffer(:)
       integer, intent(in), optional :: count
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr, n
 
       if (present(count)) then
@@ -2478,13 +2478,13 @@ contains
       end if
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(MPI_IN_PLACE, buffer, n, MPI_REAL, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_sp_array
 
    !! Non-in-place allreduce for scalar single-precision
@@ -2493,17 +2493,17 @@ contains
       real(sp), intent(in) :: sendbuf
       real(sp), intent(out) :: recvbuf
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(sendbuf, recvbuf, 1, MPI_REAL, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_sp_to
 
    !! Non-in-place allreduce for single-precision array
@@ -2513,7 +2513,7 @@ contains
       real(sp), intent(out) :: recvbuf(:)
       integer, intent(in), optional :: count
       type(MPI_Op), intent(in), optional :: op
-      type(MPI_Op) :: mpi_op
+      type(MPI_Op) :: op_used
       integer :: ierr, n
 
       if (present(count)) then
@@ -2523,13 +2523,13 @@ contains
       end if
 
       if (present(op)) then
-         mpi_op = op
+         op_used = op
       else
-         mpi_op = MPI_SUM
+         op_used = MPI_SUM
       end if
 
       call MPI_Allreduce(sendbuf, recvbuf, n, MPI_REAL, &
-                         mpi_op, comm%get(), ierr)
+                         op_used, comm%get(), ierr)
    end subroutine allreduce_sp_array_to
 
 end module pic_mpi_f08

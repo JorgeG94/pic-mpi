@@ -14,7 +14,8 @@ module pic_mpi
                   MPI_Abort, MPI_Allgather, MPI_Get_processor_name, MPI_DOUBLE_PRECISION, &
                   MPI_Bcast, MPI_Init, MPI_Init_thread, MPI_Query_thread, MPI_Finalize, MPI_LOGICAL, &
                   MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
-                  MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_MAX_PROCESSOR_NAME, &
+                  MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_SOURCE, MPI_TAG, MPI_ERROR, &
+                  MPI_MAX_PROCESSOR_NAME, &
                   MPI_WIN_NULL, MPI_Win_create, MPI_Win_create_dynamic, MPI_Win_free, &
                   MPI_Win_fence, MPI_Win_lock, MPI_Win_unlock, MPI_Get, MPI_Put, &
                   MPI_Win_lock_all, MPI_Win_unlock_all, MPI_Win_flush, MPI_Win_flush_all, &
@@ -291,10 +292,16 @@ contains
       integer, intent(in) :: status_array(MPI_STATUS_SIZE)
       type(MPI_Status) :: status_type
 
-      status_type%MPI_SOURCE = status_array(1)  ! MPI_SOURCE is at index 1
-      status_type%MPI_TAG = status_array(2)     ! MPI_TAG is at index 2
-      status_type%MPI_ERROR = status_array(3)   ! MPI_ERROR is at index 3
-      status_type%internal(1:3) = status_array(4:6)
+      ! Indexed by the implementation's own constants, never by literals. The
+      ! layout of the legacy status array is implementation-defined: Open MPI
+      ! puts source/tag/error at 1/2/3, MPICH -- and so cray-mpich -- at 3/4/5,
+      ! with the byte count occupying the first two words. Hardcoding Open MPI's
+      ! layout makes every tag read back as the count-high word, which is 0 for
+      ! an ordinary uncancelled message: a receive that succeeded reports a tag
+      ! nothing sent.
+      status_type%MPI_SOURCE = status_array(MPI_SOURCE)
+      status_type%MPI_TAG = status_array(MPI_TAG)
+      status_type%MPI_ERROR = status_array(MPI_ERROR)
    end function status_array_to_type
 
    ! Helper function to convert MPI_Status type to legacy integer array
@@ -302,10 +309,10 @@ contains
       type(MPI_Status), intent(in) :: status_type
       integer :: status_array(MPI_STATUS_SIZE)
 
-      status_array(1) = status_type%MPI_SOURCE
-      status_array(2) = status_type%MPI_TAG
-      status_array(3) = status_type%MPI_ERROR
-      status_array(4:6) = status_type%internal(1:3)
+      status_array = 0
+      status_array(MPI_SOURCE) = status_type%MPI_SOURCE
+      status_array(MPI_TAG) = status_type%MPI_TAG
+      status_array(MPI_ERROR) = status_type%MPI_ERROR
    end function status_type_to_array
 
    function create_comm_from_mpi(mpi_comm_in) result(comm)

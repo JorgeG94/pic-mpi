@@ -93,15 +93,15 @@
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pic_mpi_legacy.F90"> Source File</a>
+              <a href="../src/pic_mpi.f90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi.f90.html'>pic_mpi.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></li>
             <li class="breadcrumb-item active" aria-current="page">isend</li>
           </ol>
         </nav>
@@ -563,7 +563,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -578,8 +579,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~47"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~44"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -623,7 +624,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~34"></span>
+              <span class="anchor" id="variable-tag~33"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -639,7 +640,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -663,7 +664,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -678,8 +680,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~48"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~45"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -723,7 +725,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~35"></span>
+              <span class="anchor" id="variable-tag~34"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -739,7 +741,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~2"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -763,7 +765,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking send operation of an integer64</p>
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -778,8 +781,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~49"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~46"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -823,7 +826,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~36"></span>
+              <span class="anchor" id="variable-tag~35"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -839,7 +842,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~3"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -863,7 +866,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Initiates a non-blocking send operation of an integer64 array</p>
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -878,8 +882,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~50"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~47"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -923,7 +927,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~37"></span>
+              <span class="anchor" id="variable-tag~36"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -939,7 +943,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~4"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -963,7 +967,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -978,8 +983,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~51"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~48"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1023,7 +1028,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~38"></span>
+              <span class="anchor" id="variable-tag~37"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1039,7 +1044,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~5"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1063,7 +1068,8 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Initiates a non-blocking send operation. The request must be
+waited on using wait() or test() before the buffer can be reused.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1078,8 +1084,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~52"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~49"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1123,7 +1129,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~39"></span>
+              <span class="anchor" id="variable-tag~38"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1139,7 +1145,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~6"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1163,7 +1169,7 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Non-blocking send of a 2D double precision real array</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1178,8 +1184,8 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~53"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~50"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1223,7 +1229,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~40"></span>
+              <span class="anchor" id="variable-tag~39"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1239,7 +1245,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-request~7"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1263,9 +1269,11 @@ large graphs.</div>
 </h3></div>
     <div class="card-body">
           
-  <p>Non-blocking send of a contiguous 2D dp array with explicit
-count.  No dim-prefix protocol; pairs with
-<code>comm_recv_real_dp_array_2d_n</code> on the receive side.</p>
+  <p>Non-blocking send of a contiguous 2D double-precision array
+with explicit count — no dim-prefix protocol.  Pairs with
+<code>comm_recv_real_dp_array_2d_n</code> on the receive side.  The
+caller must keep <code>data</code> valid until <code>wait</code>/<code>waitall</code> on the
+returned request completes.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1280,8 +1288,8 @@ count.  No dim-prefix protocol; pairs with
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~54"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~51"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1340,7 +1348,7 @@ count.  No dim-prefix protocol; pairs with
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~41"></span>
+              <span class="anchor" id="variable-tag~40"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1356,7 +1364,7 @@ count.  No dim-prefix protocol; pairs with
         <tr>
             <td>
               <span class="anchor" id="variable-request~8"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1380,7 +1388,7 @@ count.  No dim-prefix protocol; pairs with
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Non-blocking send of a single single-precision real</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1395,8 +1403,8 @@ count.  No dim-prefix protocol; pairs with
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~57"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~54"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1440,7 +1448,7 @@ count.  No dim-prefix protocol; pairs with
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~44"></span>
+              <span class="anchor" id="variable-tag~43"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1456,7 +1464,7 @@ count.  No dim-prefix protocol; pairs with
         <tr>
             <td>
               <span class="anchor" id="variable-request~11"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1480,7 +1488,7 @@ count.  No dim-prefix protocol; pairs with
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Non-blocking send of a single-precision real array</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1495,8 +1503,8 @@ count.  No dim-prefix protocol; pairs with
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~58"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~55"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1540,7 +1548,7 @@ count.  No dim-prefix protocol; pairs with
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~45"></span>
+              <span class="anchor" id="variable-tag~44"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1556,7 +1564,7 @@ count.  No dim-prefix protocol; pairs with
         <tr>
             <td>
               <span class="anchor" id="variable-request~12"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1580,7 +1588,7 @@ count.  No dim-prefix protocol; pairs with
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Non-blocking send of a 2D single-precision real array</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1595,8 +1603,8 @@ count.  No dim-prefix protocol; pairs with
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~59"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~56"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1640,7 +1648,7 @@ count.  No dim-prefix protocol; pairs with
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~46"></span>
+              <span class="anchor" id="variable-tag~45"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1656,7 +1664,7 @@ count.  No dim-prefix protocol; pairs with
         <tr>
             <td>
               <span class="anchor" id="variable-request~13"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1680,7 +1688,7 @@ count.  No dim-prefix protocol; pairs with
 </h3></div>
     <div class="card-body">
           
-  
+  <p>Non-blocking send of a logical value</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1695,8 +1703,8 @@ count.  No dim-prefix protocol; pairs with
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~55"></span>
-              type(<a href='../type/comm_t.html'>comm_t</a>),
+              <span class="anchor" id="variable-comm~52"></span>
+              type(<a href='../type/comm_t~2.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1740,7 +1748,7 @@ count.  No dim-prefix protocol; pairs with
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tag~42"></span>
+              <span class="anchor" id="variable-tag~41"></span>
               integer(kind=int32),
             </td>
 <td>intent(in)</td>
@@ -1756,7 +1764,7 @@ count.  No dim-prefix protocol; pairs with
         <tr>
             <td>
               <span class="anchor" id="variable-request~9"></span>
-              type(<a href='../type/request_t.html'>request_t</a>),
+              type(<a href='../type/request_t~2.html'>request_t</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -1792,7 +1800,7 @@ count.  No dim-prefix protocol; pairs with
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-08-13 03:53 +0000             </p>
+ on 2026-08-17 03:05 +0000             </p>
           </div>
         </div>
         <br>

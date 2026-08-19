@@ -88,7 +88,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 1.1% of total for source files.">45 statements</a>
+                 title=" 0.8% of total for source files.">45 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -294,7 +294,7 @@ large graphs.</div>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="c">!!</span>
 <a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="c">!! @param ncols Total number of columns</span>
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="c">!! @param nranks Number of MPI ranks</span>
-<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="c">!! @param rank This rank&#39;s number (0-indexed)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="c">!! @param rank This rank's number (0-indexed)</span>
 <a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="c">!! @param first_col Output: first column owned (0-indexed)</span>
 <a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="c">!! @param my_ncols Output: number of columns owned</span>
 <a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">pure subroutine </span><span class="n">calculate_distribution</span><span class="p">(</span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">first_col</span><span class="p">,</span><span class="w"> </span><span class="n">my_ncols</span><span class="p">)</span>
@@ -339,9 +339,9 @@ large graphs.</div>
 <a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-67" name="ln-67" href="#ln-67"></a><span class="k">   end function </span><span class="n">get_owner</span>
 <a id="ln-68" name="ln-68" href="#ln-68"></a>
-<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="c">!&gt; Get local offset in owner&#39;s window for a given (row, col)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="c">!&gt; Get local offset in owner's window for a given (row, col)</span>
 <a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="c">!!</span>
-<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">   </span><span class="c">!! Returns the displacement in the owner&#39;s local_data array</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">   </span><span class="c">!! Returns the displacement in the owner's local_data array</span>
 <a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="c">!! for the element at (row, col) in the global array.</span>
 <a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">   </span><span class="c">!! Data is stored column-major: offset = row + (local_col * nrows)</span>
 <a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="c">!!</span>
@@ -350,7 +350,7 @@ large graphs.</div>
 <a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">   </span><span class="c">!! @param nranks Number of MPI ranks</span>
 <a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="c">!! @param row Row index (0-indexed)</span>
 <a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">   </span><span class="c">!! @param col Column index (0-indexed)</span>
-<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">   </span><span class="c">!! @return Displacement in owner&#39;s window (in elements)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">   </span><span class="c">!! @return Displacement in owner's window (in elements)</span>
 <a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="k">pure function </span><span class="n">get_local_offset</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
 <a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">ncols</span><span class="p">,</span><span class="w"> </span><span class="n">nranks</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span>
 <a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
@@ -384,7 +384,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-08-17 03:05 +0000             </p>
+ on 2026-08-19 06:00 +0000             </p>
           </div>
         </div>
         <br>

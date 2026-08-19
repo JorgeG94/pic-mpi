@@ -88,7 +88,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="42.5% of total for source files.">1788 statements</a>
+                 title="31.9% of total for source files.">1788 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -461,10 +461,10 @@
 <a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status_array</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span>
 <a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MPI_Status</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status_type</span>
 <a id="ln-294" name="ln-294" href="#ln-294"></a>
-<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">      </span><span class="c">! Indexed by the implementation&#39;s own constants, never by literals. The</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">      </span><span class="c">! Indexed by the implementation's own constants, never by literals. The</span>
 <a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">      </span><span class="c">! layout of the legacy status array is implementation-defined: Open MPI</span>
 <a id="ln-297" name="ln-297" href="#ln-297"></a><span class="w">      </span><span class="c">! puts source/tag/error at 1/2/3, MPICH -- and so cray-mpich -- at 3/4/5,</span>
-<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">      </span><span class="c">! with the byte count occupying the first two words. Hardcoding Open MPI&#39;s</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">      </span><span class="c">! with the byte count occupying the first two words. Hardcoding Open MPI's</span>
 <a id="ln-299" name="ln-299" href="#ln-299"></a><span class="w">      </span><span class="c">! layout makes every tag read back as the count-high word, which is 0 for</span>
 <a id="ln-300" name="ln-300" href="#ln-300"></a><span class="w">      </span><span class="c">! an ordinary uncancelled message: a receive that succeeded reports a tag</span>
 <a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">      </span><span class="c">! nothing sent.</span>
@@ -549,7 +549,7 @@
 <a id="ln-380" name="ln-380" href="#ln-380"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_comm_out</span>
 <a id="ln-381" name="ln-381" href="#ln-381"></a>
 <a id="ln-382" name="ln-382" href="#ln-382"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_valid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-383" name="ln-383" href="#ln-383"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">&quot;Cannot get MPI_Comm from null Comm&quot;</span>
+<a id="ln-383" name="ln-383" href="#ln-383"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">"Cannot get MPI_Comm from null Comm"</span>
 <a id="ln-384" name="ln-384" href="#ln-384"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-385" name="ln-385" href="#ln-385"></a><span class="k">      </span><span class="n">mpi_comm_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">m_comm</span>
 <a id="ln-386" name="ln-386" href="#ln-386"></a><span class="w">   </span><span class="k">end function </span><span class="n">comm_get</span>
@@ -1143,7 +1143,7 @@
 <a id="ln-974" name="ln-974" href="#ln-974"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">comm_probe</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
 <a id="ln-975" name="ln-975" href="#ln-975"></a><span class="w">      </span><span class="c">!! Blocking probe for incoming messages — caller reads</span>
 <a id="ln-976" name="ln-976" href="#ln-976"></a><span class="w">      </span><span class="c">!! `status%MPI_SOURCE` / `status%MPI_TAG` to dispatch the matching</span>
-<a id="ln-977" name="ln-977" href="#ln-977"></a><span class="w">      </span><span class="c">!! `recv`.  Mirrors the f08 backend&#39;s `comm_probe`.</span>
+<a id="ln-977" name="ln-977" href="#ln-977"></a><span class="w">      </span><span class="c">!! `recv`.  Mirrors the f08 backend's `comm_probe`.</span>
 <a id="ln-978" name="ln-978" href="#ln-978"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">comm_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
 <a id="ln-979" name="ln-979" href="#ln-979"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
 <a id="ln-980" name="ln-980" href="#ln-980"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tag</span>
@@ -1285,15 +1285,15 @@
 <a id="ln-1116" name="ln-1116" href="#ln-1116"></a><span class="k">         </span><span class="n">provided_thread_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">provided</span>
 <a id="ln-1117" name="ln-1117" href="#ln-1117"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-1118" name="ln-1118" href="#ln-1118"></a>
-<a id="ln-1119" name="ln-1119" href="#ln-1119"></a><span class="w">      </span><span class="c">! Warn if we didn&#39;t get what we asked for</span>
+<a id="ln-1119" name="ln-1119" href="#ln-1119"></a><span class="w">      </span><span class="c">! Warn if we didn't get what we asked for</span>
 <a id="ln-1120" name="ln-1120" href="#ln-1120"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">provided</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">requested</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">requested</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MPI_THREAD_SINGLE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-1121" name="ln-1121" href="#ln-1121"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">requested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MPI_THREAD_FUNNELED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1122" name="ln-1122" href="#ln-1122"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Warning: MPI_THREAD_FUNNELED requested but not provided.&quot;</span>
-<a id="ln-1123" name="ln-1123" href="#ln-1123"></a><span class="w">            </span><span class="k">write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;OpenMP threading in compute functions may not work correctly.&quot;</span>
+<a id="ln-1122" name="ln-1122" href="#ln-1122"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">'(a)'</span><span class="p">)</span><span class="w"> </span><span class="s2">"Warning: MPI_THREAD_FUNNELED requested but not provided."</span>
+<a id="ln-1123" name="ln-1123" href="#ln-1123"></a><span class="w">            </span><span class="k">write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">'(a)'</span><span class="p">)</span><span class="w"> </span><span class="s2">"OpenMP threading in compute functions may not work correctly."</span>
 <a id="ln-1124" name="ln-1124" href="#ln-1124"></a><span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">requested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MPI_THREAD_SERIALIZED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1125" name="ln-1125" href="#ln-1125"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Warning: MPI_THREAD_SERIALIZED requested but not provided.&quot;</span>
+<a id="ln-1125" name="ln-1125" href="#ln-1125"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">'(a)'</span><span class="p">)</span><span class="w"> </span><span class="s2">"Warning: MPI_THREAD_SERIALIZED requested but not provided."</span>
 <a id="ln-1126" name="ln-1126" href="#ln-1126"></a><span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">requested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MPI_THREAD_MULTIPLE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1127" name="ln-1127" href="#ln-1127"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Warning: MPI_THREAD_MULTIPLE requested but not provided.&quot;</span>
+<a id="ln-1127" name="ln-1127" href="#ln-1127"></a><span class="k">            write</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">'(a)'</span><span class="p">)</span><span class="w"> </span><span class="s2">"Warning: MPI_THREAD_MULTIPLE requested but not provided."</span>
 <a id="ln-1128" name="ln-1128" href="#ln-1128"></a><span class="w">         </span><span class="k">end if</span>
 <a id="ln-1129" name="ln-1129" href="#ln-1129"></a><span class="k">      end if</span>
 <a id="ln-1130" name="ln-1130" href="#ln-1130"></a><span class="k">   end subroutine </span><span class="n">pic_mpi_init</span>
@@ -1329,7 +1329,7 @@
 <a id="ln-1160" name="ln-1160" href="#ln-1160"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_request_out</span>
 <a id="ln-1161" name="ln-1161" href="#ln-1161"></a>
 <a id="ln-1162" name="ln-1162" href="#ln-1162"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_valid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1163" name="ln-1163" href="#ln-1163"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">&quot;Cannot get MPI_Request from null request&quot;</span>
+<a id="ln-1163" name="ln-1163" href="#ln-1163"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">"Cannot get MPI_Request from null request"</span>
 <a id="ln-1164" name="ln-1164" href="#ln-1164"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-1165" name="ln-1165" href="#ln-1165"></a><span class="k">      </span><span class="n">mpi_request_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">m_request</span>
 <a id="ln-1166" name="ln-1166" href="#ln-1166"></a><span class="w">   </span><span class="k">end function </span><span class="n">request_get</span>
@@ -1736,7 +1736,7 @@
 <a id="ln-1567" name="ln-1567" href="#ln-1567"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">stat</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span>
 <a id="ln-1568" name="ln-1568" href="#ln-1568"></a>
 <a id="ln-1569" name="ln-1569" href="#ln-1569"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">is_valid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1570" name="ln-1570" href="#ln-1570"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">&quot;Cannot wait on null request&quot;</span>
+<a id="ln-1570" name="ln-1570" href="#ln-1570"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">"Cannot wait on null request"</span>
 <a id="ln-1571" name="ln-1571" href="#ln-1571"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-1572" name="ln-1572" href="#ln-1572"></a>
 <a id="ln-1573" name="ln-1573" href="#ln-1573"></a><span class="k">      call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">m_request</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
@@ -1958,7 +1958,7 @@
 <a id="ln-1789" name="ln-1789" href="#ln-1789"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_win_out</span>
 <a id="ln-1790" name="ln-1790" href="#ln-1790"></a>
 <a id="ln-1791" name="ln-1791" href="#ln-1791"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_valid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-1792" name="ln-1792" href="#ln-1792"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">&quot;Cannot get MPI_Win from null window&quot;</span>
+<a id="ln-1792" name="ln-1792" href="#ln-1792"></a><span class="k">         error stop</span><span class="w"> </span><span class="s2">"Cannot get MPI_Win from null window"</span>
 <a id="ln-1793" name="ln-1793" href="#ln-1793"></a><span class="w">      </span><span class="k">end if</span>
 <a id="ln-1794" name="ln-1794" href="#ln-1794"></a><span class="k">      </span><span class="n">mpi_win_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">m_win</span>
 <a id="ln-1795" name="ln-1795" href="#ln-1795"></a><span class="w">   </span><span class="k">end function </span><span class="n">win_get_handle</span>
@@ -2059,7 +2059,7 @@
 <a id="ln-1890" name="ln-1890" href="#ln-1890"></a>
 <a id="ln-1891" name="ln-1891" href="#ln-1891"></a><span class="w">   </span><span class="c">!! Get data from remote window</span>
 <a id="ln-1892" name="ln-1892" href="#ln-1892"></a><span class="w">   </span><span class="c">!!</span>
-<a id="ln-1893" name="ln-1893" href="#ln-1893"></a><span class="w">   </span><span class="c">!! Retrieves data from target rank&#39;s window into local buffer.</span>
+<a id="ln-1893" name="ln-1893" href="#ln-1893"></a><span class="w">   </span><span class="c">!! Retrieves data from target rank's window into local buffer.</span>
 <a id="ln-1894" name="ln-1894" href="#ln-1894"></a><span class="w">   </span><span class="c">!! Must be called between fence or lock/unlock pairs.</span>
 <a id="ln-1895" name="ln-1895" href="#ln-1895"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">win_get_dp</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">target_rank</span><span class="p">,</span><span class="w"> </span><span class="n">target_disp</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span>
 <a id="ln-1896" name="ln-1896" href="#ln-1896"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">win_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
@@ -2076,7 +2076,7 @@
 <a id="ln-1907" name="ln-1907" href="#ln-1907"></a>
 <a id="ln-1908" name="ln-1908" href="#ln-1908"></a><span class="w">   </span><span class="c">!! Put data to remote window</span>
 <a id="ln-1909" name="ln-1909" href="#ln-1909"></a><span class="w">   </span><span class="c">!!</span>
-<a id="ln-1910" name="ln-1910" href="#ln-1910"></a><span class="w">   </span><span class="c">!! Sends data from local buffer to target rank&#39;s window.</span>
+<a id="ln-1910" name="ln-1910" href="#ln-1910"></a><span class="w">   </span><span class="c">!! Sends data from local buffer to target rank's window.</span>
 <a id="ln-1911" name="ln-1911" href="#ln-1911"></a><span class="w">   </span><span class="c">!! Must be called between fence or lock/unlock pairs.</span>
 <a id="ln-1912" name="ln-1912" href="#ln-1912"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">win_put_dp</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">target_rank</span><span class="p">,</span><span class="w"> </span><span class="n">target_disp</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span>
 <a id="ln-1913" name="ln-1913" href="#ln-1913"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">win_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
@@ -2125,7 +2125,7 @@
 <a id="ln-1956" name="ln-1956" href="#ln-1956"></a>
 <a id="ln-1957" name="ln-1957" href="#ln-1957"></a><span class="w">   </span><span class="c">!! Accumulate data to remote window</span>
 <a id="ln-1958" name="ln-1958" href="#ln-1958"></a><span class="w">   </span><span class="c">!!</span>
-<a id="ln-1959" name="ln-1959" href="#ln-1959"></a><span class="w">   </span><span class="c">!! Atomically adds local buffer to target rank&#39;s window.</span>
+<a id="ln-1959" name="ln-1959" href="#ln-1959"></a><span class="w">   </span><span class="c">!! Atomically adds local buffer to target rank's window.</span>
 <a id="ln-1960" name="ln-1960" href="#ln-1960"></a><span class="w">   </span><span class="c">!! Critical for DDI_ACC (Fock matrix accumulation).</span>
 <a id="ln-1961" name="ln-1961" href="#ln-1961"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">win_accumulate_dp</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">target_rank</span><span class="p">,</span><span class="w"> </span><span class="n">target_disp</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">)</span>
 <a id="ln-1962" name="ln-1962" href="#ln-1962"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">win_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
@@ -2681,7 +2681,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-08-17 03:05 +0000             </p>
+ on 2026-08-19 06:00 +0000             </p>
           </div>
         </div>
         <br>

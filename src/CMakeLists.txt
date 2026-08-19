@@ -1,8 +1,7 @@
 #
-# One backend directory, chosen here. The modules inside present the same
-# public interface, so nothing downstream changes -- `pic_mpi_lib` selects
-# between them with the preprocessor and a consumer keeps writing
-# `use pic_mpi_lib`.
+# One backend directory, chosen here. The modules inside present the same public
+# interface, so nothing downstream changes -- `pic_mpi_lib` selects between them
+# with the preprocessor and a consumer keeps writing `use pic_mpi_lib`.
 #
 if(NOT PIC_ENABLE_MPI)
   add_subdirectory(serial)

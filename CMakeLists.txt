@@ -104,8 +104,8 @@ if(PIC_ENABLE_MPI)
     COMPONENTS ${language_component}
     REQUIRED)
 else()
-  # Nothing to find. This is the whole benefit of the option: a consumer with
-  # no MPI installed gets a configure that succeeds rather than one that fails
+  # Nothing to find. This is the whole benefit of the option: a consumer with no
+  # MPI installed gets a configure that succeeds rather than one that fails
   # inside FindMPI.
   message(STATUS "MPI: disabled, building the single-rank backend")
 endif()

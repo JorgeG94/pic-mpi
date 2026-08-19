@@ -323,7 +323,6 @@ module pic_mpi_serial
       module procedure :: allreduce_sp_array_to
    end interface allreduce
 
-
 contains
 
    function create_comm_from_mpi(mpi_comm_in) result(comm)

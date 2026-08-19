@@ -1,0 +1,100 @@
+name: Serial (no MPI)
+
+# What this job protects, and why it installs nothing.
+#
+# PIC_ENABLE_MPI=OFF exists so that a machine WITHOUT MPI can build pic-mpi.
+# A job that installs an MPI and then passes `OFF` would compile the same
+# sources but prove nothing about that claim -- the interesting failure is a
+# `find_package(MPI)` or a stray `use mpi_f08` that only bites where no MPI is
+# present.
+#
+# So this job installs a Fortran compiler and nothing else. If the serial
+# backend ever reaches for MPI again, the configure fails here and nowhere
+# else.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  serial:
+    name: build and test without MPI
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - {compiler: gcc, version: 13}
+          - {compiler: gcc, version: 14}
+          - {compiler: gcc, version: 15}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fortran compiler
+        uses: fortran-lang/setup-fortran@v1.9.0
+        with:
+          compiler: ${{ matrix.toolchain.compiler }}
+          version: ${{ matrix.toolchain.version }}
+
+      # Deliberately no MPI here. See the header.
+      - name: Confirm there is no MPI to find
+        run: |
+          if command -v mpif90 >/dev/null 2>&1; then
+            echo "::warning::mpif90 is on PATH; this job is less meaningful"
+            mpif90 --version | head -1
+          else
+            echo "no mpif90 on PATH, which is the point"
+          fi
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DPIC_ENABLE_MPI=OFF
+          -DENABLE_TESTING=ON
+
+      # Two cores is what a runner has.
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Show the failure verbosely
+        if: failure()
+        run: cmake --build build --verbose --parallel 1
+
+      #
+      # `-R test_serial`: the rest of the suite is pic's own, pulled in as a
+      # dependency, and is not what this job is about.
+      #
+      # The test runs directly rather than under `mpirun` -- there is nothing
+      # to launch it with, which is the whole configuration.
+      #
+      - name: Test the single-rank backend
+        run: >-
+          ctest --test-dir build -R test_serial
+          --output-on-failure --no-tests=error
+
+  #
+  # The serial backend's signatures are generated from mpi_f08's so the two
+  # cannot drift. If someone adds a procedure to the MPI backend and not the
+  # serial one, a consumer's generic stops resolving in a build nobody here
+  # runs -- so the check belongs in CI rather than in a reviewer's memory.
+  #
+  in-step:
+    name: serial backend matches the MPI one
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Compare the two interfaces
+        run: python3 tools/check_serial_in_step.py

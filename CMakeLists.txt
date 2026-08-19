@@ -21,6 +21,19 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 add_subdirectory(cmake)
 include(demo_status)
 
+#
+# Build without MPI at all.
+#
+# The point is not to run serially where MPI would do -- it is that a build
+# should be possible where MPI is not. A CI runner without one, a laptop, a
+# compiler whose vendor MPI is awkward to obtain: today each of those means no
+# build, because there was nothing for `pic_mpi_lib` to select but the two MPI
+# backends.
+#
+# OFF keeps every existing build exactly as it was.
+#
+option(PIC_ENABLE_MPI "Link against MPI. OFF builds the single-rank backend" ON)
+
 option(PIC_USE_LEGACY_MPI "Use the old mpi module" OFF)
 option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
@@ -38,10 +51,26 @@ if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
   )
 endif()
 
+if(NOT PIC_ENABLE_MPI)
+  foreach(_opt PIC_USE_LEGACY_MPI PIC_USE_VAPAA PIC_ENABLE_DARRAYS
+               PIC_MPICH_PERLMUTTER)
+    if(${_opt})
+      message(
+        FATAL_ERROR
+          "${_opt} selects how to talk to MPI, and PIC_ENABLE_MPI=OFF means "
+          "there is none to talk to. Enable one or the other.")
+    endif()
+  endforeach()
+endif()
+
 add_library(${main_lib} STATIC)
 
 if(PIC_USE_LEGACY_MPI)
   target_compile_definitions(${main_lib} PRIVATE USE_LEGACY)
+endif()
+
+if(NOT PIC_ENABLE_MPI)
+  target_compile_definitions(${main_lib} PRIVATE USE_SERIAL)
 endif()
 
 if(PIC_MPICH_PERLMUTTER)
@@ -59,20 +88,27 @@ if(NOT TARGET pic::pic)
   find_package("pic" REQUIRED)
 endif()
 
-if(PIC_USE_VAPAA)
-  if(NOT TARGET vapaa::vapaa)
-    find_package("vapaa" REQUIRED)
-    list(APPEND libraries_to_link vapaa::vapaa)
+if(PIC_ENABLE_MPI)
+  if(PIC_USE_VAPAA)
+    if(NOT TARGET vapaa::vapaa)
+      find_package("vapaa" REQUIRED)
+      list(APPEND libraries_to_link vapaa::vapaa)
+    endif()
+    set(language_component C)
+  else()
+    set(language_component Fortran)
   endif()
-  set(language_component C)
-else()
-  set(language_component Fortran)
-endif()
 
-find_package(
-  MPI
-  COMPONENTS ${language_component}
-  REQUIRED)
+  find_package(
+    MPI
+    COMPONENTS ${language_component}
+    REQUIRED)
+else()
+  # Nothing to find. This is the whole benefit of the option: a consumer with no
+  # MPI installed gets a configure that succeeds rather than one that fails
+  # inside FindMPI.
+  message(STATUS "MPI: disabled, building the single-rank backend")
+endif()
 
 # Enable position-independent code for shared-library linking support
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -86,7 +122,10 @@ endif()
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
                                              ${CMAKE_BINARY_DIR}/modules)
 
-list(APPEND libraries_to_link pic::pic MPI::MPI_${language_component})
+list(APPEND libraries_to_link pic::pic)
+if(PIC_ENABLE_MPI)
+  list(APPEND libraries_to_link MPI::MPI_${language_component})
+endif()
 
 target_link_libraries(${main_lib} ${libraries_to_link})
 

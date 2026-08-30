@@ -32,6 +32,7 @@
 !! are written by hand, by family. Regenerate with `tools/gen_serial.py`.
 !!
 module pic_mpi_serial
+   use, intrinsic :: iso_fortran_env, only: output_unit, error_unit
    use pic_types, only: int32, int64, sp, dp
    implicit none
    private
@@ -971,10 +972,24 @@ contains
 
    subroutine abort_comm(comm, errorcode)
       !! Aborts all processes in the communicator with the given error code
+      !!
+      !! **Output is flushed first, and that is the whole point.** `MPI_Abort`
+      !! tears the job down without unwinding, so anything sitting in a
+      !! block-buffered unit is discarded -- and stdout is block-buffered the
+      !! moment it is redirected to a file, which is how every real run is
+      !! launched. The effect was that a job rejected for a bad input deck
+      !! wrote its reason, aborted, and left a log containing nothing but the
+      !! MPI abort banner. Interactively it looked fine, because a terminal is
+      !! line-buffered.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: errorcode
       integer(int32) :: ierr
 
+      ! No ranks to bring down with us -- but `error stop` discards a
+      ! block-buffered unit just as `MPI_Abort` does, so the flush is not
+      ! specific to the parallel build.
+      flush (output_unit)
+      flush (error_unit)
       ! No ranks to bring down with us.
       error stop "pic_mpi_serial: abort_comm"
    end subroutine abort_comm

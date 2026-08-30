@@ -4,6 +4,7 @@ module pic_mpi_f08
    !! This module provides a high-level object-oriented interface to MPI
    !! using the modern mpi_f08 bindings. It wraps MPI communicators and
    !! requests into derived types with type-bound procedures.
+   use, intrinsic :: iso_fortran_env, only: output_unit, error_unit
    use pic_types, only: int32, int64, sp, dp
    use mpi_f08, only: MPI_Comm, MPI_Status, MPI_Request, MPI_COMM_NULL, MPI_COMM_WORLD, &
                       MPI_COMM_TYPE_SHARED, MPI_INFO_NULL, MPI_UNDEFINED, &
@@ -988,10 +989,21 @@ contains
 
    subroutine abort_comm(comm, errorcode)
       !! Aborts all processes in the communicator with the given error code
+      !!
+      !! **Output is flushed first, and that is the whole point.** `MPI_Abort`
+      !! tears the job down without unwinding, so anything sitting in a
+      !! block-buffered unit is discarded -- and stdout is block-buffered the
+      !! moment it is redirected to a file, which is how every real run is
+      !! launched. The effect was that a job rejected for a bad input deck
+      !! wrote its reason, aborted, and left a log containing nothing but the
+      !! MPI abort banner. Interactively it looked fine, because a terminal is
+      !! line-buffered.
       type(comm_t), intent(in) :: comm
       integer(int32), intent(in) :: errorcode
       integer(int32) :: ierr
 
+      flush (output_unit)
+      flush (error_unit)
       call MPI_Abort(comm%m_comm, errorcode, ierr)
    end subroutine abort_comm
 

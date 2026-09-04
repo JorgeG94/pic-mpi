@@ -31,7 +31,7 @@ program hierarchical_mpi_test_legacy
    !==============================
    ! MPI Initialization
    !==============================
-   call MPI_Init(i)
+   call pic_mpi_init()
    world_comm = comm_world()
    node_comm = world_comm%split()   ! shared memory communicator
 
@@ -180,7 +180,7 @@ program hierarchical_mpi_test_legacy
    deallocate (all_node_leader_ranks, node_leader_ranks)
    call node_comm%finalize()
    call world_comm%finalize()
-   call MPI_Finalize(i)
+   call pic_mpi_finalize()
 
 contains
 
@@ -256,7 +256,7 @@ contains
          recv_array = 0
 
          call isend(comm, send_array, partner, 200, send_req)
-         call irecv(comm, recv_array, 10, partner, 201, recv_req)
+         call irecv(comm, recv_array, partner, 201, recv_req)
 
          call wait(send_req)
          call wait(recv_req)
@@ -275,7 +275,7 @@ contains
          send_array = [(i*3, i=1, 10)]
          recv_array = 0
 
-         call irecv(comm, recv_array, 10, partner, 200, recv_req)
+         call irecv(comm, recv_array, partner, 200, recv_req)
          call isend(comm, send_array, partner, 201, send_req)
 
          call wait(recv_req)

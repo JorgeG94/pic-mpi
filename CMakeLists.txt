@@ -39,6 +39,17 @@ option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
 option(PIC_ENABLE_DARRAYS
        "Build the distributed arrays (DDI-compatible) module" OFF)
+
+#
+# Standalone example drivers under app/.
+#
+# pic-mpi is a library: a consumer that pulls it in wants pic_mpi_lib, not extra
+# executables in its build. The programs are still worth compiling -- that is
+# the only thing that proves they keep tracking the library API -- so CI turns
+# this ON and everyone else never sees them.
+#
+option(PMPI_BUILD_STANDALONE
+       "Build the standalone example executables under app/" OFF)
 option(PIC_MPICH_PERLMUTTER
        "Workaround for MPICH on Perlmutter: disable MPI_Win_allocate wrappers"
        OFF)
@@ -117,6 +128,10 @@ add_subdirectory(src)
 
 if(ENABLE_TESTING)
   add_subdirectory(test)
+endif()
+
+if(PMPI_BUILD_STANDALONE)
+  add_subdirectory(app)
 endif()
 
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY

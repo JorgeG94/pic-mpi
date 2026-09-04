@@ -5,7 +5,7 @@
 
 WHY THIS IS CHECKED RATHER THAN REMEMBERED
 ------------------------------------------
-`src/serial/pic_mpi_serial.F90` is generated from `src/mpi_f08/pic_mpi.f90`
+`src/serial/pic_mpi_serial.F90` is generated from `src/mpi_f08/pic_mpi.F90`
 by `tools/gen_serial.py`: same 140 signatures, different bodies. Generated
 code that lives in the repository drifts from its generator the moment someone
 edits one and not the other.
@@ -64,7 +64,7 @@ def signatures(path: Path) -> dict[str, list[str]]:
 
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
-    mpi = signatures(root / 'src' / 'mpi_f08' / 'pic_mpi.f90')
+    mpi = signatures(root / 'src' / 'mpi_f08' / 'pic_mpi.F90')
     ser = signatures(root / 'src' / 'serial' / 'pic_mpi_serial.F90')
 
     problems: list[str] = []
@@ -85,7 +85,7 @@ def main() -> int:
         print(f"  {p}")
     if problems:
         print(f"\n  {len(problems)} difference(s). Regenerate with:")
-        print("    python3 tools/gen_serial.py src/mpi_f08/pic_mpi.f90 \\")
+        print("    python3 tools/gen_serial.py src/mpi_f08/pic_mpi.F90 \\")
         print("            src/serial/pic_mpi_serial.F90")
         return 1
     print("\n  the two backends present the same interface")

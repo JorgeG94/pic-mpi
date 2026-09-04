@@ -83,6 +83,36 @@ jobs:
           --output-on-failure --no-tests=error
 
   #
+  # The same claim as the CMake job above, but for fpm: `--flag -DUSE_SERIAL`
+  # turns every MPI-only source into an empty translation unit, so the build
+  # needs no MPI on the machine. `--flag` reaches dependencies too, which is
+  # what lets a consumer (terco) select this backend from its own build.
+  #
+  fpm-serial:
+    name: fpm build and test without MPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fortran compiler
+        uses: fortran-lang/setup-fortran@v1.9.0
+        with:
+          compiler: gcc
+          version: 14
+
+      - name: Install fpm
+        uses: fortran-lang/setup-fpm@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Deliberately no MPI here, same as the CMake serial job.
+      - name: Build the library without MPI
+        run: fpm build --flag "-DUSE_SERIAL"
+
+      - name: Test the single-rank backend
+        run: fpm test --flag "-DUSE_SERIAL" test_serial
+
+  #
   # The serial backend's signatures are generated from mpi_f08's so the two
   # cannot drift. If someone adds a procedure to the MPI backend and not the
   # serial one, a consumer's generic stops resolving in a build nobody here

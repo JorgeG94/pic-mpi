@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 module pic_mpi_f08
    !! Modern MPI wrapper module using mpi_f08 interface
    !!
@@ -2533,3 +2534,4 @@ contains
    end subroutine allreduce_sp_array_to
 
 end module pic_mpi_f08
+#endif

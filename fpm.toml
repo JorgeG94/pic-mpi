@@ -7,6 +7,12 @@ copyright = "Copyright 2024, JorgeG94"
 [preprocess]
 [preprocess.cpp]
 suffixes = ["F90"]
+# fpm resolves `#if defined(USE_SERIAL)` in pic_mpi_lib.F90 using THESE
+# macros when it builds the dependency graph, so a compiler-only
+# `--flag -DUSE_SERIAL` comes too late: fpm would schedule the mpi_f08
+# backend and never compile src/serial/pic_mpi_serial.F90 at all.
+# fpm builds the serial backend only (see the test comment below).
+macros = ["USE_SERIAL"]
 [library]
 source-dir = "src"
 [build]

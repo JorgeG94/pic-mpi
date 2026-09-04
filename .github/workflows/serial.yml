@@ -100,10 +100,18 @@ jobs:
           compiler: gcc
           version: 14
 
+      # setup-fpm@v5 cannot fetch current fpm releases: they only ship
+      # gcc-suffixed assets (fpm-X.Y.Z-linux-x86_64-gcc-12) and v5 has no
+      # suffix fallback. v0.12.0 is pinned deliberately: it is the newest
+      # release whose scanner orders pic_mpi_lib.F90 after the conditionally
+      # compiled pic_mpi_serial.F90 (v0.13.0 misses it and the build fails).
       - name: Install fpm
-        uses: fortran-lang/setup-fpm@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          url=https://github.com/fortran-lang/fpm/releases/download/v0.12.0/fpm-0.12.0-linux-x86_64-gcc-12
+          mkdir -p "$RUNNER_TEMP/fpm-bin"
+          curl -sSfL "$url" -o "$RUNNER_TEMP/fpm-bin/fpm"
+          chmod +x "$RUNNER_TEMP/fpm-bin/fpm"
+          echo "$RUNNER_TEMP/fpm-bin" >> "$GITHUB_PATH"
 
       # Deliberately no MPI here, same as the CMake serial job.
       - name: Build the library without MPI

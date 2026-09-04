@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 !> Dynamic load balancing for distributed arrays
 !!
 !! Provides atomic counter-based load balancing using MPI-3 RMA.
@@ -77,3 +78,4 @@ contains
    end subroutine dlb_next
 
 end module darrays_dlb
+#endif

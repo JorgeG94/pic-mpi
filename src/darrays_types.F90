@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 !> Type definitions for distributed arrays
 !!
 !! Provides the darray_t type for DDI-style distributed 2D arrays.
@@ -41,3 +42,4 @@ module darrays_types
    end type darray_t
 
 end module darrays_types
+#endif

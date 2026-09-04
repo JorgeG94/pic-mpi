@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 module pic_mpi
 !! Legacy MPI wrapper module using traditional MPI interface
 !!
@@ -2491,3 +2492,4 @@ contains
    end subroutine allreduce_sp_array_to
 
 end module pic_mpi
+#endif

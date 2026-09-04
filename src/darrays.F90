@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 !> Distributed arrays module (DDI-compatible)
 !!
 !! Provides DDI-style distributed 2D arrays built on MPI-3 RMA.
@@ -113,3 +114,4 @@ contains
    end subroutine darray_nproc
 
 end module darrays
+#endif

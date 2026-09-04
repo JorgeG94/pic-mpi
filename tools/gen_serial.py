@@ -125,7 +125,32 @@ def body(p):
     # --- collectives: on one rank the answer is already in place ----------
     if re.match(r'comm_bcast_', n):
         return ['      ! One rank: the data is already where it needs to be.']
-    if re.match(r'comm_(allgather|allreduce)_', n):
+    #
+    # A reduction over one rank is exactly defined for every op: the result is
+    # that rank's own contribution. So the in-place forms have nothing to do,
+    # and the `_to` forms copy. `count`, where it exists, selects the same
+    # element range the MPI backend hands to MPI_Allreduce.
+    #
+    if re.match(r'allreduce_', n):
+        cand = [a for a in dl if a not in ('comm', 'op', 'count')]
+        if len(cand) < 2:
+            return ['      ! One rank: the buffer already holds this rank\'s own',
+                    '      ! contribution, which IS the reduction of one term.']
+        s_, r_ = cand[0], cand[1]
+        head = ["      ! One rank: the reduced result is this rank's own",
+                '      ! contribution.']
+        if 'count' not in dl:
+            return head + [f'      {r_} = {s_}']
+        return head + [
+            '      if (present(count)) then',
+            '         n = count',
+            '      else',
+            f'         n = size({s_})',
+            '      end if',
+            '',
+            f'      {r_}(1:n) = {s_}(1:n)',
+        ]
+    if re.match(r'comm_allgather_', n):
         # copy send buffer into recv buffer if both are present
         cand = [a for a in dl if a not in ('comm', 'op', 'root', 'count')]
         if len(cand) >= 2:
@@ -303,7 +328,7 @@ empty = []
 for p in procs:
     b = body(p)
     if not [x for x in b if x.strip() and not x.strip().startswith('!')]:
-        if not re.match(r'comm_bcast_|comm_barrier|comm_finalize|pic_mpi_finalize|request_wait|wait_all|waitall', p['name']):
+        if not re.match(r'comm_bcast_|comm_barrier|comm_finalize|pic_mpi_finalize|request_wait|wait_all|waitall|allreduce_', p['name']):
             empty.append(p['name'])
 if empty:
     print('EMPTY BODIES (classify these):', ', '.join(empty))

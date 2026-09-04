@@ -8,15 +8,16 @@
 !! Deliberately NOT run under `mpirun`: the point of this build is that there
 !! is no MPI to launch it with.
 program test_serial
-   use pic_types, only: int32
+   use pic_types, only: int32, dp
    use pic_mpi_lib, only: comm_t, comm_world, pic_mpi_init, pic_mpi_finalize, &
-                          bcast, allgather, iprobe, MPI_Status, &
+                          bcast, allgather, allreduce, iprobe, MPI_Status, &
                           MPI_ANY_SOURCE, MPI_ANY_TAG
    implicit none
 
    type(comm_t) :: comm
    type(MPI_Status) :: status
    integer(int32) :: ivalue, mine, gathered(1)
+   real(dp) :: dvalue, dsend(3), drecv(3)
    logical :: pending
    integer :: failures
 
@@ -49,6 +50,30 @@ program test_serial
    call allgather(comm, mine, gathered)
    call expect(gathered(1) == 7_int32, &
                "a gather over one rank returns that rank's own value")
+
+   ! --- a reduction over one rank is that rank's own contribution ----------
+   !
+   ! Unlike a send, a reduction IS defined at one rank -- for every op the
+   ! answer is the single contribution -- so these are identities, not errors.
+   ! In place there is nothing to do; the `_to` forms copy.
+   dvalue = 3.5_dp
+   call allreduce(comm, dvalue)
+   call expect(dvalue == 3.5_dp, &
+               "an in-place reduction leaves the buffer alone")
+
+   dsend = [1.0_dp, 2.0_dp, 3.0_dp]
+   drecv = -1.0_dp
+   call allreduce(comm, dsend, drecv)
+   call expect(all(drecv == dsend), &
+               "a reduction into a buffer copies every element")
+
+   ! `count` has to bound the same range MPI_Allreduce would be given, so the
+   ! tail past it keeps whatever the caller left there.
+   drecv = -1.0_dp
+   call allreduce(comm, dsend, drecv, 2)
+   call expect(drecv(1) == 1.0_dp .and. drecv(2) == 2.0_dp &
+               .and. drecv(3) == -1.0_dp, &
+               "`count` bounds the reduced range, as it does under MPI")
 
    ! --- nothing is ever pending --------------------------------------------
    !

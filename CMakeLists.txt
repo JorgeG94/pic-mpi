@@ -43,10 +43,10 @@ option(PIC_ENABLE_DARRAYS
 #
 # Standalone example drivers under app/.
 #
-# pic-mpi is a library: a consumer that pulls it in wants pic_mpi_lib, not
-# extra executables in its build. The programs are still worth compiling --
-# that is the only thing that proves they keep tracking the library API -- so
-# CI turns this ON and everyone else never sees them.
+# pic-mpi is a library: a consumer that pulls it in wants pic_mpi_lib, not extra
+# executables in its build. The programs are still worth compiling -- that is
+# the only thing that proves they keep tracking the library API -- so CI turns
+# this ON and everyone else never sees them.
 #
 option(PMPI_BUILD_STANDALONE
        "Build the standalone example executables under app/" OFF)

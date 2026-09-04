@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 !> Core distributed array operations
 !!
 !! Provides create, destroy, get, put, accumulate operations for
@@ -636,3 +637,4 @@ contains
    end subroutine darray_distrib
 
 end module darrays_core
+#endif

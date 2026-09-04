@@ -1,3 +1,3 @@
 # Distributed arrays module (DDI-compatible)
-target_sources(${main_lib} PRIVATE darrays_types.f90 darrays_distrib.f90
-                                   darrays_core.f90 darrays_dlb.f90 darrays.f90)
+target_sources(${main_lib} PRIVATE darrays_types.F90 darrays_distrib.F90
+                                   darrays_core.F90 darrays_dlb.F90 darrays.F90)

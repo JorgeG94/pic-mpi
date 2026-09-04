@@ -234,7 +234,7 @@ o.append('''!> Single-rank stand-in for `pic_mpi_f08`, for builds without MPI.
 !!     results much later; stopping names it where it happened.
 !!
 !! GENERATED, and deliberately. The signatures are taken from
-!! `mpi_f08/pic_mpi.f90` so that the two cannot disagree -- 140 procedures
+!! `mpi_f08/pic_mpi.F90` so that the two cannot disagree -- 140 procedures
 !! behind a dozen generics is 140 chances to typo an interface that would only
 !! surface as an unresolved generic in somebody else's build. Only the bodies
 !! are written by hand, by family. Regenerate with `tools/gen_serial.py`.

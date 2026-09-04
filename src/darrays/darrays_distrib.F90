@@ -1,3 +1,4 @@
+#ifndef USE_SERIAL
 !> Column distribution helpers for distributed arrays
 !!
 !! Provides functions to calculate how columns are distributed across
@@ -90,3 +91,4 @@ contains
    end function get_local_offset
 
 end module darrays_distrib
+#endif

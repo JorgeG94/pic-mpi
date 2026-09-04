@@ -83,6 +83,44 @@ jobs:
           --output-on-failure --no-tests=error
 
   #
+  # The same claim as the CMake job above, but for fpm: `--flag -DUSE_SERIAL`
+  # turns every MPI-only source into an empty translation unit, so the build
+  # needs no MPI on the machine. `--flag` reaches dependencies too, which is
+  # what lets a consumer (terco) select this backend from its own build.
+  #
+  fpm-serial:
+    name: fpm build and test without MPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fortran compiler
+        uses: fortran-lang/setup-fortran@v1.9.0
+        with:
+          compiler: gcc
+          version: 14
+
+      # setup-fpm@v5 cannot fetch current fpm releases: they only ship
+      # gcc-suffixed assets (fpm-X.Y.Z-linux-x86_64-gcc-12) and v5 has no
+      # suffix fallback. v0.12.0 is pinned deliberately: it is the newest
+      # release whose scanner orders pic_mpi_lib.F90 after the conditionally
+      # compiled pic_mpi_serial.F90 (v0.13.0 misses it and the build fails).
+      - name: Install fpm
+        run: |
+          url=https://github.com/fortran-lang/fpm/releases/download/v0.12.0/fpm-0.12.0-linux-x86_64-gcc-12
+          mkdir -p "$RUNNER_TEMP/fpm-bin"
+          curl -sSfL "$url" -o "$RUNNER_TEMP/fpm-bin/fpm"
+          chmod +x "$RUNNER_TEMP/fpm-bin/fpm"
+          echo "$RUNNER_TEMP/fpm-bin" >> "$GITHUB_PATH"
+
+      # Deliberately no MPI here, same as the CMake serial job.
+      - name: Build the library without MPI
+        run: fpm build --flag "-DUSE_SERIAL"
+
+      - name: Test the single-rank backend
+        run: fpm test --flag "-DUSE_SERIAL" test_serial
+
+  #
   # The serial backend's signatures are generated from mpi_f08's so the two
   # cannot drift. If someone adds a procedure to the MPI backend and not the
   # serial one, a consumer's generic stops resolving in a build nobody here

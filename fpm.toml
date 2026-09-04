@@ -6,7 +6,7 @@ maintainer = "jorgegalvez1694@gmail.com"
 copyright = "Copyright 2024, JorgeG94"
 [preprocess]
 [preprocess.cpp]
-suffixes = ["F90", "f90"]
+suffixes = ["F90"]
 [library]
 source-dir = "src"
 [build]
@@ -14,9 +14,21 @@ auto-executables = false
 auto-tests = false
 #auto-examples = true
 module-naming = false
-external-modules = ["mpi_f08", "mpi"]
+# mpi_f08 and mpi back the two MPI backends (compiled out under -DUSE_SERIAL);
+# nvtx is pic's optional profiler hook (compiled out unless -DPIC_USE_NVTX).
+# None of them is provided by an fpm package, so declare them external to keep
+# fpm from looking for a source that defines them.
+external-modules = ["mpi_f08", "mpi", "nvtx"]
 [install]
 library = true
+
+# All tests are MPI programs except test_serial, which is also the only one
+# that builds under --flag -DUSE_SERIAL. The MPI ones are exercised via CMake
+# and ctest, where mpirun is available.
+[[test]]
+name = "test_serial"
+source-dir = "test"
+main = "test_serial.f90"
 
 [fortran]
 implicit-typing = true
@@ -33,4 +45,4 @@ pic = { git = "https://github.com/JorgeG94/pic.git", branch = "main"}
 select = ["C", "E", "S"]
 ignore = ["C003"]
 line-length = 132
-per-file-ignores = { "pic_mpi.f90" = ["C072"], "pic_mpi_legacy.f90" = ["C072"]}
+per-file-ignores = { "pic_mpi.F90" = ["C072"], "pic_mpi_legacy.F90" = ["C072"]}

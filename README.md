@@ -51,6 +51,21 @@ fpm install --prefix $PICMPI_ROOT --profile release --compiler mpifort
 
 To run the tests: `fpm test --profile release --compiler mpifort`
 
+#### Without MPI
+
+The single-rank backend (the one CMake selects with `PIC_ENABLE_MPI=OFF`) is
+available to fpm as well, via the `USE_SERIAL` preprocessor macro:
+
+```
+fpm build --flag "-DUSE_SERIAL"
+fpm test --flag "-DUSE_SERIAL"
+```
+
+This needs no MPI on the machine. A downstream package that declares pic-mpi
+as a dependency gets the same behavior from its own `--flag -DUSE_SERIAL`,
+because fpm applies the flag to every package in the build, dependencies
+included.
+
 
 ## Building and dependencies
 

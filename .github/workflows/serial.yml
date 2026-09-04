@@ -84,10 +84,22 @@ jobs:
           --output-on-failure --no-tests=error
 
   #
-  # The same claim as the CMake job above, but for fpm: `--flag -DUSE_SERIAL`
-  # turns every MPI-only source into an empty translation unit, so the build
-  # needs no MPI on the machine. `--flag` reaches dependencies too, which is
-  # what lets a consumer (terco) select this backend from its own build.
+  # The same claim as the CMake job above, but for fpm: the `serial` FEATURE
+  # (fpm.toml `[features]`) defines USE_SERIAL, so every MPI-only source
+  # becomes an empty translation unit and the build needs no MPI here.
+  #
+  # It must be a feature, not `--flag -DUSE_SERIAL`.  fpm resolves the
+  # `#if defined(USE_SERIAL)` in pic_mpi_lib.F90 while building the DEPENDENCY
+  # GRAPH; `--flag` only reaches the compiler, after that graph is fixed, so
+  # fpm schedules the mpi_f08 backend and may never compile
+  # src/serial/pic_mpi_serial.F90 at all.  A feature is declared in the
+  # manifest, so it lands early enough to steer the graph.
+  #
+  # This is also what lets a CONSUMER select the backend -- `--flag` does NOT
+  # reach a dependency's graph resolution, but a feature does:
+  #     pic-mpi = { git = "...", features = ["serial"] }
+  # Default (no feature) stays MPI, matching the CMake default, so a consumer
+  # that says nothing does not silently get a single-rank library.
   #
   fpm-serial:
     name: fpm build and test without MPI
@@ -103,12 +115,17 @@ jobs:
 
       # setup-fpm@v5 cannot fetch current fpm releases: they only ship
       # gcc-suffixed assets (fpm-X.Y.Z-linux-x86_64-gcc-12) and v5 has no
-      # suffix fallback. v0.12.0 is pinned deliberately: it is the newest
-      # release whose scanner orders pic_mpi_lib.F90 after the conditionally
-      # compiled pic_mpi_serial.F90 (v0.13.0 misses it and the build fails).
+      # suffix fallback.
+      #
+      # v0.13.0, NOT v0.12.0.  The old pin existed because v0.12.0's scanner
+      # happened to order pic_mpi_lib.F90 after the conditionally compiled
+      # pic_mpi_serial.F90 -- luck, not contract, and v0.13.0 does not repeat
+      # it.  The `serial` feature removes the dependence on that ordering
+      # entirely (the macro is known before the graph is built), and
+      # `[features]` needs v0.13.0 anyway.
       - name: Install fpm
         run: |
-          url=https://github.com/fortran-lang/fpm/releases/download/v0.12.0/fpm-0.12.0-linux-x86_64-gcc-12
+          url=https://github.com/fortran-lang/fpm/releases/download/v0.13.0/fpm-0.13.0-linux-x86_64-gcc-12
           mkdir -p "$RUNNER_TEMP/fpm-bin"
           curl -sSfL "$url" -o "$RUNNER_TEMP/fpm-bin/fpm"
           chmod +x "$RUNNER_TEMP/fpm-bin/fpm"
@@ -116,10 +133,10 @@ jobs:
 
       # Deliberately no MPI here, same as the CMake serial job.
       - name: Build the library without MPI
-        run: fpm build --flag "-DUSE_SERIAL"
+        run: fpm build --features serial
 
       - name: Test the single-rank backend
-        run: fpm test --flag "-DUSE_SERIAL" test_serial
+        run: fpm test --features serial test_serial
 
   #
   # The serial backend's signatures are generated from mpi_f08's so the two

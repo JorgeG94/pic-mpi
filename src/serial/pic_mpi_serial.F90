@@ -2119,10 +2119,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_dp needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_dp
 
    subroutine allreduce_dp_array(comm, buffer, count, op)
@@ -2133,10 +2131,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr, n
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_dp_array needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_dp_array
 
    subroutine allreduce_i32(comm, buffer, op)
@@ -2146,10 +2142,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_i32 needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_i32
 
    subroutine allreduce_i32_array(comm, buffer, count, op)
@@ -2160,10 +2154,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr, n
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_i32_array needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_i32_array
 
    subroutine allreduce_dp_to(comm, sendbuf, recvbuf, op)
@@ -2174,10 +2166,9 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_dp_to needs a peer rank"
+      ! One rank: the reduced result is this rank's own
+      ! contribution.
+      recvbuf = sendbuf
    end subroutine allreduce_dp_to
 
    subroutine allreduce_dp_array_to(comm, sendbuf, recvbuf, count, op)
@@ -2189,10 +2180,15 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr, n
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_dp_array_to needs a peer rank"
+      ! One rank: the reduced result is this rank's own
+      ! contribution.
+      if (present(count)) then
+         n = count
+      else
+         n = size(sendbuf)
+      end if
+
+      recvbuf(1:n) = sendbuf(1:n)
    end subroutine allreduce_dp_array_to
 
    subroutine allreduce_sp(comm, buffer, op)
@@ -2202,10 +2198,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_sp needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_sp
 
    subroutine allreduce_sp_array(comm, buffer, count, op)
@@ -2216,10 +2210,8 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr, n
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_sp_array needs a peer rank"
+      ! One rank: the buffer already holds this rank's own
+      ! contribution, which IS the reduction of one term.
    end subroutine allreduce_sp_array
 
    subroutine allreduce_sp_to(comm, sendbuf, recvbuf, op)
@@ -2230,10 +2222,9 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_sp_to needs a peer rank"
+      ! One rank: the reduced result is this rank's own
+      ! contribution.
+      recvbuf = sendbuf
    end subroutine allreduce_sp_to
 
    subroutine allreduce_sp_array_to(comm, sendbuf, recvbuf, count, op)
@@ -2245,10 +2236,15 @@ contains
       type(MPI_Op) :: op_used
       integer :: ierr, n
 
-      ! A single rank has no peer. Reaching this means the caller
-      ! did not take its `size() == 1` path -- which is a bug worth
-      ! stopping for, not one to hide by returning quietly.
-      error stop "pic_mpi_serial: allreduce_sp_array_to needs a peer rank"
+      ! One rank: the reduced result is this rank's own
+      ! contribution.
+      if (present(count)) then
+         n = count
+      else
+         n = size(sendbuf)
+      end if
+
+      recvbuf(1:n) = sendbuf(1:n)
    end subroutine allreduce_sp_array_to
 
 end module pic_mpi_serial

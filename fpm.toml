@@ -1,5 +1,5 @@
 name = "pic-mpi"
-version = "0.4.0"
+version = "0.4.1"
 license = "MIT"
 author = "JorgeG94"
 maintainer = "jorgegalvez1694@gmail.com"
@@ -49,7 +49,7 @@ source-form = "free"
 #openmp = "*"
 #mpi = "*"
 #test-drive.git = "https://github.com/fortran-lang/test-drive"
-pic = { git = "https://github.com/JorgeG94/pic.git", branch = "main"}
+pic = { git = "https://github.com/JorgeG94/pic.git", tag = "v0.9.0"}
 
 [extra.fortitude.check]
 select = ["C", "E", "S"]

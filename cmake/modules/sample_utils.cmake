@@ -21,8 +21,14 @@ macro("my_fetch_package" package url)
     GIT_TAG "${_git_ref}")
   FetchContent_MakeAvailable("${_pkg_lc}")
 
-  add_library("${package}::${package}" INTERFACE IMPORTED)
-  target_link_libraries("${package}::${package}" INTERFACE "${package}")
+  # A dependency may already namespace itself (pic aliases pic::pic from its own
+  # CMakeLists since v0.9.0). Only synthesise the imported target when the
+  # fetched project did not provide one, otherwise add_library errors out on the
+  # duplicate name.
+  if(NOT TARGET "${package}::${package}")
+    add_library("${package}::${package}" INTERFACE IMPORTED)
+    target_link_libraries("${package}::${package}" INTERFACE "${package}")
+  endif()
 
   if(NOT EXISTS "${${_pkg_lc}_BINARY_DIR}/include")
     file(MAKE_DIRECTORY "${${_pkg_lc}_BINARY_DIR}/include")

@@ -7,7 +7,6 @@
 if(NOT PIC_ENABLE_MPI)
   add_executable(test_serial test_serial.f90)
   target_link_libraries(test_serial PRIVATE ${main_lib})
-  target_include_directories(test_serial PRIVATE ${CMAKE_BINARY_DIR}/modules)
   add_test(NAME test_serial COMMAND test_serial)
   return()
 endif()
@@ -22,7 +21,6 @@ find_package(MPI REQUIRED)
 macro(add_mpi_test test_name num_procs)
   add_executable(${test_name} ${test_name}.f90)
   target_link_libraries(${test_name} PRIVATE ${main_lib})
-  target_include_directories(${test_name} PRIVATE ${CMAKE_BINARY_DIR}/modules)
 
   add_test(
     NAME ${test_name}

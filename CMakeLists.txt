@@ -134,8 +134,20 @@ if(PMPI_BUILD_STANDALONE)
   add_subdirectory(app)
 endif()
 
+# PROJECT_BINARY_DIR, not CMAKE_BINARY_DIR: the two are the same directory in a
+# standalone build, but under FetchContent CMAKE_BINARY_DIR is the *consumer's*
+# top-level build tree, so pic-mpi would write its .mod files into the
+# consumer's module directory instead of its own.
 set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
-                                             ${CMAKE_BINARY_DIR}/modules)
+                                             ${PROJECT_BINARY_DIR}/modules)
+
+# Carry that directory to anyone who links the target, so a consumer never has
+# to know where pic-mpi puts its .mod files -- and so moving them later is not a
+# breaking change. BUILD_INTERFACE only: the install side is covered by the
+# `INCLUDES DESTINATION include/${project_name}` on the install(TARGETS) call
+# below, which is where the installed .mod files land.
+target_include_directories(
+  ${main_lib} INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/modules>)
 
 list(APPEND libraries_to_link pic::pic)
 if(PIC_ENABLE_MPI)
@@ -155,7 +167,7 @@ foreach(tgt ${all_targets})
 endforeach()
 
 install(
-  DIRECTORY ${CMAKE_BINARY_DIR}/modules/
+  DIRECTORY ${PROJECT_BINARY_DIR}/modules/
   DESTINATION include/${project_name}
   FILES_MATCHING
   PATTERN "*.mod")
@@ -199,6 +211,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     COMMAND lcov --ignore-errors unused --remove coverage.info '/usr/*'
             '*/build/*' --output-file coverage_filtered.info
     COMMAND genhtml coverage_filtered.info --output-directory coverage_report
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     COMMENT "Generating code coverage report")
 endif()

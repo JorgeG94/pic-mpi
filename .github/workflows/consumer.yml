@@ -1,0 +1,111 @@
+name: Consumed via FetchContent
+
+#
+# What this job protects.
+#
+# Everything here is invisible in a standalone build, because there
+# CMAKE_BINARY_DIR and PROJECT_BINARY_DIR are the same directory. Pulled in
+# with FetchContent they are not: CMAKE_BINARY_DIR is the CONSUMER's top-level
+# build tree. A library that names it writes its .mod files into the consumer's
+# module directory -- where they collide with the consumer's own, and where a
+# consumer compiles against them only by accident, because they happened to
+# land somewhere it already looks.
+#
+# pic-mpi, pic and pic-blas all carried that bug. The fix is to write modules
+# to PROJECT_BINARY_DIR and export the directory as a BUILD_INTERFACE include,
+# so a consumer that merely links the target gets it for free -- and so moving
+# the modules later is not a breaking change.
+#
+# tools/fetchcontent-consumer/ is the whole test: a project that links `pic-mpi`
+# and names no include path at all.
+#
+# PIC_ENABLE_MPI=OFF so this job needs a Fortran compiler and nothing else.
+# The backend does not change where the modules go, which is what is under test.
+#
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  consumer:
+    name: a downstream project can compile against pic-mpi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: pic-mpi
+
+      - name: Setup Fortran compiler
+        uses: fortran-lang/setup-fortran@v1.9.0
+        with:
+          compiler: gcc
+          version: 14
+
+      - name: Configure the consumer
+        run: >-
+          cmake -S pic-mpi/tools/fetchcontent-consumer -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DPIC_ENABLE_MPI=OFF
+          -DPIC_MPI_SOURCE_DIR="$GITHUB_WORKSPACE/pic-mpi"
+
+      # Two cores is what a runner has.
+      - name: Build the consumer
+        run: cmake --build build --parallel 2
+
+      - name: Show the failure verbosely
+        if: failure()
+        run: cmake --build build --verbose --parallel 1
+
+      #
+      # The build above can pass for the wrong reason: if pic-mpi writes into
+      # the consumer's module directory, the consumer finds the .mod there.
+      # So assert the modules are in pic-mpi's OWN build tree.
+      #
+      - name: pic-mpi keeps its modules in its own build tree
+        run: |
+          set -eu
+          stray=$(find build/modules -name 'pic_mpi*.mod' 2>/dev/null || true)
+          if [ -n "$stray" ]; then
+            echo "::error::pic-mpi wrote modules into the consumer's module directory:"
+            echo "$stray"
+            exit 1
+          fi
+          own=build/_deps/pic-mpi-build/modules
+          for mod in pic_mpi_lib.mod; do
+            if [ ! -f "$own/$mod" ]; then
+              echo "::error::expected $own/$mod"
+              find build -name 'pic_mpi*.mod' || true
+              exit 1
+            fi
+          done
+          echo "modules are where they belong:"
+          find "$own" -name '*.mod'
+
+      #
+      # The install side of the same mistake: `install(DIRECTORY ...)` naming
+      # CMAKE_BINARY_DIR installs the CONSUMER's modules as pic-mpi's own.
+      #
+      - name: Installing from a consumer tree installs only pic-mpi's modules
+        run: |
+          set -eu
+          cmake --install build --prefix prefix > /dev/null
+          echo "installed under include/pic-mpi:"
+          ls prefix/include/pic-mpi
+          for mod in prefix/include/pic-mpi/*.mod; do
+            case "$(basename "$mod")" in
+              pic_mpi_lib.mod|pic_mpi_f08.mod|pic_mpi_serial.mod) ;;
+              *)
+                echo "::error::$mod is not pic-mpi's to install"
+                exit 1
+                ;;
+            esac
+          done

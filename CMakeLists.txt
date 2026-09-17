@@ -145,7 +145,19 @@ set_target_properties(${main_lib} PROPERTIES Fortran_MODULE_DIRECTORY
 # to know where pic-mpi puts its .mod files -- and so moving them later is not a
 # breaking change. BUILD_INTERFACE only: the install side is covered by the
 # `INCLUDES DESTINATION include/${project_name}` on the install(TARGETS) call
-# below, which is where the installed .mod files land.
+# below, which is where the installed .mod files land. Fortran_MODULE_DIRECTORY
+# is not created until build time on some CMake versions. Create it now, so a
+# consumer configuring from a clean tree does not fail CMake's check that an
+# interface include directory exists:
+#
+# Imported target "pic-mpi::pic-mpi" includes non-existent path
+# ".../_deps/pic-mpi-build/modules" in its INTERFACE_INCLUDE_DIRECTORIES.
+#
+# CMake 3.28 pre-creates it and does not need this; the consumer that reported
+# the failure runs one that does not. pic-blas carries the same line for the
+# same reason.
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
+
 target_include_directories(
   ${main_lib} INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/modules>)
 

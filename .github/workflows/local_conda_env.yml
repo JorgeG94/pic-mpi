@@ -11,9 +11,16 @@ jobs:
       matrix:
         include:
           - name: "mpi_f08"
-            legacy_mpi: false
+            flags: "-DPIC_USE_LEGACY_MPI=OFF"
           - name: "legacy MPI"
-            legacy_mpi: true
+            flags: "-DPIC_USE_LEGACY_MPI=ON"
+          # vapaa reaches MPI through its C ABI rather than the Fortran
+          # bindings, so this is the only job that exercises the
+          # `language_component C` branch in CMakeLists.txt and links
+          # vapaa::vapaa. Without it, PIC_USE_VAPAA=ON was never built
+          # anywhere.
+          - name: "vapaa"
+            flags: "-DPIC_USE_VAPAA=ON"
     steps:
       - uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v3
@@ -32,7 +39,7 @@ jobs:
         run: |
           conda activate pic-mpi
           export FC=gfortran
-          cmake -DPIC_USE_LEGACY_MPI=${{ matrix.legacy_mpi && 'ON' || 'OFF' }} \
+          cmake ${{ matrix.flags }} \
                 -DENABLE_TESTING=ON \
                 -B build
           cmake --build build

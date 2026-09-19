@@ -103,7 +103,15 @@ module pic_mpi_serial
    !! Wraps MPI_Request to provide object-oriented interface for
    !! non-blocking communication operations (isend, irecv)
       private
-      type(MPI_Request) :: m_request = MPI_REQUEST_NULL !! Internal MPI request handle
+      ! No initializer here, nor on win_t%m_win or comm_t%m_comm below.
+      ! LFortran 0.66.0 cannot codegen a structure constructor used as a
+      ! component default and throws "visit_StructConstructor() not
+      ! implemented" once a program instantiates this module's procedures --
+      ! which is why the library builds under LFortran but nothing that links
+      ! it does. Omitting it is equivalent: each of these handle types
+      ! declares `v = 0` and each *_NULL is <Type>(0), so the initial state is
+      ! unchanged. Do not reinstate without re-checking LFortran.
+      type(MPI_Request) :: m_request !! Internal MPI request handle
       logical :: is_valid = .false. !! Validity flag
    contains
       procedure :: is_null => request_is_null !! Check if request is null
@@ -117,7 +125,8 @@ module pic_mpi_serial
       !! Wraps MPI_Win to provide object-oriented interface for
       !! Remote Memory Access (RMA) operations needed for DDI
       private
-      type(MPI_Win) :: m_win = MPI_WIN_NULL
+      ! No initializer -- see request_t%m_request above.
+      type(MPI_Win) :: m_win
       logical :: is_valid = .false.
    contains
       procedure :: is_null => win_is_null
@@ -164,7 +173,8 @@ module pic_mpi_serial
       !! type-bound procedures for common operations. Automatically caches
       !! rank and size information for efficient access.
       private
-      type(MPI_Comm) :: m_comm = MPI_COMM_NULL !! Internal MPI communicator
+      ! No initializer -- see request_t%m_request above.
+      type(MPI_Comm) :: m_comm !! Internal MPI communicator
       integer(int32) :: m_rank = -1 !! Cached rank in this communicator
       integer(int32) :: m_size = -1 !! Cached size of this communicator
       logical :: is_valid = .false. !! Validity flag

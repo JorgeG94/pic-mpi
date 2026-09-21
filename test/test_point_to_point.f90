@@ -40,6 +40,7 @@ program test_point_to_point
    call test_send_recv_arrays()
    call test_isend_irecv()
    call test_iprobe()
+   call test_irecv_allocates_1d()
 
    call world_comm%barrier()
 
@@ -49,8 +50,17 @@ program test_point_to_point
       print *, "========================================"
    end if
 
+   ! A tally nothing acts on is not a test: every one of these programs
+   ! counted its failures and then exited 0, so ctest only ever noticed a
+   ! run that crashed. Sum across ranks first -- a check that runs on a
+   ! non-leader has to be able to fail the run too -- then leave with a
+   ! status the harness can see.
+   call allreduce(world_comm, n_failed)
+
    call world_comm%finalize()
    call pic_mpi_finalize()
+
+   if (n_failed > 0) stop 1
 
 contains
 
@@ -285,6 +295,58 @@ contains
          end if
       end if
    end subroutine test_isend_irecv
+
+   subroutine test_irecv_allocates_1d()
+      !! A receiver that cannot know the incoming size passes an unallocated
+      !! allocatable and lets irecv size it, the way the blocking recv and the
+      !! 2-D irecv already allow. Before the 1-D irecv did that, it posted a
+      !! receive for size(data) on an unallocated buffer and the wait failed
+      !! with MPI_ERR_TRUNCATE.
+      real(dp), allocatable :: send_buf(:), recv_buf(:)
+      type(request_t) :: req
+      integer(int32) :: n_local
+      integer :: i
+
+      if (world_comm%leader()) print *, "Test 8: Irecv sizes an unallocated buffer..."
+
+      n_local = 0
+
+      if (world_comm%rank() == 0) then
+         allocate (send_buf(5))
+         do i = 1, 5
+            send_buf(i) = real(i, dp)
+         end do
+         call isend(world_comm, send_buf, 1, 800, req)
+         call wait(req)
+      else if (world_comm%rank() == 1) then
+         call irecv(world_comm, recv_buf, 0, 800, req)
+         call wait(req)
+         if (.not. allocated(recv_buf)) then
+            n_local = 1
+         else if (size(recv_buf) /= 5) then
+            n_local = 1
+         else
+            do i = 1, 5
+               if (abs(recv_buf(i) - real(i, dp)) > 1.0e-12_dp) n_local = 1
+            end do
+         end if
+      end if
+
+      ! The check runs on rank 1 and the tally below is the leader's, so the
+      ! verdict has to cross ranks before it can be counted.
+      call allreduce(world_comm, n_local)
+      call world_comm%barrier()
+
+      if (world_comm%leader()) then
+         if (n_local == 0) then
+            print *, "  PASS: Irecv sizes an unallocated buffer"
+            n_passed = n_passed + 1
+         else
+            print *, "  FAIL: Irecv sizes an unallocated buffer"
+            n_failed = n_failed + 1
+         end if
+      end if
+   end subroutine test_irecv_allocates_1d
 
    subroutine test_iprobe()
       integer(int32) :: send_val, recv_val

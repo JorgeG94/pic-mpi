@@ -47,8 +47,17 @@ program test_rma_win_allocate
       print *, "========================================"
    end if
 
+   ! A tally nothing acts on is not a test: every one of these programs
+   ! counted its failures and then exited 0, so ctest only ever noticed a
+   ! run that crashed. Sum across ranks first -- a check that runs on a
+   ! non-leader has to be able to fail the run too -- then leave with a
+   ! status the harness can see.
+   call allreduce(world_comm, n_failed)
+
    call world_comm%finalize()
    call pic_mpi_finalize()
+
+   if (n_failed > 0) stop 1
 
 contains
 

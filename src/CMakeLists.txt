@@ -12,8 +12,3 @@ else()
 endif()
 
 target_sources(${main_lib} PRIVATE pic_mpi_lib.F90)
-
-# Distributed arrays (DDI-compatible)
-if(PIC_ENABLE_DARRAYS)
-  add_subdirectory(darrays)
-endif()

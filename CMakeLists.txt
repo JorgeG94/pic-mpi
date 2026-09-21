@@ -37,8 +37,6 @@ option(PIC_ENABLE_MPI "Link against MPI. OFF builds the single-rank backend" ON)
 option(PIC_USE_LEGACY_MPI "Use the old mpi module" OFF)
 option(ENABLE_TESTING "Enable testing for ${project_name}" OFF)
 option(PIC_USE_VAPAA "Use vapaa to link to a C mpi library" OFF)
-option(PIC_ENABLE_DARRAYS
-       "Build the distributed arrays (DDI-compatible) module" OFF)
 
 #
 # Standalone example drivers under app/.
@@ -63,8 +61,7 @@ if(PIC_USE_LEGACY_MPI AND PIC_USE_VAPAA)
 endif()
 
 if(NOT PIC_ENABLE_MPI)
-  foreach(_opt PIC_USE_LEGACY_MPI PIC_USE_VAPAA PIC_ENABLE_DARRAYS
-               PIC_MPICH_PERLMUTTER)
+  foreach(_opt PIC_USE_LEGACY_MPI PIC_USE_VAPAA PIC_MPICH_PERLMUTTER)
     if(${_opt})
       message(
         FATAL_ERROR

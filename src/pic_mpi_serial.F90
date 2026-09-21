@@ -1387,7 +1387,7 @@ contains
       !! Initiates a non-blocking receive operation. The request must be
       !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
-      integer(int32), intent(out) :: data(:)
+      integer(int32), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
@@ -1419,7 +1419,7 @@ contains
    !! Initiates a non-blocking receive operation. The request must be
    !! waited on using wait() or test() before the buffer can be used.
       type(comm_t), intent(in) :: comm
-      integer(int64), intent(out) :: data(:)
+      integer(int64), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
@@ -1447,7 +1447,7 @@ contains
 
    subroutine comm_irecv_real_dp_array(comm, data, source, tag, request)
       type(comm_t), intent(in) :: comm
-      real(dp), intent(out) :: data(:)
+      real(dp), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
@@ -1524,7 +1524,7 @@ contains
    subroutine comm_irecv_real_sp_array(comm, data, source, tag, request)
       !! Non-blocking receive of a single-precision real array
       type(comm_t), intent(in) :: comm
-      real(sp), intent(out) :: data(:)
+      real(sp), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request

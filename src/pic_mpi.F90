@@ -1404,14 +1404,42 @@ contains
    subroutine comm_irecv_integer_array(comm, data, source, tag, request)
       !! Initiates a non-blocking receive operation. The request must be
       !! waited on using wait() or test() before the buffer can be used.
+      !!
+      !! `data` is allocated here when it arrives unallocated, to the size
+      !! the incoming message actually carries. Passing an unallocated
+      !! buffer is therefore how a caller that cannot know the size asks
+      !! for one, and matches what the blocking `recv` and the 2-D
+      !! `irecv` already do.
       type(comm_t), intent(in) :: comm
-      integer(int32), intent(out) :: data(:)
+      integer(int32), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
+      integer(int32) :: count
+      integer(int32) :: msg_source, msg_tag
+      type(MPI_Status) :: probe_status
 
-      call MPI_Irecv(data, size(data), MPI_INTEGER, source, tag, comm%m_comm, request%m_request, ierr)
+      msg_source = source
+      msg_tag = tag
+
+      ! Sizing an unallocated buffer needs the message to have been matched,
+      ! so probe first. That blocks until the envelope arrives, not until the
+      ! data does, and the receive below is still the non-blocking one. The
+      ! probed source and tag are what the receive then asks for, so that a
+      ! wildcard cannot match a second, differently sized message between the
+      ! two calls; for a fixed pair MPI's non-overtaking rule already gives
+      ! the receive the message that was probed.
+      if (.not. allocated(data)) then
+         call MPI_Probe(source, tag, comm%m_comm, probe_status, ierr)
+         call MPI_Get_count(probe_status, MPI_INTEGER, count, ierr)
+         msg_source = probe_status%MPI_SOURCE
+         msg_tag = probe_status%MPI_TAG
+         allocate (data(count))
+      end if
+
+      call MPI_Irecv(data, size(data), MPI_INTEGER, msg_source, msg_tag, comm%m_comm, &
+                     request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer_array
 
@@ -1430,16 +1458,44 @@ contains
    end subroutine comm_irecv_integer64
 
    subroutine comm_irecv_integer64_array(comm, data, source, tag, request)
-   !! Initiates a non-blocking receive operation. The request must be
-   !! waited on using wait() or test() before the buffer can be used.
+      !! Initiates a non-blocking receive operation. The request must be
+      !! waited on using wait() or test() before the buffer can be used.
+      !!
+      !! `data` is allocated here when it arrives unallocated, to the size
+      !! the incoming message actually carries. Passing an unallocated
+      !! buffer is therefore how a caller that cannot know the size asks
+      !! for one, and matches what the blocking `recv` and the 2-D
+      !! `irecv` already do.
       type(comm_t), intent(in) :: comm
-      integer(int64), intent(out) :: data(:)
+      integer(int64), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
+      integer(int32) :: count
+      integer(int32) :: msg_source, msg_tag
+      type(MPI_Status) :: probe_status
 
-      call MPI_Irecv(data, size(data), MPI_INTEGER8, source, tag, comm%m_comm, request%m_request, ierr)
+      msg_source = source
+      msg_tag = tag
+
+      ! Sizing an unallocated buffer needs the message to have been matched,
+      ! so probe first. That blocks until the envelope arrives, not until the
+      ! data does, and the receive below is still the non-blocking one. The
+      ! probed source and tag are what the receive then asks for, so that a
+      ! wildcard cannot match a second, differently sized message between the
+      ! two calls; for a fixed pair MPI's non-overtaking rule already gives
+      ! the receive the message that was probed.
+      if (.not. allocated(data)) then
+         call MPI_Probe(source, tag, comm%m_comm, probe_status, ierr)
+         call MPI_Get_count(probe_status, MPI_INTEGER8, count, ierr)
+         msg_source = probe_status%MPI_SOURCE
+         msg_tag = probe_status%MPI_TAG
+         allocate (data(count))
+      end if
+
+      call MPI_Irecv(data, size(data), MPI_INTEGER8, msg_source, msg_tag, comm%m_comm, &
+                     request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_integer64_array
 
@@ -1456,14 +1512,44 @@ contains
    end subroutine comm_irecv_real_dp
 
    subroutine comm_irecv_real_dp_array(comm, data, source, tag, request)
+      !! Initiates a non-blocking receive operation. The request must be
+      !! waited on using wait() or test() before the buffer can be used.
+      !!
+      !! `data` is allocated here when it arrives unallocated, to the size
+      !! the incoming message actually carries. Passing an unallocated
+      !! buffer is therefore how a caller that cannot know the size asks
+      !! for one, and matches what the blocking `recv` and the 2-D
+      !! `irecv` already do.
       type(comm_t), intent(in) :: comm
-      real(dp), intent(out) :: data(:)
+      real(dp), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
+      integer(int32) :: count
+      integer(int32) :: msg_source, msg_tag
+      type(MPI_Status) :: probe_status
 
-      call MPI_Irecv(data, size(data), MPI_DOUBLE_PRECISION, source, tag, comm%m_comm, request%m_request, ierr)
+      msg_source = source
+      msg_tag = tag
+
+      ! Sizing an unallocated buffer needs the message to have been matched,
+      ! so probe first. That blocks until the envelope arrives, not until the
+      ! data does, and the receive below is still the non-blocking one. The
+      ! probed source and tag are what the receive then asks for, so that a
+      ! wildcard cannot match a second, differently sized message between the
+      ! two calls; for a fixed pair MPI's non-overtaking rule already gives
+      ! the receive the message that was probed.
+      if (.not. allocated(data)) then
+         call MPI_Probe(source, tag, comm%m_comm, probe_status, ierr)
+         call MPI_Get_count(probe_status, MPI_DOUBLE_PRECISION, count, ierr)
+         msg_source = probe_status%MPI_SOURCE
+         msg_tag = probe_status%MPI_TAG
+         allocate (data(count))
+      end if
+
+      call MPI_Irecv(data, size(data), MPI_DOUBLE_PRECISION, msg_source, msg_tag, comm%m_comm, &
+                     request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_dp_array
 
@@ -1531,15 +1617,44 @@ contains
    end subroutine comm_irecv_real_sp
 
    subroutine comm_irecv_real_sp_array(comm, data, source, tag, request)
-      !! Non-blocking receive of a single-precision real array
+      !! Initiates a non-blocking receive operation. The request must be
+      !! waited on using wait() or test() before the buffer can be used.
+      !!
+      !! `data` is allocated here when it arrives unallocated, to the size
+      !! the incoming message actually carries. Passing an unallocated
+      !! buffer is therefore how a caller that cannot know the size asks
+      !! for one, and matches what the blocking `recv` and the 2-D
+      !! `irecv` already do.
       type(comm_t), intent(in) :: comm
-      real(sp), intent(out) :: data(:)
+      real(sp), allocatable, intent(inout) :: data(:)
       integer(int32), intent(in) :: source
       integer(int32), intent(in) :: tag
       type(request_t), intent(out) :: request
       integer(int32) :: ierr
+      integer(int32) :: count
+      integer(int32) :: msg_source, msg_tag
+      type(MPI_Status) :: probe_status
 
-      call MPI_Irecv(data, size(data), MPI_REAL, source, tag, comm%m_comm, request%m_request, ierr)
+      msg_source = source
+      msg_tag = tag
+
+      ! Sizing an unallocated buffer needs the message to have been matched,
+      ! so probe first. That blocks until the envelope arrives, not until the
+      ! data does, and the receive below is still the non-blocking one. The
+      ! probed source and tag are what the receive then asks for, so that a
+      ! wildcard cannot match a second, differently sized message between the
+      ! two calls; for a fixed pair MPI's non-overtaking rule already gives
+      ! the receive the message that was probed.
+      if (.not. allocated(data)) then
+         call MPI_Probe(source, tag, comm%m_comm, probe_status, ierr)
+         call MPI_Get_count(probe_status, MPI_REAL, count, ierr)
+         msg_source = probe_status%MPI_SOURCE
+         msg_tag = probe_status%MPI_TAG
+         allocate (data(count))
+      end if
+
+      call MPI_Irecv(data, size(data), MPI_REAL, msg_source, msg_tag, comm%m_comm, &
+                     request%m_request, ierr)
       request%is_valid = .true.
    end subroutine comm_irecv_real_sp_array
 

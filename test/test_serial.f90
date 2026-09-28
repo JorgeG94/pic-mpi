@@ -9,7 +9,7 @@
 !! is no MPI to launch it with.
 program test_serial
    use pic_types, only: int32, dp
-   use pic_mpi_lib, only: comm_t, comm_world, pic_mpi_init, pic_mpi_finalize, &
+   use pic_mpi_lib, only: comm_t, comm_world, comm_from_handle, pic_mpi_init, pic_mpi_finalize, &
                           bcast, allgather, allreduce, iprobe, MPI_Status, &
                           MPI_ANY_SOURCE, MPI_ANY_TAG
    implicit none
@@ -83,6 +83,21 @@ program test_serial
    pending = .true.
    call iprobe(comm, MPI_ANY_SOURCE, MPI_ANY_TAG, pending, status)
    call expect(.not. pending, "no message is ever pending on one rank")
+
+   ! comm_from_handle exists on this backend so that code written for the
+   ! MPI ones compiles and runs here unchanged. There is no MPI to ask, so
+   ! any handle but the null one names the single rank.
+   block
+      type(comm_t) :: from_handle
+
+      from_handle = comm_from_handle(0)
+      call expect(from_handle%is_null(), "handle 0 is the null communicator")
+
+      from_handle = comm_from_handle(1)
+      call expect(.not. from_handle%is_null(), "a non-null handle gives a usable comm")
+      call expect(from_handle%rank() == 0, "the wrapped comm is rank 0")
+      call expect(from_handle%size() == 1, "the wrapped comm has one rank")
+   end block
 
    call pic_mpi_finalize()
 

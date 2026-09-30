@@ -3,9 +3,15 @@
 !! This is the path a host application takes when it hands pic-mpi a
 !! communicator it already owns -- GAMESS/DDI passing its compute
 !! communicator, say -- rather than letting pic-mpi duplicate
-!! MPI_COMM_WORLD. The handle arrives as a plain integer, so these tests use
-!! the older `mpi` module throughout: its communicators already ARE those
-!! integers, which is exactly the shape such a caller has.
+!! MPI_COMM_WORLD.
+!!
+!! The raw MPI calls here go through `mpi_f08`, and the integer handles are
+!! taken from its MPI_VAL components. The older `mpi` module would read more
+!! naturally, since its communicators already ARE those integers -- but it
+!! cannot be used: a PIC_USE_VAPAA build links MPI::MPI_C only and vapaa
+!! supplies no legacy `mpi` module, so every `mpi`-module symbol is
+!! undefined at link time there. mpi_f08 exists in all three MPI
+!! configurations, vapaa's included.
 !!
 !! What has to hold:
 !!   - the result is a DIFFERENT communicator (congruent, not identical),
@@ -22,14 +28,11 @@
 program test_comm_from_handle
    use pic_mpi_lib, only: comm_t, comm_world, comm_from_handle, allreduce, &
                           pic_mpi_init, pic_mpi_finalize
-   use mpi, only: mpi_world => MPI_COMM_WORLD, mpi_null => MPI_COMM_NULL, &
-                  MPI_Comm_split, MPI_Comm_compare, MPI_Comm_free, MPI_Comm_rank, &
-                  MPI_Comm_size, MPI_Barrier, MPI_IDENT, MPI_CONGRUENT
-#if !defined(USE_LEGACY)
-   ! Only to name the type of comm_t%get() long enough to read MPI_VAL off
-   ! it; every MPI call below goes through the `mpi` module above.
-   use mpi_f08, only: comm_f08 => MPI_Comm
-#endif
+   use mpi_f08, only: MPI_Comm, mpi_world => MPI_COMM_WORLD, &
+                      mpi_null => MPI_COMM_NULL, &
+                      MPI_Comm_split, MPI_Comm_compare, MPI_Comm_free, &
+                      MPI_Comm_rank, MPI_Comm_size, MPI_Barrier, &
+                      MPI_IDENT, MPI_CONGRUENT
    implicit none
 
    type(comm_t) :: world_comm
@@ -94,10 +97,11 @@ contains
       type(comm_t), intent(in) :: comm
       integer :: fhandle
 #if !defined(USE_LEGACY)
-      type(comm_f08) :: held
+      type(MPI_Comm) :: held
 #endif
 
 #if defined(USE_LEGACY)
+      ! Under the legacy backend a communicator already is its handle.
       fhandle = comm%get()
 #else
       ! A component cannot be referenced on a function result directly, so
@@ -106,6 +110,17 @@ contains
       fhandle = held%MPI_VAL
 #endif
    end function handle_of
+
+   !> The same handle space seen as an mpi_f08 communicator.
+   !!
+   !! Needed to hand a pic-mpi communicator to MPI_Comm_compare, whose
+   !! arguments are type(MPI_Comm) whichever backend is active.
+   function as_mpi_comm(fhandle) result(c)
+      integer, intent(in) :: fhandle
+      type(MPI_Comm) :: c
+
+      c%MPI_VAL = fhandle
+   end function as_mpi_comm
 
    !> Report one test's outcome, agreed across all ranks.
    !!
@@ -142,7 +157,7 @@ contains
 
       ok = .true.
 
-      wrapped = comm_from_handle(mpi_world)
+      wrapped = comm_from_handle(mpi_world%MPI_VAL)
 
       if (wrapped%is_null()) then
          ok = .false.
@@ -162,7 +177,7 @@ contains
       ! The point of duplicating: same group, different context. MPI_IDENT
       ! would mean the handle was merely wrapped, and pic-mpi's traffic
       ! could then match the caller's.
-      call MPI_Comm_compare(mpi_world, handle_of(wrapped), cmp, ierr)
+      call MPI_Comm_compare(mpi_world, as_mpi_comm(handle_of(wrapped)), cmp, ierr)
       if (cmp /= MPI_CONGRUENT) then
          ok = .false.
          if (cmp == MPI_IDENT) then
@@ -187,7 +202,8 @@ contains
    !> A sub-communicator wraps just as well as world, and stays separate.
    subroutine test_wraps_split_halves()
       type(comm_t) :: wrapped
-      integer :: ierr, half, half_comm, total
+      integer :: ierr, half, total
+      type(MPI_Comm) :: half_comm
       integer :: my_rank, half_size
       logical :: ok
 
@@ -199,7 +215,7 @@ contains
 
       call MPI_Comm_split(mpi_world, half, world_comm%rank(), half_comm, ierr)
 
-      wrapped = comm_from_handle(half_comm)
+      wrapped = comm_from_handle(half_comm%MPI_VAL)
 
       call MPI_Comm_rank(half_comm, my_rank, ierr)
       call MPI_Comm_size(half_comm, half_size, ierr)
@@ -238,7 +254,8 @@ contains
    !> finalize() must free only pic-mpi's duplicate.
    subroutine test_finalize_spares_the_original()
       type(comm_t) :: wrapped
-      integer :: ierr, own_comm, cmp
+      integer :: ierr, cmp
+      type(MPI_Comm) :: own_comm
       logical :: ok
 
       ok = .true.
@@ -247,7 +264,7 @@ contains
       ! legitimate -- freeing MPI_COMM_WORLD would not be.
       call MPI_Comm_split(mpi_world, 0, world_comm%rank(), own_comm, ierr)
 
-      wrapped = comm_from_handle(own_comm)
+      wrapped = comm_from_handle(own_comm%MPI_VAL)
       call wrapped%finalize()
 
       ! The original must still be usable. A barrier on a freed communicator
@@ -283,7 +300,7 @@ contains
 
       ok = .true.
 
-      wrapped = comm_from_handle(mpi_null)
+      wrapped = comm_from_handle(mpi_null%MPI_VAL)
 
       if (.not. wrapped%is_null()) then
          ok = .false.

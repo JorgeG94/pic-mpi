@@ -16,7 +16,9 @@
 !!   - finalize() frees pic-mpi's copy and leaves the caller's alone
 !!   - a null handle yields an invalid comm_t
 !!
-!! Run with: mpirun -np 4 ./test_comm_from_handle
+!! Works at any size from 2 ranks up; CI runs it on 2.
+!!
+!! Run with: mpirun -np 2 ./test_comm_from_handle
 program test_comm_from_handle
    use pic_mpi_lib, only: comm_t, comm_world, comm_from_handle, allreduce, &
                           pic_mpi_init, pic_mpi_finalize
@@ -39,12 +41,14 @@ program test_comm_from_handle
    call pic_mpi_init()
    world_comm = comm_world()
 
-   ! Four ranks, so that splitting into halves gives two ranks per half --
-   ! with two, each "half" would be a single rank and the sums below could
-   ! not tell a correct split from a broken one.
-   if (world_comm%size() < 4) then
+   ! Two ranks is enough for every check here, and is what CI runners can
+   ! give. Nothing below assumes a particular size: the split test compares
+   ! each half's reduction against that half's own membership, which
+   ! distinguishes a correct split from a broken one at two ranks (1 vs 2)
+   ! just as it does at four (2 vs 4).
+   if (world_comm%size() < 2) then
       if (world_comm%leader()) then
-         print *, "ERROR: This test requires at least 4 MPI ranks"
+         print *, "ERROR: This test requires at least 2 MPI ranks"
       end if
       call pic_mpi_finalize()
       stop 1
@@ -207,12 +211,22 @@ contains
       end if
 
       ! Each half sums only its own members. Had the wrap leaked across
-      ! halves, this would come out as the world size instead.
+      ! halves -- or silently landed on world -- this would come out as the
+      ! world size instead. The two differ at every supported size: 1 vs 2
+      ! on two ranks, 2 vs 4 on four.
       total = 1
       call allreduce(wrapped, total)
       if (total /= half_size) then
          ok = .false.
          print *, "  Rank", world_comm%rank(), "half allreduce gave", total, "expected", half_size
+      end if
+
+      ! The check above is only worth something if the half really is
+      ! smaller than world; assert that rather than assume it.
+      if (half_size >= world_comm%size()) then
+         ok = .false.
+         print *, "  Rank", world_comm%rank(), "half is not smaller than world:", &
+            half_size, world_comm%size()
       end if
 
       call wrapped%finalize()

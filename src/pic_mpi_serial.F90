@@ -36,7 +36,7 @@ module pic_mpi_serial
    implicit none
    private
 
-   public :: comm_t, comm_world, comm_null
+   public :: comm_t, comm_world, comm_null, comm_from_handle
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
@@ -204,6 +204,10 @@ module pic_mpi_serial
       module procedure create_null_comm
    end interface
 
+   interface comm_from_handle
+      module procedure create_comm_from_handle
+   end interface
+
    interface send
       module procedure :: comm_send_integer
       module procedure :: comm_send_integer_array
@@ -360,6 +364,30 @@ contains
       comm%m_size = 1
       comm%is_valid = .true.
    end function create_world_comm
+
+   function create_comm_from_handle(fhandle) result(comm)
+   !! Builds an OWNED comm_t from a caller's Fortran MPI communicator handle.
+   !!
+   !! There is no MPI here and exactly one communicator, so there is nothing
+   !! to duplicate: any handle that is not the null one names the single
+   !! rank, and the result is the same comm_t comm_world() gives. The
+   !! signature exists so that code written against the API compiles and
+   !! runs unchanged in a serial build -- which is the whole point of this
+   !! backend.
+   !!
+   !! Not collective, unlike the real backends: there is only one rank to be
+   !! collective over. A handle naming MPI_COMM_NULL returns an invalid
+   !! comm_t.
+      integer, intent(in) :: fhandle
+      type(comm_t) :: comm
+
+      if (fhandle == MPI_COMM_NULL%v) then
+         comm = create_null_comm()
+      else
+         comm = create_world_comm()
+      end if
+
+   end function create_comm_from_handle
 
    function create_null_comm() result(comm)
    !! Creates an invalid/null communicator object that can be used

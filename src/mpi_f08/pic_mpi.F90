@@ -28,7 +28,7 @@ module pic_mpi_f08
    implicit none
    private
 
-   public :: comm_t, comm_world, comm_null
+   public :: comm_t, comm_world, comm_null, comm_from_handle
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
@@ -143,6 +143,10 @@ module pic_mpi_f08
 
    interface comm_null
       module procedure create_null_comm
+   end interface
+
+   interface comm_from_handle
+      module procedure create_comm_from_handle
    end interface
 
    interface send
@@ -305,6 +309,44 @@ contains
       comm = create_comm_from_mpi(dup_comm)
 
    end function create_world_comm
+
+   function create_comm_from_handle(fhandle) result(comm)
+   !! Builds an OWNED comm_t from a caller's Fortran MPI communicator handle.
+   !!
+   !! `fhandle` is the plain integer a caller holds for a communicator: the
+   !! result of MPI_Comm_c2f, or a communicator from the older `mpi` module.
+   !! Under mpi_f08 it is the MPI_VAL component of MPI_Comm. It is a default
+   !! integer because that is what the MPI standard makes a Fortran handle;
+   !! pinning it to a specific kind would break a build whose MPI uses a
+   !! different default integer width.
+   !!
+   !! The communicator is DUPLICATED rather than wrapped. That is what makes
+   !! the result owned: pic-mpi's messages on it cannot be confused with the
+   !! caller's, and `finalize` frees only this copy, leaving the caller's
+   !! communicator untouched. Wrapping the handle directly would have
+   !! `finalize` free a communicator pic-mpi does not own.
+   !!
+   !! COLLECTIVE over the communicator `fhandle` names, because MPI_Comm_dup
+   !! is: every rank in that communicator must call this, together.
+   !!
+   !! A handle naming MPI_COMM_NULL returns an invalid comm_t and makes no
+   !! MPI call.
+      integer, intent(in) :: fhandle
+      type(comm_t) :: comm
+      type(MPI_Comm) :: given, dup_comm
+      integer(int32) :: ierr
+
+      given%MPI_VAL = fhandle
+
+      if (given == MPI_COMM_NULL) then
+         comm = create_null_comm()
+         return
+      end if
+
+      call MPI_Comm_dup(given, dup_comm, ierr)
+      comm = create_comm_from_mpi(dup_comm)
+
+   end function create_comm_from_handle
 
    function create_null_comm() result(comm)
    !! Creates an invalid/null communicator object that can be used

@@ -26,7 +26,7 @@ module pic_mpi
    implicit none
    private
 
-   public :: comm_t, comm_world, comm_null
+   public :: comm_t, comm_world, comm_null, comm_from_handle
    public :: send, recv, isend, irecv
    public :: comm_isend_real_dp_array_n, comm_irecv_real_dp_array_n  ! Direct export for host_data blocks (nvhpc bug workaround)
    public :: comm_isend_real_sp_array_n, comm_irecv_real_sp_array_n  ! Single precision equivalents
@@ -152,6 +152,10 @@ module pic_mpi
 
    interface comm_null
       module procedure create_null_comm
+   end interface
+
+   interface comm_from_handle
+      module procedure create_comm_from_handle
    end interface
 
    interface send
@@ -341,6 +345,35 @@ contains
       comm = create_comm_from_mpi(dup_comm)
 
    end function create_world_comm
+
+   function create_comm_from_handle(fhandle) result(comm)
+   !! Builds an OWNED comm_t from a caller's Fortran MPI communicator handle.
+   !!
+   !! Under the legacy `mpi` module a communicator already IS this integer,
+   !! so no conversion is needed -- but the duplication still is. See the
+   !! mpi_f08 backend for the full rationale: the result owns its
+   !! communicator, so `finalize` frees pic-mpi's copy and never the
+   !! caller's.
+   !!
+   !! COLLECTIVE over the communicator `fhandle` names, because MPI_Comm_dup
+   !! is: every rank in that communicator must call this, together.
+   !!
+   !! A handle naming MPI_COMM_NULL returns an invalid comm_t and makes no
+   !! MPI call.
+      integer, intent(in) :: fhandle
+      type(comm_t) :: comm
+      integer :: dup_comm
+      integer(int32) :: ierr
+
+      if (fhandle == MPI_COMM_NULL) then
+         comm = create_null_comm()
+         return
+      end if
+
+      call MPI_Comm_dup(fhandle, dup_comm, ierr)
+      comm = create_comm_from_mpi(dup_comm)
+
+   end function create_comm_from_handle
 
    function create_null_comm() result(comm)
       type(comm_t) :: comm

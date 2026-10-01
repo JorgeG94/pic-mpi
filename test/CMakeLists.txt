@@ -19,8 +19,18 @@ find_package(MPI REQUIRED)
 
 # Macro to add an MPI test
 macro(add_mpi_test test_name num_procs)
-  add_executable(${test_name} ${test_name}.f90)
+  # A test that has to reach past the pic-mpi API to the MPI underneath needs to
+  # know which backend is active, so it is a .F90 and gets the same USE_LEGACY
+  # the library does. Plain .f90 tests are unaffected.
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${test_name}.F90)
+    add_executable(${test_name} ${test_name}.F90)
+  else()
+    add_executable(${test_name} ${test_name}.f90)
+  endif()
   target_link_libraries(${test_name} PRIVATE ${main_lib})
+  if(PIC_USE_LEGACY_MPI)
+    target_compile_definitions(${test_name} PRIVATE USE_LEGACY)
+  endif()
 
   add_test(
     NAME ${test_name}
@@ -41,3 +51,7 @@ add_mpi_test(test_rma_accumulate 2)
 add_mpi_test(test_collectives 2)
 # add_mpi_test(test_communicators 2)
 add_mpi_test(test_point_to_point 2)
+
+# Two ranks, matching every other test here: that is what GitHub's runners can
+# give, and every check in this one is meaningful at that size.
+add_mpi_test(test_comm_from_handle 2)

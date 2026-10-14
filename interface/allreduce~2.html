@@ -93,15 +93,15 @@
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pic_mpi.F90"> Source File</a>
+              <a href="../src/pic_mpi_legacy.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi.f90.html'>pic_mpi.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
             <li class="breadcrumb-item active" aria-current="page">allreduce</li>
           </ol>
         </nav>
@@ -586,7 +586,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~167"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -616,7 +616,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~19"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -656,7 +656,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~168"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -685,7 +685,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~102"></span>
+              <span class="anchor" id="variable-count~106"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -701,7 +701,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~20"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -741,7 +741,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~173"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -771,7 +771,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~25"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -811,7 +811,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~174"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -840,7 +840,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~105"></span>
+              <span class="anchor" id="variable-count~109"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -856,7 +856,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~26"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -896,7 +896,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~169"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -926,7 +926,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~21"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -966,7 +966,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~170"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -995,7 +995,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~103"></span>
+              <span class="anchor" id="variable-count~107"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1011,7 +1011,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~22"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -1051,7 +1051,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~171"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1096,7 +1096,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~23"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -1136,7 +1136,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~172"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1180,7 +1180,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~104"></span>
+              <span class="anchor" id="variable-count~108"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1196,7 +1196,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~24"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -1236,7 +1236,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~175"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1281,7 +1281,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~27"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -1321,7 +1321,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-comm~176"></span>
-              type(<a href='../type/comm_t~2.html'>comm_t</a>),
+              type(<a href='../type/comm_t.html'>comm_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -1365,7 +1365,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~106"></span>
+              <span class="anchor" id="variable-count~110"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1381,7 +1381,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-op~28"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -1417,7 +1417,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-10-01 00:05 +0000             </p>
+ on 2026-10-14 21:57 +0000             </p>
           </div>
         </div>
         <br>

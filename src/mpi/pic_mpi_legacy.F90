@@ -134,6 +134,7 @@ module pic_mpi
       procedure :: leader => comm_leader !! Check if this rank is leader (rank 0)
       procedure :: is_null => comm_is_null !! Check if communicator is null
       procedure :: get => comm_get !! Get underlying MPI communicator handle
+      procedure :: fortran_handle => comm_get !! Same thing: the legacy module's own handle IS the plain integer
 
       procedure :: barrier => comm_barrier !! Synchronization barrier
 

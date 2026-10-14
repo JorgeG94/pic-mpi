@@ -125,6 +125,7 @@ module pic_mpi_f08
       procedure :: leader => comm_leader !! Check if this rank is leader (rank 0)
       procedure :: is_null => comm_is_null !! Check if communicator is null
       procedure :: get => comm_get !! Get underlying MPI_Comm
+      procedure :: fortran_handle => comm_fortran_handle !! Plain integer handle, for a handle-based API
 
       procedure :: barrier => comm_barrier !! Synchronization barrier
 
@@ -397,6 +398,22 @@ contains
       end if
       mpi_comm_out = this%m_comm
    end function comm_get
+
+   function comm_fortran_handle(this) result(fh)
+   !! The plain default-integer handle this communicator is known by --
+   !! what `comm_from_handle` takes back, and what a handle-based API (one
+   !! that is not itself written against pic-mpi, such as MPI_Comm_c2f's C
+   !! callers) expects. Under mpi_f08 this is MPI_Comm's MPI_VAL component;
+   !! the MPI standard guarantees it is the same integer the legacy `mpi`
+   !! module would hand back for the same communicator, so a caller on
+   !! either backend gets a value usable the same way.
+      class(comm_t), intent(in) :: this
+      integer :: fh
+      if (.not. this%is_valid) then
+         error stop "Cannot get a Fortran handle from a null Comm"
+      end if
+      fh = this%m_comm%MPI_VAL
+   end function comm_fortran_handle
 
    subroutine comm_barrier(this)
    !! Blocks until all processes in the communicator have called barrier

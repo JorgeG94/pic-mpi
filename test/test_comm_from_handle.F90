@@ -21,6 +21,7 @@
 !!   - it works for a sub-communicator, not just world
 !!   - finalize() frees pic-mpi's copy and leaves the caller's alone
 !!   - a null handle yields an invalid comm_t
+!!   - fortran_handle() gives back the integer comm_from_handle takes
 !!
 !! Works at any size from 2 ranks up; CI runs it on 2.
 !!
@@ -70,6 +71,7 @@ program test_comm_from_handle
    call test_wraps_split_halves()
    call test_finalize_spares_the_original()
    call test_null_handle()
+   call test_fortran_handle_round_trip()
 
    call world_comm%barrier()
 
@@ -309,5 +311,44 @@ contains
 
       call report("a null handle gives an invalid comm_t", ok)
    end subroutine test_null_handle
+
+   !> fortran_handle() is the way back: comm_t -> plain integer handle.
+   !!
+   !! It must be the same integer the backend's own communicator carries,
+   !! and comm_from_handle must accept it and give a communicator congruent
+   !! with the one it came from.
+   subroutine test_fortran_handle_round_trip()
+      type(comm_t) :: wrapped
+      integer :: ierr, cmp, fh
+      logical :: ok
+
+      ok = .true.
+
+      fh = world_comm%fortran_handle()
+      if (fh /= handle_of(world_comm)) then
+         ok = .false.
+         print *, "  Rank", world_comm%rank(), "fortran_handle", fh, "is not get()'s", &
+            handle_of(world_comm)
+      end if
+
+      wrapped = comm_from_handle(fh)
+      if (wrapped%is_null()) then
+         ok = .false.
+         print *, "  Rank", world_comm%rank(), "round-tripped handle came back null"
+      else
+         call MPI_Comm_compare(as_mpi_comm(fh), as_mpi_comm(wrapped%fortran_handle()), cmp, ierr)
+         if (cmp /= MPI_CONGRUENT) then
+            ok = .false.
+            print *, "  Rank", world_comm%rank(), "round trip not congruent:", cmp
+         end if
+         if (wrapped%rank() /= world_comm%rank() .or. wrapped%size() /= world_comm%size()) then
+            ok = .false.
+            print *, "  Rank", world_comm%rank(), "round trip changed rank or size"
+         end if
+         call wrapped%finalize()
+      end if
+
+      call report("fortran_handle round-trips through comm_from_handle", ok)
+   end subroutine test_fortran_handle_round_trip
 
 end program test_comm_from_handle

@@ -93,15 +93,15 @@
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pic_mpi.F90"> Source File</a>
+              <a href="../src/pic_mpi_legacy.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi.f90.html'>pic_mpi.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/pic_mpi_f08.html'>pic_mpi_f08</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pic_mpi_legacy.f90.html'>pic_mpi_legacy.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pic_mpi.html'>pic_mpi</a></li>
             <li class="breadcrumb-item active" aria-current="page">win_accumulate_dp</li>
           </ol>
         </nav>
@@ -131,7 +131,7 @@
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../proc/win_accumulate_dp.html#variable-ierr~101">ierr</a>
-            <a class="list-group-item" href="../proc/win_accumulate_dp.html#variable-op_used">op_used</a>
+            <a class="list-group-item" href="../proc/win_accumulate_dp.html#variable-mpi_op">mpi_op</a>
         </div>
       </div>
     </div>
@@ -173,7 +173,7 @@
 
 
     <h3>Type Bound</h3>
-    <p><a href='../type/win_t~2.html'>win_t</a></p>
+    <p><a href='../type/win_t.html'>win_t</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -188,8 +188,8 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~30"></span>
-              class(<a href='../type/win_t~2.html'>win_t</a>),
+              <span class="anchor" id="variable-this~29"></span>
+              class(<a href='../type/win_t.html'>win_t</a>),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -204,7 +204,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-target_rank~5"></span>
-              integer(kind=int32),
+              integer,
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -234,7 +234,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-count~35"></span>
-              integer(kind=int32),
+              integer,
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -264,7 +264,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-op"></span>
-              type(MPI_Op),
+              integer,
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
@@ -415,7 +415,7 @@ large graphs.</div>
         <tr>
             <td>
               <span class="anchor" id="variable-ierr~101"></span>
-              integer(kind=int32),
+              integer,
             </td>
               <td>private</td>
             <td>
@@ -431,15 +431,15 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-op_used"></span>
-              type(MPI_Op),
+              <span class="anchor" id="variable-mpi_op"></span>
+              integer,
             </td>
               <td>private</td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>op_used</strong></td>
+            <td><strong>mpi_op</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -464,23 +464,23 @@ large graphs.</div>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">win_accumulate_dp</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">target_rank</span><span class="p">,</span><span class="w"> </span><span class="n">target_disp</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">)</span>
 <span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">win_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_rank</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_rank</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_disp</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
 <span class="nb">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MPI_Op</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">op</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MPI_Op</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">op_used</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">op</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_op</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr</span>
 
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">op</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">op_used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op</span>
+<span class="k">         </span><span class="n">mpi_op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">op_used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_SUM</span>
+<span class="k">         </span><span class="n">mpi_op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_SUM</span>
 <span class="w">      </span><span class="k">end if</span>
 
 <span class="k">      call </span><span class="n">MPI_Accumulate</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">                          </span><span class="n">target_rank</span><span class="p">,</span><span class="w"> </span><span class="n">target_disp</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                          </span><span class="n">op_used</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">m_win</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">                          </span><span class="n">mpi_op</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">m_win</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">win_accumulate_dp</span>
 </pre></div>
 
@@ -505,7 +505,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2026-10-14 21:57 +0000             </p>
+ on 2026-10-14 22:14 +0000             </p>
           </div>
         </div>
         <br>

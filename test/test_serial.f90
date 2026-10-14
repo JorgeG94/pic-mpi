@@ -9,12 +9,12 @@
 !! is no MPI to launch it with.
 program test_serial
    use pic_types, only: int32, dp
-   use pic_mpi_lib, only: comm_t, comm_world, pic_mpi_init, pic_mpi_finalize, &
+   use pic_mpi_lib, only: comm_t, comm_world, comm_from_handle, pic_mpi_init, pic_mpi_finalize, &
                           bcast, allgather, allreduce, iprobe, MPI_Status, &
                           MPI_ANY_SOURCE, MPI_ANY_TAG
    implicit none
 
-   type(comm_t) :: comm
+   type(comm_t) :: comm, again
    type(MPI_Status) :: status
    integer(int32) :: ivalue, mine, gathered(1)
    real(dp) :: dvalue, dsend(3), drecv(3)
@@ -83,6 +83,17 @@ program test_serial
    pending = .true.
    call iprobe(comm, MPI_ANY_SOURCE, MPI_ANY_TAG, pending, status)
    call expect(.not. pending, "no message is ever pending on one rank")
+
+   ! --- a handle goes out and comes back -----------------------------------
+   !
+   ! A handle-based API is handed comm%fortran_handle(); whatever comes back
+   ! through comm_from_handle must name the same single rank, not null.
+   call expect(comm%fortran_handle() /= 0, &
+               "fortran_handle is not the null handle")
+   again = comm_from_handle(comm%fortran_handle())
+   call expect(.not. again%is_null() .and. again%size() == 1, &
+               "comm_from_handle takes fortran_handle's value back")
+   call again%finalize()
 
    call pic_mpi_finalize()
 

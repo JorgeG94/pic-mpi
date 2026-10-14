@@ -184,6 +184,7 @@ module pic_mpi_serial
       procedure :: leader => comm_leader !! Check if this rank is leader (rank 0)
       procedure :: is_null => comm_is_null !! Check if communicator is null
       procedure :: get => comm_get !! Get underlying MPI_Comm
+      procedure :: fortran_handle => comm_fortran_handle !! Plain integer handle, for a handle-based API
 
       procedure :: barrier => comm_barrier !! Synchronization barrier
 
@@ -435,6 +436,18 @@ contains
 
       mpi_comm_out = this%m_comm
    end function comm_get
+
+   function comm_fortran_handle(this) result(fh)
+   !! The plain integer handle this communicator is known by. There is no
+   !! real MPI underneath, so any value other than MPI_COMM_NULL's (0) names
+   !! the single rank -- matching this backend's own `comm_from_handle`.
+      class(comm_t), intent(in) :: this
+      integer :: fh
+      if (.not. this%is_valid) then
+         error stop "Cannot get a Fortran handle from a null Comm"
+      end if
+      fh = 1
+   end function comm_fortran_handle
 
    subroutine comm_barrier(this)
    !! Blocks until all processes in the communicator have called barrier

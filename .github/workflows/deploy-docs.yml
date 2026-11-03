@@ -5,11 +5,30 @@ on:
     branches:
       - main
 
+# The built site is handed to GitHub Pages as an artifact instead of being
+# committed to a branch.
+#
+# FORD rewrites every file in the site on every run, so each deploy used to add
+# a fresh copy of the whole site to the gh-pages-docs branch. A plain `git clone`
+# fetches every branch, so anyone cloning pic-mpi paid for all of those copies on
+# top of the source they actually wanted -- in pic the same setup had taken the
+# repository to ~90 MB against 25 MB of real history. Pages storage is not git,
+# so nothing published here reaches a clone.
 permissions:
-  contents: write  # needed to push to gh-pages
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time, and never cancel one that is already
+# running: deploy-pages publishes to the live site, so a cancelled run can
+# leave the deployment half-finished. Pushes that arrive while one is in
+# flight queue instead, and only the newest of them runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,9 +52,20 @@ jobs:
       - name: Build FORD docs
         run: ford ford.md
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload the site as a Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/fpm-ford
-          publish_branch: gh-pages-docs
+          path: ./docs/fpm-ford
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

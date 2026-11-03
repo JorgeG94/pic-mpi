@@ -39,3 +39,6 @@ build*/
 
 # debug information files
 *.dwo
+
+# Generated FORD documentation
+docs/fpm-ford/
